@@ -10,19 +10,20 @@ namespace AoC_2021
     {
         static void Main(string[] args)
         {
-            var testType = typeof(Day2.Day2);
+            var prms = new Params(args);
+            var dayNumber = ((BasePathAttribute)(prms.DayType).GetCustomAttribute(typeof(BasePathAttribute))).Path;
+            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), dayNumber);
 
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), ((BasePathAttribute)testType.GetCustomAttribute(typeof(BasePathAttribute))).Path);
-
-            foreach(TestFileAttribute testFile in testType.GetCustomAttributes(typeof(TestFileAttribute)))
+            Console.WriteLine($"----- {dayNumber} -----");
+            foreach (TestFileAttribute testFile in prms.DayType.GetCustomAttributes(typeof(TestFileAttribute)))
             {
                 Console.WriteLine($"--- {testFile.Name} ---");
 
-                IDay day = (IDay)Activator.CreateInstance(testType, Path.Combine(path, testFile.File));
+                IDay day = (IDay)Activator.CreateInstance(prms.DayType, Path.Combine(path, testFile.File));
 
                 TryRun("Part1", day.Part1, testFile.Name);
                 TryRun("Part2", day.Part2, testFile.Name);
-            } 
+            }
         }
 
         private static void TryRun(string label, Func<string> action, string testName)
@@ -41,7 +42,7 @@ namespace AoC_2021
                     var success = result.Equals(expected.Result, StringComparison.InvariantCultureIgnoreCase);
                     Console.ForegroundColor = success ? ConsoleColor.Green : ConsoleColor.Red;
                     Console.Write($"\t{label}:");
-                    Console.WriteLine( success
+                    Console.WriteLine(success
                         ? $" [[ {result} ]]"
                         : $" {result} != {expected.Result}");
                     Console.ResetColor();
@@ -54,6 +55,52 @@ namespace AoC_2021
                 Console.ResetColor();
                 Console.WriteLine($" {label}");
             }
+        }
+
+
+        private class Params
+        {
+            private int? _dayOfMonth;
+            private Type _dayType = null;
+            public Type DayType
+            {
+                get
+                {
+                    if (this._dayType != null)
+                        return _dayType;
+                    var day = this._dayOfMonth ?? DateTime.Now.Day;
+                    Type result = null;
+                    do
+                    {
+                        result = Type.GetType($"AoC_2021.Day{day}.Day{day}");
+                        if (result == null)
+                            day--;
+
+                    } while (day > 0 && result == null);
+                    this._dayType = result;
+                    return result;
+                }
+            }
+
+            public Params(string[] args)
+            {
+                this._dayOfMonth = args.GetKey("day").ToNullable<int>();
+            }
+        }
+    }
+
+    public static class Extensions
+    {
+        public static string GetKey(this string[] args, string key)
+        {
+            return args.Where(a => a.StartsWith($"-{key}")).Select(a => a.Trim().Split("=")[1]).FirstOrDefault();
+        }
+
+        public static Nullable<T> ToNullable<T> (this string value) where T: struct, IConvertible
+        {
+            return value != null
+                ? (T?) Convert.ChangeType(value, typeof(T))
+                : (T?) null;
         }
     }
 }

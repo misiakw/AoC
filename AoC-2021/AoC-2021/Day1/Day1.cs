@@ -11,7 +11,7 @@ namespace AoC_2021.Day1
     [BasePath("Day1")]
     [TestFile(File = "example.txt", Name = "Example")]
     [TestFile(File = "Input.txt", Name = "Input")]
-    public class Day1 : LongDay
+    public class Day1 : BaseTypeDay<long>
     {
         public Day1(string path) : base(path)
         {}
