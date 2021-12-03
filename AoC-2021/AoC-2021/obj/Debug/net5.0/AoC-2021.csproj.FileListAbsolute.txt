@@ -18,3 +18,5 @@ C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\bin\Debug\net5.0\Da
 C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\bin\Debug\net5.0\Day1\Input.txt
 C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\bin\Debug\net5.0\Day2\example.txt
 C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\bin\Debug\net5.0\Day2\Input.txt
+C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\bin\Debug\net5.0\Day3\example.txt
+C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\bin\Debug\net5.0\Day3\Input.txt
