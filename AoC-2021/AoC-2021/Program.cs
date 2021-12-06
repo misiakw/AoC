@@ -1,5 +1,6 @@
 ﻿using AoC_2021.Attributes;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,14 +16,22 @@ namespace AoC_2021
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), dayNumber);
 
             Console.WriteLine($"----- {dayNumber} -----");
+            var dayTests = new List<Tuple<IDay, TestFileAttribute>>();
             foreach (TestFileAttribute testFile in prms.DayType.GetCustomAttributes(typeof(TestFileAttribute)))
             {
-                Console.WriteLine($"--- {testFile.Name} ---");
-
                 IDay day = (IDay)Activator.CreateInstance(prms.DayType, Path.Combine(path, testFile.File));
+                dayTests.Add(Tuple.Create(day, testFile));
+            }
 
-                TryRun("Part1", day.Part1, testFile.Name);
-                TryRun("Part2", day.Part2, testFile.Name);
+            Console.WriteLine("--- Part1 ---");
+            foreach (var tuple in dayTests)
+            {
+                TryRun(tuple.Item2.Name, tuple.Item1.Part1, tuple.Item2.Name);
+            }
+            Console.WriteLine("--- Part2 ---");
+            foreach (var tuple in dayTests)
+            {
+                TryRun(tuple.Item2.Name, tuple.Item1.Part2, tuple.Item2.Name);
             }
         }
 
@@ -38,22 +47,30 @@ namespace AoC_2021
                 }
                 else
                 {
+                    var start = DateTime.Now;
                     var result = action();
+                    var stop = DateTime.Now;
+                    var span = new TimeSpan(stop.Ticks - start.Ticks);
                     var success = result.Equals(expected.Result, StringComparison.InvariantCultureIgnoreCase);
                     Console.ForegroundColor = success ? ConsoleColor.Green : ConsoleColor.Red;
                     Console.Write($"\t{label}:");
-                    Console.WriteLine(success
+                    Console.Write(success
                         ? $" [[ {result} ]]"
                         : $" {result} != {expected.Result}");
+                    Console.WriteLine($" running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
                     Console.ResetColor();
                 }
             }
-            catch
+            catch(Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write($"\tFAILED:");
                 Console.ResetColor();
                 Console.WriteLine($" {label}");
+                if(e is not NotImplementedException)
+                {
+                    Console.WriteLine(e);
+                }
             }
         }
 

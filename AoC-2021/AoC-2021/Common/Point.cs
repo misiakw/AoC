@@ -8,7 +8,17 @@ namespace AoC_2021.Common
 {
     public class Point
     {
-        public long X { get; set; }
-        public long Y { get; set; }
+        public Point(long X, long Y)
+        {
+            this.X = X;
+            this.Y = Y;
+        }
+        public Point (string[] pos)
+        {
+            this.X = long.Parse(pos[0].Trim());
+            this.Y = long.Parse(pos[1].Trim());
+        }
+        public long X { get; protected set; }
+        public long Y { get; protected set; }
     }
 }
