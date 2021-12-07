@@ -25,7 +25,7 @@ namespace AoC_2021.Day6
             var days = 80;
             
             var groups = this.RawInput.Trim().Split(",").Select(s =>int.Parse(s)).GroupBy(l => l);
-            var size = 0l;
+            var size = 0L;
 
             foreach(var group in groups)
             {
@@ -43,7 +43,7 @@ namespace AoC_2021.Day6
             var days = 256;
 
             var groups = this.RawInput.Trim().Split(",").Select(s => int.Parse(s)).GroupBy(l => l);
-            var size = 0l;
+            var size = 0L;
 
             foreach (var group in groups)
             {

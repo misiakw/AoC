@@ -41,16 +41,17 @@ namespace AoC_2021
 
             try
             {
+                var start = DateTime.Now;
+                var result = action();
+                var stop = DateTime.Now;
+                var span = new TimeSpan(stop.Ticks - start.Ticks);
+
                 if (expected == null)
                 {
-                    Console.WriteLine($"\t{label}: [[ {action()} ]]");
+                    Console.WriteLine($"\t{label}: [[ {result} ]] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
                 }
                 else
-                {
-                    var start = DateTime.Now;
-                    var result = action();
-                    var stop = DateTime.Now;
-                    var span = new TimeSpan(stop.Ticks - start.Ticks);
+                {                   
                     var success = result.Equals(expected.Result, StringComparison.InvariantCultureIgnoreCase);
                     Console.ForegroundColor = success ? ConsoleColor.Green : ConsoleColor.Red;
                     Console.Write($"\t{label}:");

@@ -26,3 +26,5 @@ C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\obj\Debug\net5.0\re
 C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\obj\Debug\net5.0\AoC-2021.pdb
 C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\obj\Debug\net5.0\AoC-2021.genruntimeconfig.cache
 C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\obj\Debug\net5.0\AoC-2021.csproj.AssemblyReference.cache
+C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\bin\Debug\net5.0\Day7\example.txt
+C:\Users\michal.wojtowicz\source\repos\AoC\AoC-2021\AoC-2021\bin\Debug\net5.0\Day7\Input.txt
