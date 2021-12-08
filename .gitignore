@@ -51,6 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 **/__pycache__
-**/obj
-**/bin
-**/.vs
+**/obj/*
+**/bin/*
+**/.vs/*
