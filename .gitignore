@@ -50,5 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-/AoC2015/__pycache__
-/AoC-2021/AoC-2021/obj
+**/__pycache__
+**/obj
+**/bin
+**/.vs
