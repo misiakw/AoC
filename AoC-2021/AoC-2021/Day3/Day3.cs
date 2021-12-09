@@ -23,7 +23,7 @@ namespace AoC_2021.Day3
 
         [ExpectedResult(TestName = "Example", Result = "198")]
         [ExpectedResult(TestName = "Input", Result = "4174964")]
-        public override string Part1()
+        public override string Part1(string testName = null)
         {
             string gamma = "";
             string epsilon = "";
@@ -51,7 +51,7 @@ namespace AoC_2021.Day3
 
         [ExpectedResult(TestName = "Example", Result = "230")]
         [ExpectedResult(TestName = "Input", Result = "4474944")]
-        public override string Part2()
+        public override string Part2(string testName = null)
         {
             var oxygen = this.LineInput.ToList();
             var co2 = this.LineInput.ToList();

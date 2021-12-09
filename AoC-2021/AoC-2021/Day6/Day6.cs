@@ -20,7 +20,7 @@ namespace AoC_2021.Day6
 
         [ExpectedResult(TestName = "Example", Result = "5934")]
         [ExpectedResult(TestName = "Input", Result = "358214")]
-        public override string Part1()
+        public override string Part1(string testName)
         {
             var days = 80;
             
@@ -38,7 +38,7 @@ namespace AoC_2021.Day6
 
         [ExpectedResult(TestName = "Example", Result = "26984457539")]
         [ExpectedResult(TestName = "Input", Result = "1622533344325")]
-        public override string Part2()
+        public override string Part2(string testName)
         {
             var days = 256;
 

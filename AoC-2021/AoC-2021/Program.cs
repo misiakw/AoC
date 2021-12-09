@@ -35,14 +35,14 @@ namespace AoC_2021
             }
         }
 
-        private static void TryRun(string label, Func<string> action, string testName)
+        private static void TryRun(string label, Func<string, string> action, string testName)
         {
             var expected = action.Method.GetCustomAttributes<ExpectedResultAttribute>().FirstOrDefault(a => a.TestName.Equals(testName, StringComparison.InvariantCultureIgnoreCase));
 
             try
             {
                 var start = DateTime.Now;
-                var result = action();
+                var result = action(testName);
                 var stop = DateTime.Now;
                 var span = new TimeSpan(stop.Ticks - start.Ticks);
 

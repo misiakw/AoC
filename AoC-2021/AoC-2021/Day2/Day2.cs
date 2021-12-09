@@ -22,7 +22,7 @@ namespace AoC_2021.Day2
         }
 
         [ExpectedResult(TestName = "Example", Result = "150")]
-        public override string Part1()
+        public override string Part1(string testName = null)
         {
             long x = 0;
             long y = 0;
@@ -46,7 +46,7 @@ namespace AoC_2021.Day2
         }
 
         [ExpectedResult(TestName = "Example", Result = "900")]
-        public override string Part2()
+        public override string Part2(string testName = null)
         {
             long x = 0;
             long y = 0;

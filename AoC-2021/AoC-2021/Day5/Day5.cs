@@ -28,7 +28,7 @@ namespace AoC_2021.Day5
 
         [ExpectedResult(TestName = "Example", Result = "5")]
         [ExpectedResult(TestName = "Input", Result = "5608")]
-        public override string Part1()
+        public override string Part1(string testName)
         {
             
             foreach (var horizontal in this.Input.Where(t => t.Item1.Y == t.Item2.Y))
@@ -60,7 +60,7 @@ namespace AoC_2021.Day5
 
         [ExpectedResult(TestName = "Example", Result = "12")]
         [ExpectedResult(TestName = "Input", Result = "20299")]
-        public override string Part2()
+        public override string Part2(string testName)
         {
             foreach(var diag in this.Input.Where(t => IsDiagoal(t)))
             {

@@ -26,7 +26,7 @@ namespace AoC_2021.Day7
 
         [ExpectedResult(TestName = "Example", Result = "37")]
         [ExpectedResult(TestName = "Input", Result = "343605")]
-        public override string Part1()
+        public override string Part1(string testName)
         {
             var minFuel = long.MaxValue;
             for(var x=Min; x<=Max; x++)
@@ -40,7 +40,7 @@ namespace AoC_2021.Day7
 
         [ExpectedResult(TestName = "Example", Result = "168")]
         [ExpectedResult(TestName = "Input", Result = "96744904")]
-        public override string Part2()
+        public override string Part2(string testName)
         {
             var minFuel = long.MaxValue;
             for (var x = Min; x <= Max; x++)

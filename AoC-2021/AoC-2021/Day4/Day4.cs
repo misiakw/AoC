@@ -27,7 +27,7 @@ namespace AoC_2021.Day4
 
         [ExpectedResult(TestName = "Example", Result = "4512")]
         [ExpectedResult(TestName = "Input", Result = "38913")]
-        public override string Part1()
+        public override string Part1(string testName)
         {
             foreach(var select in this.numbers)
                 foreach(var board in this.boards)
@@ -44,7 +44,7 @@ namespace AoC_2021.Day4
 
         [ExpectedResult(TestName = "Example", Result = "1924")]
         [ExpectedResult(TestName = "Input", Result = "16836")]
-        public override string Part2()
+        public override string Part2(string testName)
         {
             BingoBoard lastWon = this.boards.First();
             long lastNum = 0;

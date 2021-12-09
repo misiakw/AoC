@@ -7,15 +7,17 @@ namespace AoC_2021
     {
         protected string RawInput { private set; get; }
         protected IReadOnlyList<string> LineInput { private set; get; }
+        protected readonly string InputDir = string.Empty;
 
         public DayBase(string filePath)
         {
+            this.InputDir = Path.GetDirectoryName(filePath);
             this.RawInput = File.ReadAllText(filePath);
             LineInput = this.RawInput.Split("\n").Select(l => l.Trim()).ToList();
         }
 
-        public abstract string Part1();
+        public abstract string Part1(string testName);
 
-        public abstract string Part2();
+        public abstract string Part2(string testName);
     }
 }

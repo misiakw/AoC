@@ -37,7 +37,7 @@ namespace AoC_2021.Day8
 
         [ExpectedResult(TestName = "Example", Result = "26")]
         [ExpectedResult(TestName = "Input", Result = "369")]
-        public override string Part1()
+        public override string Part1(string testName)
         {
             var easy = 0L;
             foreach (var entry in this.Input)
@@ -54,7 +54,7 @@ namespace AoC_2021.Day8
         [ExpectedResult(TestName = "Easy", Result = "5353")]
         [ExpectedResult(TestName = "Example", Result = "61229")]
         [ExpectedResult(TestName = "Input", Result = "1031553")]
-        public override string Part2()
+        public override string Part2(string testName)
         {
             var permutates = Permutate("abcdefg");
             var sum = 0;
