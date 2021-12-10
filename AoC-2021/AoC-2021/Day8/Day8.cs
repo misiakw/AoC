@@ -42,10 +42,10 @@ namespace AoC_2021.Day8
             var easy = 0L;
             foreach (var entry in this.Input)
             {
-                easy += entry.Output.Where(o => o.Length == DIGITS[1].Length).Count();
-                easy += entry.Output.Where(o => o.Length == DIGITS[7].Length).Count();
-                easy += entry.Output.Where(o => o.Length == DIGITS[4].Length).Count();
-                easy += entry.Output.Where(o => o.Length == DIGITS[8].Length).Count();
+                easy += entry.Output.Where(o => o.Length == 2).Count(); // 1
+                easy += entry.Output.Where(o => o.Length == 3).Count(); // 7
+                easy += entry.Output.Where(o => o.Length == 4).Count(); // 4
+                easy += entry.Output.Where(o => o.Length == 7).Count(); // 7
             }
 
             return easy.ToString();
@@ -56,16 +56,31 @@ namespace AoC_2021.Day8
         [ExpectedResult(TestName = "Input", Result = "1031553")]
         public override string Part2(string testName)
         {
-            var permutates = Permutate("abcdefg");
             var sum = 0;
-
-            foreach(var entry in this.Input)
+            foreach (var entry in Input)
             {
-                var pattern  = entry.Match(permutates);
+                var codes = entry.Patterns.Select(p => p.Contents).Distinct().ToList();
+                var cf = codes.First(c => c.Length == 2);
+                var acf = codes.First(c => c.Length == 3);
+                var bcdf = codes.First(c => c.Length == 4);
+                var bc = Remove(bcdf, cf);
+                var adg = Common(codes.Where(c => c.Length == 5).ToArray());
+                var bf = Remove(Common(codes.Where(c => c.Length == 6).ToArray()), adg);
+
+                var A = Remove(acf, cf);
+                var G = Remove(adg, A + bcdf);
+                var D = Remove(adg, A + G);
+                var B = Remove(bcdf, cf + D);
+                var F = Remove(bf, B);
+                var C = Remove(cf, F);
+                var E = Remove(codes.First(c => c.Length == 7), A + B + C + D + F + G);
+
+                var key = $"{A}{B}{C}{D}{E}{F}{G}";
+
                 var entryOutput = 0;
-                foreach(var output in entry.Output)
+                foreach (var output in entry.Output)
                 {
-                    entryOutput = entryOutput * 10 + output.GetMatch(pattern).Value;
+                    entryOutput = entryOutput * 10 + output.GetMatch(key).Value;
                 }
                 sum += entryOutput;
             }
@@ -73,29 +88,22 @@ namespace AoC_2021.Day8
             return sum.ToString();
         }
 
-
-        public IList<string> Permutate(string input)
+        private string Remove(string input, string toRemove)
         {
-            var result = new List<string>();
-
-            if(input.Length == 1)
-            {
-                result.Add(input);
-                return result;
-            }
-            
-            foreach(var ch in input)
-            {
-                var tails = Permutate(input.Replace($"{ch}", ""));
-                foreach(var tail in tails)
-                {
-                    result.Add($"{ch}{tail}");
-                }
-            }
-
-            return result;
+            foreach (var ch in toRemove)
+                input = input.Replace($"{ch}", "");
+            return input;
         }
 
+        private string Common(string[] group)
+        {
+            var result = group[0];
+            foreach (var set in group)
+                foreach (var ch in result)
+                    if (!set.Contains(ch))
+                        result = result.Replace($"{ch}", "");
+            return result;
+        }
 
         public class Entry
         {
@@ -105,26 +113,6 @@ namespace AoC_2021.Day8
             {
                 Patterns = patterns.Select(s => new Digit(s)).OrderBy(d => d.Potential.Count).ToList();
                 Output = output.Select(s => new Digit(s)).ToList();
-            }
-
-            public string Match(IList<string> permutations)
-            {
-                foreach(var permutation in permutations)
-                {
-                    if (MatchAllPattern(permutation))
-                        return permutation;
-                    else
-                        continue;
-                }
-                return "";
-            }
-
-            private bool MatchAllPattern(string permutation)
-            {
-                foreach (var pattern in Patterns)
-                    if (!pattern.GetMatch(permutation).HasValue)
-                        return false;
-                return true;
             }
         }
 
