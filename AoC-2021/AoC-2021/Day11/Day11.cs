@@ -67,7 +67,7 @@ namespace AoC_2021.Day11
             return flashes.ToString();
         }
         [ExpectedResult(TestName = "Example", Result = "195")]
-        //[ExpectedResult(TestName = "Input", Result = "216297")]
+        [ExpectedResult(TestName = "Input", Result = "312")]
         public override string Part2(string testName)
         {
             int day = 100;
