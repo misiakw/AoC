@@ -20,5 +20,12 @@ namespace AoC_2021.Common
         }
         public long X { get; protected set; }
         public long Y { get; protected set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Point point &&
+                   X == point.X &&
+                   Y == point.Y;
+        }
     }
 }

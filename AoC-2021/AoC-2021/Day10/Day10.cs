@@ -43,7 +43,7 @@ namespace AoC_2021.Day10
             
             foreach(var stack in Incompletes)
             {
-                var score = 0l;
+                var score = 0L;
                 while (stack.Count() > 0)
                     score = score * 5 + points[stack.Pop()];
                 scores.Add(score);
