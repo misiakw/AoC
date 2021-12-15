@@ -11,19 +11,19 @@ namespace AoC_2021.Day1
     [BasePath("Day1")]
     [TestFile(File = "example.txt", Name = "Example")]
     [TestFile(File = "Input.txt", Name = "Input")]
-    public class Day1 : LongDay
+    public class Day1 : BaseTypeDay<long>
     {
         public Day1(string path) : base(path)
         {}
 
-        public override string Part1()
+        public override string Part1(string testName = null)
         {
             var diffs = GetDifs(this.Input.ToList());
 
             return diffs.Where(k => k.Item2 < 0).Count().ToString();
         }
 
-        public override string Part2()
+        public override string Part2(string testName = null)
         {
             var slided = new List<long>();
             for(var i=0; i+3 <= this.Input.Count; i++)

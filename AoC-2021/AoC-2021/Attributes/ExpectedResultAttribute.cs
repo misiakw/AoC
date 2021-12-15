@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AoC_2021.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class ExpectedResultAttribute: Attribute
     {
         public string TestName;

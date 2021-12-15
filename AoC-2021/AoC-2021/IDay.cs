@@ -8,7 +8,7 @@ namespace AoC_2021
 {
     public interface IDay
     {
-        string Part1();
-        string Part2();
+        string Part1(string testName);
+        string Part2(string testName);
     }
 }
