@@ -41,10 +41,18 @@ namespace AoC_2021.Day15
         }
 
         [ExpectedResult(TestName = "Example", Result = "315")]
-        //[ExpectedResult(TestName = "Input", Result = "3259")]
+        [ExpectedResult(TestName = "Input", Result = "3259")]
         public override string Part2(string testName)
         {
-            throw new NotImplementedException();
+            Map.ResizeMap(5);
+
+            var dist = new int[Map.Width, Map.Height];
+            for (var y = 0; y < Map.Height; y++)
+                for (var x = 0; x < Map.Width; x++)
+                    dist[x, y] = int.MaxValue;
+            CalculateDist(Map.Width - 1, Map.Height - 1, dist, 0, Map.Width, Map.Height);
+
+            return (dist[0, 0] - Map[0, 0]).ToString();
         }
 
         private void CalculateDist(long x, long y, int[,] dist, int callerDist, long cx, long cy)
@@ -65,9 +73,9 @@ namespace AoC_2021.Day15
 
         private class ExtendibleMap
         {
-            private readonly int[,] map;
-            public readonly int Width;
-            public readonly int Height;
+            private int[,] map;
+            public int Width { get; private set; }
+            public int Height { get; private set; }
             public ExtendibleMap(int[,] Map, int width, int height)
             {
                 map = Map;
@@ -79,11 +87,28 @@ namespace AoC_2021.Day15
             {
                 get
                 {
-                    var dx = x / Width;
-                    var dy = y / Width;
-
-                    return map[x%Width, y%Height];
+                    return map[x, y];
                 }
+            }
+
+            public void ResizeMap(int times)
+            {
+                var newWidth = Width * times;
+                var newHeight = Height * times;
+
+                var newMap = new int[newWidth, newHeight];
+
+                for(int y=0; y<newHeight; y++)
+                    for(int x=0; x<newWidth; x++)
+                    {
+                        var addons = x / Width + y / Width;
+                        var value = (map[x % Width, y % Height] + addons)%10;
+                        newMap[x, y] = value;
+                    }
+
+                map = newMap;
+                Width = newWidth;
+                Height = newHeight;
             }
         }
     }
