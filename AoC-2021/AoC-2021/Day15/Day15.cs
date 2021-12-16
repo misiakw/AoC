@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AoC_2021.Day15
@@ -31,51 +32,69 @@ namespace AoC_2021.Day15
         [ExpectedResult(TestName = "Input", Result = "403")] //403
         public override string Part1(string testName)
         {
-            var dist = new int[Map.Width, Map.Height];
-            for (var y = 0; y < Map.Height; y++)
-                for (var x = 0; x < Map.Width; x++)
-                    dist[x, y] = int.MaxValue;
-            CalculateDist(Map.Width - 1, Map.Height - 1, dist, 0, Map.Width, Map.Height);
-
-            return (dist[0, 0] - Map[0, 0]).ToString();
+            return Dijksta(Map).ToString();
         }
 
         [ExpectedResult(TestName = "Example", Result = "315")]
-        [ExpectedResult(TestName = "Input", Result = "3259")]
+        [ExpectedResult(TestName = "Input", Result = "2840")]
         public override string Part2(string testName)
         {
             Map.ResizeMap(5);
-
-            var dist = new int[Map.Width, Map.Height];
-            for (var y = 0; y < Map.Height; y++)
-                for (var x = 0; x < Map.Width; x++)
-                    dist[x, y] = int.MaxValue;
-            CalculateDist(Map.Width - 1, Map.Height - 1, dist, 0, Map.Width, Map.Height);
-
-            return (dist[0, 0] - Map[0, 0]).ToString();
+            return Dijksta(Map).ToString();
         }
 
-        private void CalculateDist(long x, long y, int[,] dist, int callerDist, long cx, long cy)
+        private int Dijksta(ExtendibleMap map)
         {
-            var len = callerDist + Map[x, y];
-            if (len >= dist[x, y]) return;
-            dist[x, y] = len;
+            var weight = new Dictionary<string, int>();
+            var toProcess = new Dictionary<string, int>();
+            var toConsider = new Dictionary<string, int>();
 
-            if (x + 1 < Map.Width && x + 1 != cx)
-                CalculateDist(x + 1, y, dist, len, x, y);
-            if (x - 1 >= 0 && x - 1 != cx)
-                CalculateDist(x - 1, y, dist, len, x, y);
-            if (y + 1 < Map.Height && y + 1 != cy)
-                CalculateDist(x, y + 1, dist, len, x, y);
-            if (y - 1 >= 0 && y - 1 != cy)
-                CalculateDist(x, y - 1, dist, len, x, y);
+            for (int y = 0; y < map.Height; y++)
+                for(int x = 0; x< map.Width; x++)
+                {
+                    weight.Add($"{x},{y}", map[x, y]);
+                    toProcess.Add($"{x},{y}", int.MaxValue);
+                }
+
+            toProcess["0,0"] = 0;
+            toConsider.Add("0,0", 0);
+
+            while (toProcess.Any())
+            {
+                var lowest = toConsider.OrderBy(kv => kv.Value).First();
+                toProcess.Remove(lowest.Key);
+                toConsider.Remove(lowest.Key);
+
+                if (lowest.Key == $"{map.Width - 1},{map.Height - 1}")
+                    return lowest.Value;
+
+                var pos = lowest.Key.Split(",").Select(s => int.Parse(s)).ToArray();
+
+                PrepareNear(pos[0]+1, pos[1], toProcess, lowest.Value, weight, toConsider);
+                PrepareNear(pos[0]-1, pos[1], toProcess, lowest.Value, weight, toConsider);
+                PrepareNear(pos[0], pos[1]+1, toProcess, lowest.Value, weight, toConsider);
+                PrepareNear(pos[0], pos[1]-1, toProcess, lowest.Value, weight, toConsider);
+            }
+            return -1;
+        }
+        
+        private void PrepareNear(int x, int y, IDictionary<string, int> toProcess, int path, IDictionary<string, int> weights, IDictionary<string, int> toConsider)
+        {
+            if (!toProcess.ContainsKey($"{x},{y}")) return;
+
+            path += weights[$"{x},{y}"];
+
+            if (toProcess[$"{x},{y}"] <= path) return;
+
+            toProcess[$"{x},{y}"] = path;
+            toConsider[$"{x},{y}"] = path;
         }
 
         private class ExtendibleMap
         {
             private int[,] map;
-            public int Width { get; private set; }
-            public int Height { get; private set; }
+            public int Width;
+            public int Height;
             public ExtendibleMap(int[,] Map, int width, int height)
             {
                 map = Map;
@@ -102,7 +121,8 @@ namespace AoC_2021.Day15
                     for(int x=0; x<newWidth; x++)
                     {
                         var addons = x / Width + y / Width;
-                        var value = (map[x % Width, y % Height] + addons)%10;
+                        var value = (map[x % Width, y % Height] + addons);
+                        while (value > 9) value -= 9;
                         newMap[x, y] = value;
                     }
 
