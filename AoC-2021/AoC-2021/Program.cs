@@ -16,20 +16,24 @@ namespace AoC_2021
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), dayNumber);
 
             Console.WriteLine($"----- {dayNumber} -----");
-            var dayTests = new List<Tuple<IDay, TestFileAttribute>>();
+            var dayTests1 = new List<Tuple<IDay, TestFileAttribute>>();
+            var dayTests2 = new List<Tuple<IDay, TestFileAttribute>>();
             foreach (TestFileAttribute testFile in prms.DayType.GetCustomAttributes(typeof(TestFileAttribute)))
             {
                 IDay day = (IDay)Activator.CreateInstance(prms.DayType, Path.Combine(path, testFile.File));
-                dayTests.Add(Tuple.Create(day, testFile));
+                if (testFile.TestToProceed == TestCase.All || testFile.TestToProceed == TestCase.Part1)
+                    dayTests1.Add(Tuple.Create(day, testFile));
+                if (testFile.TestToProceed == TestCase.All || testFile.TestToProceed == TestCase.Part2)
+                    dayTests2.Add(Tuple.Create(day, testFile));
             }
 
             Console.WriteLine("--- Part1 ---");
-            foreach (var tuple in dayTests)
+            foreach (var tuple in dayTests1)
             {
                 TryRun(tuple.Item2.Name, tuple.Item1.Part1, tuple.Item2.Name);
             }
             Console.WriteLine("--- Part2 ---");
-            foreach (var tuple in dayTests)
+            foreach (var tuple in dayTests2)
             {
                 TryRun(tuple.Item2.Name, tuple.Item1.Part2, tuple.Item2.Name);
             }

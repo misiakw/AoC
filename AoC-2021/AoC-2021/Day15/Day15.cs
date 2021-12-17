@@ -29,7 +29,7 @@ namespace AoC_2021.Day15
         private readonly ExtendibleMap Map;
 
         [ExpectedResult(TestName = "Example", Result = "40")]
-        [ExpectedResult(TestName = "Input", Result = "403")] //403
+        [ExpectedResult(TestName = "Input", Result = "403")]
         public override string Part1(string testName)
         {
             return Dijksta(Map).ToString();
