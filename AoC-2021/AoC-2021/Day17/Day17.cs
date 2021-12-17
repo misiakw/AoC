@@ -23,12 +23,14 @@ namespace AoC_2021.Day17
         }
 
         private int minX, maxX, minY, maxY;
+        private int vMaxY;
 
         [ExpectedResult(TestName = "Example", Result = "45")]
         [ExpectedResult(TestName = "Input", Result = "25200")]
         public override string Part1(string testName)
         {
-            var v = Math.Abs(minY) - 1;
+            vMaxY = Math.Abs(minY) - 1;
+            var v = vMaxY;
 
             var topHeight = 0;
             while (v > 0) topHeight += v--;
@@ -40,7 +42,36 @@ namespace AoC_2021.Day17
         //[ExpectedResult(TestName = "Input", Result = "403")]
         public override string Part2(string testName)
         {
-            throw new NotImplementedException();
+            var vMinY = minY;
+            var vMaxX = maxX;
+
+            var differentSpeeds = new List<string>();
+
+            for (var y = vMinY; y <= vMaxY; y++)
+                for (var x = 1; x <= vMaxX; x++)
+                    if (WillHit(x, y) && !differentSpeeds.Contains($"{x},{y}"))
+                    {
+                        differentSpeeds.Add($"{x},{y}");
+                        //Console.WriteLine($"{x},{y}");
+                    }
+
+            return differentSpeeds.Count().ToString() ;
+        }
+
+        private bool WillHit(int vX, int vY)
+        {
+            int x = 0;
+            int y = 0;
+            while(x<=maxX && y >= minY)
+            {
+                if (x >= minX && x <= maxX && y <= maxY && y >= minY)
+                    return true;
+                x += vX;
+                y += vY;
+                if (vX > 0) vX--;
+                vY--;
+            }
+            return false ;
         }
     }
 }
