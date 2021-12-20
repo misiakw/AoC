@@ -8,9 +8,14 @@ namespace AoC_2021.Common
 {
     public class Array2D<T>
     {
+        public Array2D(T def = default(T)){
+            defaultValue = def;
+        }
+
         protected IDictionary<string, T> _data = new Dictionary<string, T>();
-        private long _minX, _maxX = 0;
-        private long _minY, _maxY = 0;
+        protected long _minX, _maxX = 0;
+        protected long _minY, _maxY = 0;
+        private readonly T defaultValue;
         public long Width
         {
             get
@@ -45,7 +50,7 @@ namespace AoC_2021.Common
                 var key = $"{x},{y}";
                 return _data.ContainsKey(key)
                     ? _data[key]
-                    : default(T);
+                    : defaultValue;
             }
             set
             {

@@ -7,5 +7,13 @@ namespace AoC_2021.Attributes
     {
         public string Name { get; set; }
         public string File { get; set; }
+        public TestCase TestToProceed { get; set; } = TestCase.All;
+    }
+
+    public enum TestCase
+    {
+        All = 0,
+        Part1 = 1,
+        Part2 = 2
     }
 }
