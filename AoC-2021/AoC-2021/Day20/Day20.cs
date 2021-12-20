@@ -2,6 +2,9 @@
 using AoC_2021.Common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,8 +18,10 @@ namespace AoC_2021.Day20
     {
         private readonly string Key;
         private Image initialImage = new Image('.');
+        private ImagePrinter printer;
         public Day20(string filePath) : base(filePath)
         {
+            printer = new ImagePrinter(InputDir);
             this.Key = LineInput[0];
 
             for (var y = 2; y < LineInput.Count(); y++)
@@ -35,7 +40,7 @@ namespace AoC_2021.Day20
             var shouldInvert = Key[0] == '#';
             var lastInvert = shouldInvert;
 
-            while (repeat-->0)
+            while (repeat-- > 0)
             {
                 if (shouldInvert)
                 {
@@ -48,13 +53,34 @@ namespace AoC_2021.Day20
                 }
             }
 
-            img.Print();
             return img.Size.ToString();
         }
 
+        [ExpectedResult(TestName = "Example", Result = "3351")]
+        //[ExpectedResult(TestName = "Input", Result = "5249")]
         public override string Part2(string testName)
         {
-            throw new NotImplementedException();
+            var img = initialImage;
+            var repeat = 50;
+            var shouldInvert = Key[0] == '#';
+            var lastInvert = shouldInvert;
+
+            while (repeat-- > 0)
+            {
+                if (shouldInvert)
+                {
+                    img = img.DuplicateWithKey(Key, lastInvert);
+                    lastInvert = !lastInvert;
+                }
+                else
+                {
+                    img = img.DuplicateWithKey(Key, lastInvert);
+                }
+            }
+
+            printer.DrawImage((int)(img.Width*4), (int)(img.Height*4), testName, (c,i) => { img.DrawFunc(c, i); });
+
+            return img.Size.ToString();
         }
 
         private class Image: Array2D<char>
@@ -63,16 +89,20 @@ namespace AoC_2021.Day20
 
             public long Size => _data.Values.Where(v => v == '#').Count();
 
-            public void Print()
+            public void DrawFunc(Graphics canvas, System.Drawing.Image image)
             {
-                var sb = new StringBuilder();
-                for(var y=_minY-1; y<=_maxY+1; y++)
+                int multiplier = 4;
+                canvas.FillRectangle(Brushes.White, 0, 0, image.Width, image.Height);
+                for (var y = _minY; y <= _maxY; y++)
                 {
-                    for (var x = _minX-1; x <= _maxX+1; x++)
-                        sb.Append(this[x, y]);
-                    sb.AppendLine();
+                    for (var x = _minX; x <= _maxX; x++)
+                    {
+                        var px = x - _minX;
+                        var py = y - _minY;
+                        if (this[x, y] == '#')
+                            canvas.FillRectangle(Brushes.Black, px * multiplier, py * multiplier, multiplier, multiplier); ;
+                    }
                 }
-                Console.WriteLine(sb.ToString());
             }
 
             public Image DuplicateWithKey(string key, bool invert)
