@@ -212,19 +212,6 @@ namespace AoC_2021.Day18
             }
         }
 
-        private bool TestSplitSide(ref SnailNumBase checkedNum)
-        {
-            var num = checkedNum as SnailNumRegular;
-            if (num.Value > 9)
-            {
-                var newLeft = new SnailNumRegular(num.Value / 2);
-                var newRight = new SnailNumRegular(num.Value - newLeft.Value);
-
-                checkedNum = new SnailNumPair(newLeft, newRight);
-                return true;
-            }
-            return false;
-        }
         public override string ToString() => $"[{Left},{Right}]";
     }
     public class SnailNumRegular : SnailNumBase
