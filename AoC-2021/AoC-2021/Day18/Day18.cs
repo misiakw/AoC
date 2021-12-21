@@ -10,34 +10,49 @@ namespace AoC_2021.Day18
 {
     [BasePath("Day18")]
     [TestFile(File = "example.txt", Name = "Example")]
-    //[TestFile(File = "Input.txt", Name = "Input")]
-    public class Day18 : ParseableDay<SnailNumBase>
+    [TestFile(File = "Input.txt", Name = "Input")]
+    public class Day18 : DayBase
     {
         public Day18(string path) : base(path) { }
 
-        public override SnailNumBase Parse(string input)
-        {
-            return SnailNumBase.Parse(input);
-        }
 
         [ExpectedResult(TestName = "Example", Result = "4140")]
-        //[ExpectedResult(TestName = "Input", Result = "25200")]
+        [ExpectedResult(TestName = "Input", Result = "3665")]
         public override string Part1(string testName)
         {
-            var result = Input.First();
-
-            foreach(var add in Input.Skip(1))
+            var p1 = GetInput();
+            var result = p1.First();
+            foreach(var add in p1.Skip(1))
             {
                 result += add;
-                var a = 5;
+                var d = 5;
             }
 
             return result.GetMagnitude().ToString();
         }
 
+        [ExpectedResult(TestName = "Example", Result = "3993")]
+        [ExpectedResult(TestName = "Input", Result = "4775")]
         public override string Part2(string testName)
         {
-            throw new NotImplementedException();
+            var results = new List<long>();
+
+            foreach(var l in LineInput)
+                foreach (var p in LineInput)
+                {
+                    if (l.Equals(p)) continue;
+                    var r = SnailNumBase.Parse(l) + SnailNumBase.Parse(p);
+                    results.Add(r.GetMagnitude());
+                }
+            return results.Max().ToString();
+        }
+
+        private IList<SnailNumBase> GetInput()
+        {
+            var result = new List<SnailNumBase>();
+            foreach(var line in LineInput)
+                result.Add(SnailNumBase.Parse(line));
+            return result;
         }
     }
     public abstract class SnailNumBase
@@ -47,7 +62,6 @@ namespace AoC_2021.Day18
         {
             var stack = new Stack<SnailNumBase>();
             SnailNumBase tmp = null;
-            SnailNumRegular prev = null;
             for (var i = 0; i < input.Length; i++)
             {
                 if (input[i] >= '0' && input[i] <= '9')
@@ -59,9 +73,6 @@ namespace AoC_2021.Day18
                         i++;
                     }
                     var reg = new SnailNumRegular(long.Parse(str));
-                    reg.Prev = prev;
-                    if (prev != null) prev.Post = reg;
-                    prev = reg;
                     tmp = reg;
                 }
                 if (input[i] == ',') stack.Push(tmp);
@@ -77,13 +88,12 @@ namespace AoC_2021.Day18
         public static SnailNumBase operator +(SnailNumBase left, SnailNumBase right)
         {
             var result = new SnailNumPair(left, right);
-            //ToDo: polączyć left i right w next i prev;
 
             var wasChange = true;
             while (wasChange)
             {
                 wasChange = false;
-                if (result.TestExplode(0))
+                if (result.Explode(0))
                 {
                     wasChange = true;
                     continue;
@@ -99,110 +109,107 @@ namespace AoC_2021.Day18
     }
     public class SnailNumPair : SnailNumBase
     {
-        public bool Explode = false;
         private SnailNumBase Left, Right;
+        public SnailNumPair Root;
         public SnailNumPair(SnailNumBase left, SnailNumBase right)
         {
             this.Left = left;
+            if (left is SnailNumPair) ((SnailNumPair)left).Root = this;
             this.Right = right;
-            var leftJoinSide = (Left is SnailNumRegular) ? (SnailNumRegular)Left : ((SnailNumPair)Left).GetRighttmostRegular();
-            var rightJoinSide = (Right is SnailNumRegular) ? (SnailNumRegular)Right : ((SnailNumPair)Right).GetLeftmostRegular();
-            if (leftJoinSide != null) leftJoinSide.Post = rightJoinSide;
-            if (rightJoinSide != null) rightJoinSide.Prev = leftJoinSide;
+            if (right is SnailNumPair) ((SnailNumPair)right).Root = this;
         }
         public override long GetMagnitude() => 3 * Left.GetMagnitude() + 2 * Right.GetMagnitude();
-        public bool TestExplode(int lvl)
+        public bool Explode(int lvl)
         {
             if (lvl > 3 && Left is SnailNumRegular && Right is SnailNumRegular)
             {
-                if (((SnailNumRegular)Left).Prev != null)
-                    ((SnailNumRegular)Left).Prev.Value += ((SnailNumRegular)Left).Value;
-
-                if (((SnailNumRegular)Right).Post != null)
-                    ((SnailNumRegular)Right).Post.Value += ((SnailNumRegular)Right).Value;
-                Explode = true;
+                if (LeftLeaf != null) LeftLeaf.Value += ((SnailNumRegular)Left).Value;
+                if (RightLeaf != null) RightLeaf.Value += ((SnailNumRegular)Right).Value;
+                if (Root.Left == this) Root.Left = new SnailNumRegular(0);
+                if (Root.Right == this) Root.Right = new SnailNumRegular(0);
                 return true;
             }
-            var leftBool = false;
-            var rightBool = false;
+
             if (Left is SnailNumPair)
-            {
-                leftBool = ((SnailNumPair)Left).TestExplode(lvl + 1);
-                if (leftBool && ((SnailNumPair)Left).Explode)
-                {
-                    var left = Left as SnailNumPair;
-                    var zero = new SnailNumRegular(0);
-
-                    if (((SnailNumRegular)left.Left).Prev != null)
-                    {
-                        zero.Prev = ((SnailNumRegular)left.Left).Prev;
-                        ((SnailNumRegular)left.Left).Prev.Post = zero;
-                    }
-                    if (((SnailNumRegular)left.Right).Post != null)
-                    {
-                        zero.Post = ((SnailNumRegular)left.Right).Post;
-                        ((SnailNumRegular)left.Right).Post.Prev = zero;
-                    }
-
-                    Left = zero;
-                }
-            }
-            if (!leftBool && Right is SnailNumPair)
-            {
-                rightBool = ((SnailNumPair)Right).TestExplode(lvl + 1);
-                if (rightBool && ((SnailNumPair)Right).Explode)
-                {
-                    var right = Right as SnailNumPair;
-                    var zero = new SnailNumRegular(0);
-
-                    if (((SnailNumRegular)right.Left).Prev != null)
-                        zero.Prev = ((SnailNumRegular)right.Left).Prev;
-                    if (((SnailNumRegular)right.Right).Post != null)
-                        zero.Post = ((SnailNumRegular)right.Right).Post;
-
-                    Right = zero;
-                }
-            }
-
-            return leftBool || rightBool;
+                if (((SnailNumPair)Left).Explode(lvl + 1))
+                    return true;
+            if (Right is SnailNumPair)
+                if (((SnailNumPair)Right).Explode(lvl + 1))
+                    return true;
+            return false;
         }
-
-        private SnailNumRegular GetLeftmostRegular()
-        {
-            if (Left is SnailNumRegular)
-                return Left as SnailNumRegular;
-            else
-                return ((SnailNumPair)Left).GetLeftmostRegular();
-        }
-        private SnailNumRegular GetRighttmostRegular()
-        {
-            if (Right is SnailNumRegular)
-                return Right as SnailNumRegular;
-            else
-                return ((SnailNumPair)Right).GetRighttmostRegular();
-        }
-
         public bool Split()
         {
-            if (Left is SnailNumRegular)
-            {
-                if (TestSplitSide(ref Left))
-                    return true;
-            }
-            else
-                if (((SnailNumPair)Left).Split())
+            if (VerifySplit(Left))
                 return true;
-
-            if (Right is SnailNumRegular)
-            {
-                if (TestSplitSide(ref Right))
-                    return true;
-            }
-            else
-                if (((SnailNumPair)Right).Split())
+            if (VerifySplit(Right))
                 return true;
-
             return false;
+        }
+
+        private bool VerifySplit(SnailNumBase node)
+        {
+            if (node is SnailNumRegular)
+            {
+                var regNode = node as SnailNumRegular;
+                if (regNode.Value >= 10)
+                {
+                    var leftNode = new SnailNumRegular(regNode.Value / 2);
+                    var rightNode = new SnailNumRegular(regNode.Value - leftNode.Value);
+                    var replaceNode = new SnailNumPair(leftNode, rightNode);
+                    replaceNode.Root = this;
+                    if (node == Left) Left = replaceNode;
+                    else Right = replaceNode;
+                    return true;
+                }
+            }
+            else if (((SnailNumPair)node).Split())
+            {
+                return true;
+            }
+            return false;
+        }
+
+        protected SnailNumRegular LeftLeaf
+        {
+            get
+            {
+                if (Root == null) return null;
+                if (Root.Right == this)
+                {
+                    var search = Root.Left;
+                    while(search is SnailNumPair)
+                    {
+                        search = ((SnailNumPair)search).Right;
+                    }
+                    return (SnailNumRegular)search;
+                }
+                else
+                {
+                    return Root.LeftLeaf;
+                }
+            }
+        }
+
+        protected SnailNumRegular RightLeaf
+        {
+            get
+            {
+                if (Root == null) return null;
+                if(Root.Left == this)
+                {
+                    var search = Root.Right;
+                    while(search is SnailNumPair)
+                    {
+                        search = ((SnailNumPair)search).Left;
+                    }
+                    return (SnailNumRegular)search;
+                }
+                else
+                {
+                    return Root.RightLeaf;
+                }
+            }
         }
 
         private bool TestSplitSide(ref SnailNumBase checkedNum)
@@ -213,14 +220,6 @@ namespace AoC_2021.Day18
                 var newLeft = new SnailNumRegular(num.Value / 2);
                 var newRight = new SnailNumRegular(num.Value - newLeft.Value);
 
-                newLeft.Post = newRight;
-                newLeft.Prev = num.Prev;
-                if (num.Prev != null) num.Prev.Post = newLeft;
-
-                newRight.Prev = newLeft;
-                newRight.Post = num.Post;
-                if (num.Post != null) num.Post.Prev = newRight;
-
                 checkedNum = new SnailNumPair(newLeft, newRight);
                 return true;
             }
@@ -230,7 +229,6 @@ namespace AoC_2021.Day18
     }
     public class SnailNumRegular : SnailNumBase
     {
-        public SnailNumRegular Prev, Post;
         public long Value;
         public SnailNumRegular(long value)
         {
