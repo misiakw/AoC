@@ -1,31 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace AoC_2021.Common
 {
-    public class Array2D<T>
+    public class Array3D<T>
     {
-        public Array2D(T def = default(T)){
+        public Array3D(T def = default(T))
+        {
             defaultValue = def;
         }
 
         protected IDictionary<string, T> _data = new Dictionary<string, T>();
         protected long _minX, _maxX = 0;
         protected long _minY, _maxY = 0;
+        protected long _minZ, _maxZ = 0;
         private readonly T defaultValue;
-        public long Width
+        public long RangeX
         {
             get
             {
                 return _maxX - _minX;
             }
         }
-        public long Height
+        public long RangeY
         {
             get
             {
                 return _maxY - _minY;
+            }
+        }
+        public long RangeZ
+        {
+            get
+            {
+                return _maxZ - _minZ;
             }
         }
         /// <summary>returns span of X and Y (in this order)</summary>
@@ -33,26 +41,27 @@ namespace AoC_2021.Common
         {
             get
             {
-                return new Tuple<long, long>[2]
+                return new Tuple<long, long>[3]
                 {
                     Tuple.Create(_minX, _maxX),
                     Tuple.Create(_minY, _maxY),
+                    Tuple.Create(_minZ, _maxZ)
                 };
             }
         }
 
-        public T this[long x, long y]
+        public T this[long x, long y, long z]
         {
             get
             {
-                var key = $"{x},{y}";
+                var key = $"{x},{y},{z}";
                 return _data.ContainsKey(key)
                     ? _data[key]
                     : defaultValue;
             }
             set
             {
-                var key = $"{x},{y}";
+                var key = $"{x},{y},{z}";
                 if (_data.ContainsKey(key))
                 {
                     _data[key] = value;
@@ -64,21 +73,10 @@ namespace AoC_2021.Common
                     if (_maxX < x) _maxX = x;
                     if (_minY > y) _minY = y;
                     if (_maxY < y) _maxY = y;
+                    if (_minZ > z) _minZ = z;
+                    if (_maxZ < z) _maxZ = z;
                 }
             }
-        }
-
-       public string Draw(Func<T, string> drawing, string split = "")
-        {
-            var sb = new StringBuilder();
-            for(var y = _minY; y<=_maxY; y++)
-            {
-                IList<string> tmp = new List<string>();
-                for (var x = _minX; x <= _maxX; x++)
-                    tmp.Add(drawing(this[x, y]));
-                sb.AppendLine(string.Join(split, tmp));
-            }
-            return sb.ToString();
         }
     }
 }
