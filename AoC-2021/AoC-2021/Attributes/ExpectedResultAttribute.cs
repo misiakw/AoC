@@ -11,5 +11,7 @@ namespace AoC_2021.Attributes
     {
         public string TestName;
         public string Result;
+        public long TooHigh = long.MaxValue;
+        public long TooLow = long.MinValue;
     }
 }

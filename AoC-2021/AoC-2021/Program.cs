@@ -50,12 +50,24 @@ namespace AoC_2021
                 var stop = DateTime.Now;
                 var span = new TimeSpan(stop.Ticks - start.Ticks);
 
-                if (expected == null)
+                if (string.IsNullOrEmpty(expected?.Result))
                 {
-                    Console.WriteLine($"\t{label}: [[ {result} ]] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+                    Console.Write($"\t");
+                    var numResult = 0L;
+                    if (expected != null && long.TryParse(result, out numResult))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        if (numResult >= (expected?.TooHigh ?? long.MaxValue))
+                            { Console.Write($"Too high: "); }
+                        else if (numResult <= (expected?.TooLow ?? long.MinValue))
+                            { Console.Write($"Too Low: "); }
+                    }
+
+                    Console.WriteLine($"{label}: [[ {result} ]] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+                    Console.ResetColor();
                 }
                 else
-                {                   
+                {
                     var success = result.Equals(expected.Result, StringComparison.InvariantCultureIgnoreCase);
                     Console.ForegroundColor = success ? ConsoleColor.Green : ConsoleColor.Red;
                     Console.Write($"\t{label}:");
@@ -66,16 +78,20 @@ namespace AoC_2021
                     Console.ResetColor();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write($"\tFAILED:");
                 Console.ResetColor();
                 Console.WriteLine($" {label}");
-                if(e is not NotImplementedException)
+                if (e is not NotImplementedException)
                 {
                     Console.WriteLine(e);
                 }
+            }
+            finally
+            {
+                Console.ResetColor();
             }
         }
 
@@ -118,11 +134,11 @@ namespace AoC_2021
             return args.Where(a => a.StartsWith($"-{key}")).Select(a => a.Trim().Split("=")[1]).FirstOrDefault();
         }
 
-        public static Nullable<T> ToNullable<T> (this string value) where T: struct, IConvertible
+        public static Nullable<T> ToNullable<T>(this string value) where T : struct, IConvertible
         {
             return value != null
-                ? (T?) Convert.ChangeType(value, typeof(T))
-                : (T?) null;
+                ? (T?)Convert.ChangeType(value, typeof(T))
+                : (T?)null;
         }
     }
 }

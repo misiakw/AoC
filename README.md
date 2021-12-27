@@ -27,6 +27,6 @@ Set of solutions for riddles from https://adventofcode.com/
 | 20  | ✔ ✔ |
 | 21  | ✔ ✔ |
 | 22  | ✔ ✖ |
-| 23  | ✖ ✖ |
+| 23  | ✔ ✖ |
 | 24  | ✖ ✖ |
-| 25  | ✖ ✖ |    
+| 25  | ✔ ✖ |    

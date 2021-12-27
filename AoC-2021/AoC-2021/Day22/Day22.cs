@@ -56,7 +56,7 @@ namespace AoC_2021.Day22
         }
 
         [ExpectedResult(TestName = "Example", Result = "2758514936282235")]
-        //[ExpectedResult(TestName = "Input", Result = "571032")]
+        //[ExpectedResult(TestName = "Input", Result = 571032)]
         public override string Part2(string testName)
         {
             //need optimization. sort of "work in region"
