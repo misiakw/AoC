@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AoC_2021.Day23
+namespace AoC_2021.Day24
 {
     [TestFile(File = "Input.txt", Name = "Input")]
     public class Day24 : DayBase
