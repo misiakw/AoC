@@ -25,6 +25,7 @@ namespace AoC_2021.Day22
         [ExpectedResult(TestName = "Input", Result = "601104")]
         public override string Part1(string testName)
         {
+            var turnedOn = new List<Cuboid>();
             var minLimit = -50;
             var maxLimit = 50;
             var steps = Input.Where(i =>
@@ -35,55 +36,56 @@ namespace AoC_2021.Day22
                 return true;
             }).ToList();
 
-            var reactor = new Reactor();
-
-            foreach(var step in steps)
+            foreach(var cuboid in steps)
             {
-                var minX = step.MinX <= minLimit ? minLimit : step.MinX;
-                var maxX = step.MaxX >= maxLimit ? maxLimit : step.MaxX;
-                var minY = step.MinY <= minLimit ? minLimit : step.MinY;
-                var maxY = step.MaxY >= maxLimit ? maxLimit : step.MaxY;
-                var minZ = step.MinZ <= minLimit ? minLimit : step.MinZ;
-                var maxZ = step.MaxZ >= maxLimit ? maxLimit : step.MaxZ;
-
-                for (var x = minX; x <= maxX; x++)
-                    for (var y = minY; y <= maxY; y++)
-                        for (var z = minZ; z <= maxZ; z++)
-                            reactor[x, y, z] = step.State;
+                var toIntersect = turnedOn.Where(c => c.Intersect(cuboid)).ToList();
+                foreach (var intersect in toIntersect)
+                {
+                    turnedOn.Remove(intersect);
+                    turnedOn.AddRange(intersect.Slice(cuboid));
+                }
+                if (!toIntersect.Any() && cuboid.State)
+                    turnedOn.Add(cuboid);
             }
 
-            return reactor.TurnedOn.ToString();
+            return turnedOn.Select(c => c.Volume).Sum().ToString();
         }
 
         [ExpectedResult(TestName = "Example", Result = "2758514936282235")]
         //[ExpectedResult(TestName = "Input", Result = 571032)]
         public override string Part2(string testName)
         {
-            //need optimization. sort of "work in region"
-            var reactor = new Reactor();
+            var turnedOn = new List<Cuboid>();
 
-            foreach (var step in Input)
+            foreach (var cuboid in Input)
             {
-                var minX = step.MinX;
-                var maxX = step.MaxX;
-                var minY = step.MinY;
-                var maxY = step.MaxY;
-                var minZ = step.MinZ;
-                var maxZ = step.MaxZ;
-
-                for (var x = minX; x <= maxX; x++)
-                    for (var y = minY; y <= maxY; y++)
-                        for (var z = minZ; z <= maxZ; z++)
-                            reactor[x, y, z] = step.State;
+                var toIntersect = turnedOn.Where(c => c.Intersect(cuboid)).ToList();
+                foreach (var intersect in toIntersect)
+                {
+                    turnedOn.Remove(intersect);
+                    turnedOn.AddRange(intersect.Slice(cuboid));
+                }
+                if (!toIntersect.Any() && cuboid.State)
+                    turnedOn.Add(cuboid);
             }
 
-            return reactor.TurnedOn.ToString();
+            return turnedOn.Select(c => c.Volume).Sum().ToString();
         }
     }
     public class Cuboid
     {
         public readonly bool State;
         public readonly long MinX, MaxX, MinY, MaxY, MinZ, MaxZ;
+        public long Volume => (MaxX - MinX) * (MaxY - MinY) * (MaxZ - MinZ);
+        public Cuboid(long minX, long maxX, long minY, long maxY, long minZ, long maxZ)
+        {
+            MinX = minX;
+            MaxX = maxX;
+            MinY = minY;
+            MaxY = maxY;
+            MinZ = minZ;
+            MaxZ = maxZ;
+        }
         public Cuboid(string input)
         {
             var parts = input.Trim().Split(" ");
@@ -97,12 +99,19 @@ namespace AoC_2021.Day22
             MinZ = ranges[2][0];
             MaxZ = ranges[2][1];
         }
-    }
 
-    public  class Reactor: Array3D<bool>
-    {
-        public Reactor() : base(false) { }
+        public bool Intersect(Cuboid other)
+        {
+            //ToDo: implement logic to verify if cuboids ocupy the same space
+            return false;
+        }
 
-        public long TurnedOn => _data.Values.Where(v => v == true).Count();
+        public IEnumerable<Cuboid> Slice(Cuboid other)
+        {
+            //ToDo: Implement slicing cuboids. return all shigning parts;
+            yield return this;
+            if (other.State)
+                yield return other;
+        }
     }
 }
