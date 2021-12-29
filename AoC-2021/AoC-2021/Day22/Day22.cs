@@ -36,6 +36,7 @@ namespace AoC_2021.Day22
         [ExpectedResult(TestName = "Input", Result = "601104")]
         public override string Part1(string testName)
         {
+            throw new NotImplementedException("yep, not done!");
             var turnedList = new List<Cuboid>();
             var Input = LineInput.Select(l => Parse(l, -50, 50)).ToList();
 
@@ -61,6 +62,7 @@ namespace AoC_2021.Day22
         {
             var turnedList = new List<Cuboid>();
             var Input = LineInput.Select(l => Parse(l)).ToList();
+            turnedList.Add(Input.First(kv => kv.Item1).Item2);
 
             foreach (var opeation in Input)
             {
@@ -91,8 +93,9 @@ namespace AoC_2021.Day22
 
         public IEnumerable<Cuboid> Add(Cuboid other)
         {
-            yield return this;
-            yield return other;
+            var result = Substract(other).ToList();
+            result.Add(other);
+            return result;
         }
 
         public IEnumerable<Cuboid> Substract(Cuboid other)
@@ -121,7 +124,7 @@ namespace AoC_2021.Day22
                 Max = max;
                 Axis = axis;
             }
-            public long Span => Max - Min;
+            public long Span => Max+1 - Min;
         }
     }
 }
