@@ -91,8 +91,9 @@ namespace AoC_2021.Day22
 
         public IEnumerable<Cuboid> Add(Cuboid other)
         {
-            yield return this;
-            yield return other;
+            var result = Substract(other).ToList();
+            result.Add(other);
+            return result;
         }
 
         public IEnumerable<Cuboid> Substract(Cuboid other)
@@ -121,7 +122,7 @@ namespace AoC_2021.Day22
                 Max = max;
                 Axis = axis;
             }
-            public long Span => Max - Min;
+            public long Span => (Max+1) - Min;
         }
     }
 }
