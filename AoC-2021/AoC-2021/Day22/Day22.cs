@@ -36,6 +36,7 @@ namespace AoC_2021.Day22
         [ExpectedResult(TestName = "Input", Result = "601104")]
         public override string Part1(string testName)
         {
+            throw new NotImplementedException("yep, not done!");
             var turnedList = new List<Cuboid>();
             var Input = LineInput.Select(l => Parse(l, -50, 50)).ToList();
 
@@ -61,6 +62,7 @@ namespace AoC_2021.Day22
         {
             var turnedList = new List<Cuboid>();
             var Input = LineInput.Select(l => Parse(l)).ToList();
+            turnedList.Add(Input.First(kv => kv.Item1).Item2);
 
             foreach (var opeation in Input)
             {
@@ -122,7 +124,7 @@ namespace AoC_2021.Day22
                 Max = max;
                 Axis = axis;
             }
-            public long Span => (Max+1) - Min;
+            public long Span => Max+1 - Min;
         }
     }
 }
