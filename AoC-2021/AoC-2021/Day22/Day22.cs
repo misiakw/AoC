@@ -13,9 +13,9 @@ namespace AoC_2021.Day22
 {
     [BasePath("Day22")]
     [TestFile(File = "exampleSmall.txt", Name = "ExampleSmall", TestToProceed = TestCase.Part1)]
-    [TestFile(File = "examplePart1.txt", Name = "Example", TestToProceed = TestCase.Part1)]
-    [TestFile(File = "examplePart2.txt", Name = "Example", TestToProceed = TestCase.Part2)]
-    [TestFile(File = "Input.txt", Name = "Input")]
+    //[TestFile(File = "examplePart1.txt", Name = "Example", TestToProceed = TestCase.Part1)]
+    //[TestFile(File = "examplePart2.txt", Name = "Example", TestToProceed = TestCase.Part2)]
+    //[TestFile(File = "Input.txt", Name = "Input")]
     public class Day22 : DayBase
     {
         public Day22(string path) : base(path) { }
@@ -89,8 +89,10 @@ namespace AoC_2021.Day22
                         turnedList.AddRange(overlap.Substract(action.Item2));
                     }
                 }
-                turnedList = turnedList.Distinct().ToList();
-                Console.WriteLine($"Step  {step++}, turned on {turnedList.Select(c => c.Volume).Sum()}");
+
+                if (turnedList.Count() != turnedList.Distinct().Count()) Console.WriteLine("why does it need distinct?");
+
+                Console.WriteLine($"Step  {step++}, action {(action.Item1 ? "turn On": "turn Off")} turned on {turnedList.Select(c => c.Volume).Sum()}");
             }
 
 
@@ -166,11 +168,42 @@ namespace AoC_2021.Day22
                 result.Add(this);
             else
             {
-                result.AddRange(ChopRange(other.X));
-                result.AddRange(ChopRange(other.Y));
-                result.AddRange(ChopRange(other.Z));
+                result.AddRange(ChopExcess(other.X));
+                result.AddRange(ChopExcess(other.Y));
+                result.AddRange(ChopExcess(other.Z));
             }
             return result;
+        }
+
+        private IEnumerable<Cuboid> ChopExcess(Range cut)
+        {
+            var me = Ranges[cut.Axis];
+            //cut outside, remaining is all me
+            if (cut.Max < me.Min || cut.Min > me.Max) {
+                yield return this;
+            }
+            //cut startsends inside, return right part
+            if (cut.Max > me.Min && cut.Max < me.Max)
+            {
+                var outside = new Range(cut.Max + 1, me.Max, cut.Axis);
+                yield return new Cuboid(
+                    cut.Axis == Axis.X ? outside : X,
+                    cut.Axis == Axis.Y ? outside : Y,
+                    cut.Axis == Axis.Z ? outside : Z);
+                Ranges[cut.Axis] = new Range(me.Min, cut.Max, cut.Axis);
+                me = Ranges[cut.Axis];
+            }
+            //cut starts inside, return left part
+            if (cut.Min > me.Min && cut.Min < me.Max) 
+            {
+                var outside = new Range(me.Min, cut.Min - 1, cut.Axis);
+                yield return new Cuboid(
+                    cut.Axis == Axis.X ? outside : X,
+                    cut.Axis == Axis.Y ? outside : Y,
+                    cut.Axis == Axis.Z ? outside : Z);
+                Ranges[cut.Axis] = new Range(cut.Min, me.Max, cut.Axis);
+            }
+            //cut equall or wrapping, return nothing
         }
 
         public IEnumerable<Cuboid> ChopRange(Range range)
