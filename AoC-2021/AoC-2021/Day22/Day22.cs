@@ -13,9 +13,9 @@ namespace AoC_2021.Day22
 {
     [BasePath("Day22")]
     [TestFile(File = "exampleSmall.txt", Name = "ExampleSmall", TestToProceed = TestCase.Part1)]
-    //[TestFile(File = "examplePart1.txt", Name = "Example", TestToProceed = TestCase.Part1)]
-    //[TestFile(File = "examplePart2.txt", Name = "Example", TestToProceed = TestCase.Part2)]
-    //[TestFile(File = "Input.txt", Name = "Input")]
+    [TestFile(File = "examplePart1.txt", Name = "Example", TestToProceed = TestCase.Part1)]
+    [TestFile(File = "examplePart2.txt", Name = "Example", TestToProceed = TestCase.Part2)]
+    [TestFile(File = "Input.txt", Name = "Input")]
     public class Day22 : DayBase
     {
         public Day22(string path) : base(path) { }
@@ -36,7 +36,7 @@ namespace AoC_2021.Day22
             return result;
         }
 
-        public Tuple<bool, Cuboid> ToInput(long[] data) => Tuple.Create(data[0]==1, 
+        public Tuple<bool, Cuboid> ToInput(long[] data) => Tuple.Create(data[0] == 1,
             new Cuboid(new Range(data[1], data[2], Axis.X), new Range(data[3], data[4], Axis.Y), new Range(data[5], data[6], Axis.Z)));
 
         [ExpectedResult(TestName = "ExampleSmall", Result = "39")]
@@ -55,11 +55,13 @@ namespace AoC_2021.Day22
                 for (var i = 1; i < 7; i++)
                     limited[i] = tmp[i] < -50 ? -50
                         : tmp[i] > 50 ? 50 : tmp[i];
-                Input.Add(ToInput(limited));
+                bool succeed = true;
+                if (limited[1] == limited[2] && (Math.Abs(limited[1]) == 50)) succeed = false;
+                if (limited[3] == limited[4] && (Math.Abs(limited[3]) == 50)) succeed = false;
+                if (limited[5] == limited[6] && (Math.Abs(limited[5]) == 50)) succeed = false;
+                
+                if (succeed) Input.Add(ToInput(limited));
             }
-
-            foreach (var inp in Input)
-                Console.WriteLine($"{inp.Item1} {inp.Item2}");
 
             var step = 1;
             foreach (var action in Input)
@@ -82,7 +84,7 @@ namespace AoC_2021.Day22
                 }
                 else //substract
                 {
-                    overlapping = turnedList.ToList();
+                    //overlapping = turnedList.ToList();
                     foreach (var overlap in overlapping)
                     {
                         turnedList.Remove(overlap);
@@ -90,9 +92,8 @@ namespace AoC_2021.Day22
                     }
                 }
 
-                if (turnedList.Count() != turnedList.Distinct().Count()) Console.WriteLine("why does it need distinct?");
+                turnedList = turnedList.Distinct().ToList();
 
-                Console.WriteLine($"Step  {step++}, action {(action.Item1 ? "turn On": "turn Off")} turned on {turnedList.Select(c => c.Volume).Sum()}");
             }
 
 
@@ -100,7 +101,7 @@ namespace AoC_2021.Day22
         }
 
         [ExpectedResult(TestName = "Example", Result = "2758514936282235")]
-        [ExpectedResult(TestName = "Input", Result = "", TooHigh = 24720527721166241)]
+        [ExpectedResult(TestName = "Input", Result = "1262883317822267", TooHigh = 2472052772116624, TooLow = 1261988828269430)]
         public override string Part2(string testName)
         {
             var turnedList = new List<Cuboid>();
@@ -111,12 +112,13 @@ namespace AoC_2021.Day22
                 var overlapping = turnedList.Where(c => c.Overlap(action.Item2)).ToList();
                 if (action.Item1) //turn on
                 {
-                    if (!overlapping.Any()) { //no overlapping
+                    if (!overlapping.Any())
+                    { //no overlapping
                         turnedList.Add(action.Item2);
                     }
                     else
                     {
-                        foreach(var overlap in overlapping)
+                        foreach (var overlap in overlapping)
                         {
                             turnedList.Remove(overlap);
                             turnedList.AddRange(overlap.Add(action.Item2));
@@ -125,7 +127,7 @@ namespace AoC_2021.Day22
                 }
                 else //substract
                 {
-                    foreach(var overlap in overlapping)
+                    foreach (var overlap in overlapping)
                     {
                         turnedList.Remove(overlap);
                         turnedList.AddRange(overlap.Substract(action.Item2));
@@ -133,12 +135,12 @@ namespace AoC_2021.Day22
                 }
                 turnedList = turnedList.Distinct().ToList();
             }
-            
+
 
             return turnedList.Select(c => c.Volume).Sum().ToString();
         }
     }
-    public class Cuboid: IEquatable<Cuboid>
+    public class Cuboid : IEquatable<Cuboid>
     {
         public readonly IDictionary<Axis, Range> Ranges;
         public long Volume => Ranges.Values.Select(v => v.Span).Aggregate(1L, (x, y) => x * y);
@@ -179,11 +181,12 @@ namespace AoC_2021.Day22
         {
             var me = Ranges[cut.Axis];
             //cut outside, remaining is all me
-            if (cut.Max < me.Min || cut.Min > me.Max) {
+            if (cut.Max < me.Min || cut.Min > me.Max)
+            {
                 yield return this;
             }
-            //cut startsends inside, return right part
-            if (cut.Max > me.Min && cut.Max < me.Max)
+            //cut ends inside, return right part
+            if (cut.Max >= me.Min && cut.Max < me.Max)
             {
                 var outside = new Range(cut.Max + 1, me.Max, cut.Axis);
                 yield return new Cuboid(
@@ -194,7 +197,7 @@ namespace AoC_2021.Day22
                 me = Ranges[cut.Axis];
             }
             //cut starts inside, return left part
-            if (cut.Min > me.Min && cut.Min < me.Max) 
+            if (cut.Min > me.Min && cut.Min <= me.Max)
             {
                 var outside = new Range(me.Min, cut.Min - 1, cut.Axis);
                 yield return new Cuboid(
@@ -248,17 +251,18 @@ namespace AoC_2021.Day22
             }
             public long Span => Max + 1 - Min;
             public Range Clone => new Range(Min, Max, Axis);
-            public bool Overlap(Range other) {
+            public bool Overlap(Range other)
+            {
                 var l = this.Min < other.Min ? this : other;
                 var r = l == this ? other : this;
 
                 return l.Max >= r.Min;
             }
-            public override bool Equals(object obj) => 
-                obj is Range range && 
-                range.Min == Min && 
-                range.Max == Max && 
-                range.Axis  == Axis;
+            public override bool Equals(object obj) =>
+                obj is Range range &&
+                range.Min == Min &&
+                range.Max == Max &&
+                range.Axis == Axis;
             public override string ToString() => $"{Min}..{Max}";
         }
     }
