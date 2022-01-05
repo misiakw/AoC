@@ -12,7 +12,7 @@ namespace AoC_2021
         static void Main(string[] args)
         {
             var prms = new Params(args);
-            var dayNumber = ((BasePathAttribute)(prms.DayType).GetCustomAttribute(typeof(BasePathAttribute))).Path;
+            var dayNumber = ((BasePathAttribute)(prms.DayType).GetCustomAttribute(typeof(BasePathAttribute)))?.Path ?? prms.DayType.Name;
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), dayNumber);
 
             Console.WriteLine($"----- {dayNumber} -----");
