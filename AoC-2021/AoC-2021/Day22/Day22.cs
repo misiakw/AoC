@@ -238,7 +238,6 @@ namespace AoC_2021.Day22
 
         public bool Equals(Cuboid other) => Equals((object)other);
 
-        public enum Axis { X, Y, Z }
         public class Range
         {
             public readonly long Min, Max;
