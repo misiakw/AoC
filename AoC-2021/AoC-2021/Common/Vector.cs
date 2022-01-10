@@ -8,11 +8,13 @@ namespace AoC_2021.Common
 {
     public class Vector3D: IEquatable<Vector3D>
     {
-        public readonly long X, Y, Z;
-        public readonly Rotation3D Rotation;
+        public long X { get; protected set; }
+        public long Y { get; protected set; }
+        public long Z { get; protected set; }
+        public Rotation3D Rotation { get; protected set; }
 
         public Vector3D(long x, long y, long z) : this(x, y, z, new Rotation3D(0, 0, 0)) { }
-        private Vector3D(long x, long y, long z, Rotation3D rotation)
+        public Vector3D(long x, long y, long z, Rotation3D rotation)
         {
             X = x;
             Y = y;
@@ -52,6 +54,7 @@ namespace AoC_2021.Common
                     return new Vector3D(A, B, Z, new Rotation3D(Rotation.X, Rotation.Y, Rotation.Z + 90));
             }
         }
+        //public Vector3D Transpose(long x, long y, long z) => new Vector3D(x + X, y + Y, z + Z, Rotation);
         public override string ToString() => $"Vec[{X},{Y}, {Z}]";
 
         public bool Equals(Vector3D other) => X == other.X && Y == other.Y && Z == other.Z;
@@ -68,7 +71,13 @@ namespace AoC_2021.Common
             Y = y % 360;
             Z = z % 360;
         }
-        public override string ToString() => $"Rot[{X},{Y}, {Z}]";
+        public override string ToString() => $"Rot[{X},{Y},{Z}]";
+
+        public static Rotation3D Parse(string input)
+        {
+            var pos = input.Replace("Rot[", "").Replace("]", "").Split(",").Select(s => int.Parse(s)).ToArray();
+            return new Rotation3D(pos[0], pos[1], pos[2]);
+        }
 
         public bool Equals(Rotation3D other) => X == other.X && Y == other.Y && Z == other.Z;
     }

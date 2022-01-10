@@ -13,15 +13,15 @@ namespace AoC_2021.Day19
     [TestFile(File = "Input.txt", Name = "Input")]
     public class Day19 : DayBase
     {
-        private IReadOnlyDictionary<long, IList<Beacon>> Input;
+        private IList<Scan> Input;
         public Day19(string filePath) : base(filePath)
         {
             var input = LineInput.GetEnumerator();
-            var dict = new Dictionary<long, IList<Beacon>>();
+            Input = new List<Scan>();
 
             while (input.MoveNext())
             {
-                var key = long.Parse(input.Current.Replace("scanner", "").Replace("---", "").Trim());
+                var key = int.Parse(input.Current.Replace("scanner", "").Replace("---", "").Trim());
                 string line;
                 var beacons = new List<Beacon>();
 
@@ -32,33 +32,19 @@ namespace AoC_2021.Day19
                     foreach (var other in beacons.Where(b => b != beacon))
                         beacon.AddRelated(other);
 
-                dict.Add(key, beacons);
+                Input.Add(new Scan(key, beacons));
             }
-            Input = dict;
         }
 
         [ExpectedResult(TestName = "Example", Result = "79")]
         //[ExpectedResult(TestName = "Input", Result = 571032)]
         public override string Part1(string testName)
         {
+            BuildMatchRelations();
 
-            var match = GetMatching(Input[0], Input[1]).ToList(); ;
 
-            for (var c = 0; c<Input.Count()-1; c++)
-            {
-                var current = Input[c];
-                for(var m=c+1; m<Input.Count(); m++)
-                {
-                    var matching = GetMatching(current, Input[m]);
-                    Console.WriteLine($"match {c} with {m}. Matches {matching.Count()}");
-                    if (matching.Count() >= 12)
-                    {
-                        Console.WriteLine("Got match!");
-                    }
-                }
-            }
-
-            throw new NotImplementedException();
+            var beacons = new List<Beacon>();
+            return beacons.Count().ToString();
         }
 
         public override string Part2(string testName)
@@ -66,13 +52,28 @@ namespace AoC_2021.Day19
             throw new NotImplementedException();
         }
 
-        private IList<Tuple<Beacon, Beacon, Rotation3D>> GetMatching(IList<Beacon> current, IList<Beacon> match)
+        private void BuildMatchRelations()
         {
-            var unoriented = GetVectorMatch(current, match).ToList();
-            //multiple rotations can be return, limit results to most facing the same way
 
+            for (var c = 0; c < Input.Count() - 1; c++)
+            {
+                for (var m = c + 1; m < Input.Count(); m++)
+                {
+                    var matching = GetMatching(Input[c], Input[m]);
+                    if (matching.Count() >= 6)
+                    {
+                        Input[c].Matching.Add(Input[m]);
+                        Input[m].Matching.Add(Input[c]);
+                        Console.WriteLine($"{c} matching {m}");
+                    }
+                }
+            }
+        }
 
-            return unoriented.GroupBy(u => u.Item3).Where(g => g.Count() >= 120).FirstOrDefault()?.ToList();
+        private IList<Tuple<Beacon, Beacon, Rotation3D>> GetMatching(Scan current, Scan match)
+        {
+            var unoriented = GetVectorMatch(current.Beacons, match.Beacons).ToList();
+            return unoriented.GroupBy(u => u.Item3.ToString()).Where(g => g.Count() >= 6).FirstOrDefault()?.ToList() ?? new List<Tuple<Beacon, Beacon, Rotation3D>>();
         }
 
         private IEnumerable<Tuple<Beacon, Beacon, Rotation3D>> GetVectorMatch(IList<Beacon> current, IList<Beacon> match)
@@ -89,12 +90,27 @@ namespace AoC_2021.Day19
             }
         }
 
-        private class Beacon: Vector3D
+        private class Scan
         {
-            private IList<BeaconRelation> Relations = new List<BeaconRelation>();
-            public IList<Beacon> OtherInstances = new List<Beacon>();
-            public Beacon(long[] pos): base(pos[0], pos[1], pos[2])
+            public readonly int Number;
+            public IList<Beacon> Beacons { get; private set; }
+            public IList<Scan> Matching = new List<Scan>();
+            public Scan(int number, IList<Beacon> beacons)
             {
+                Number = number;
+                Beacons = beacons;
+            }
+        }
+        private class Beacon
+        {
+            private Vector3D Pos;
+            private IList<BeaconRelation> Relations = new List<BeaconRelation>();
+            public long X => Pos.X;
+            public long Y => Pos.Y;
+            public long Z => Pos.Z;
+            public Beacon(long[] pos)
+            {
+                Pos = new Vector3D(pos[0], pos[1], pos[2]);
             }
 
             public IEnumerable<long> dif(Beacon beacon)
@@ -142,7 +158,12 @@ namespace AoC_2021.Day19
                     Positions = positions.ToArray()
                 }); ;
             }
-
+            public void RebuildRelated(IList<Beacon> beacons)
+            {
+                Relations.Clear();
+                foreach (var beacon in beacons)
+                    AddRelated(beacon);
+            }
             public Rotation3D GetRotation(Beacon beacon)
             {
                 foreach(var baseRel in Relations)

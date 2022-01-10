@@ -34,21 +34,33 @@ namespace AoC_2021.Day24
                 }
                 sb.Append(line.Trim()); ;
             }
+            var match1 = regex.Match(sb.ToString());
+            var num1 = new int[3];
+            num1[0] = int.Parse(match1.Groups[1].Value);
+            num1[1] = int.Parse(match1.Groups[2].Value);
+            num1[2] = int.Parse(match1.Groups[3].Value);
+
+            nums.Add(num1);
 
             Params = nums;
+
+            foreach (var par in Params) Console.WriteLine($"[{par[0]}][{par[1]}][{par[2]}]");
         }
 
         public override string Part1(string testName)
         {
             var enumeator = Params.GetEnumerator();
 
-            do
-            {
-                var a = ProcessSet(enumeator, new int[] { 0, 0, 0, 0 }, "");
-            } while (enumeator.Current != null);
-            var b = 0;
+           // do
+           // {
+                var a = ProcessSet(Params.ToList(), 0, new int[] { 0, 0, 0, 0 }, "");
+            //} while (enumeator.Current != null);
 
-            throw new NotImplementedException();
+            var parsed = a.Select(x => long.Parse(x)).ToList();
+            Console.WriteLine($"min => {parsed.Min()}");
+            Console.WriteLine($"max => {parsed.Max()}");
+            
+            return "done";
         }
 
         public override string Part2(string testName)
@@ -56,14 +68,14 @@ namespace AoC_2021.Day24
             throw new NotImplementedException();
         }
 
-        public IList<string> ProcessSet(IEnumerator<int[]> paramEnumerator, int[] state, string previous)
+        public IList<string> ProcessSet(IList<int[]> inputs, int inputPos, int[] state, string previous)
         {
-            var inps = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            if (!paramEnumerator.MoveNext())
+            var inps = new int[] { 9,8,7,6,5,4,3,2,1 };
+            if (inputPos == inputs.Count())
                 return new List<string>() { previous };
-            var param = paramEnumerator.Current;
+            var param = inputs[inputPos];
             var results = new List<string>();
-            if (param[0] != 1) //do last call;
+            if (inputPos == inputs.Count() - 1) //do last call;
             {
                 foreach (var input in inps)
                 {
@@ -77,7 +89,7 @@ namespace AoC_2021.Day24
                 foreach (var input in inps)
                 {
                     var result = Process(input, param, state.CloneArray());
-                    results.AddRange(ProcessSet(paramEnumerator, result, $"{previous}{input}"));
+                    results.AddRange(ProcessSet(inputs, inputPos+1, result, $"{previous}{input}"));
                 }
             }
             return results;
@@ -85,19 +97,47 @@ namespace AoC_2021.Day24
 
         public int[] Process(int input, int[] nums, int[] state)
         {
+            /*inp w
+             * mul x 0
+             * add x z
+             * mod x 26
+             * div z(\d+)
+             * add x(-?\d +)
+             * eql x w
+             * eql x 0
+             * mul y 0
+             * add y 25
+             * mul y x
+             * add y 1
+             * mul z y
+             * mul y 0
+             * add y w
+             * add y(\d+)
+             * mul y x
+             * add z y*/
+            int w = state[0];
+            int x = state[1];
+            int y = state[2];
             int z = state[3];
-            int w = input;
-            int x = z % 26;
 
-            z /= nums[0];
-            x += nums[1];
+            w = input;
+            x = 0;
+            x = z;
+            x = x % 26;
+            z = z / nums[0];
+            x = x + nums[1]; //here potential below zero w=<1,9>, x = <0,25>
             x = x == w ? 1 : 0;
-            x = x == 0 ? 1 : 0;
-            int y = 25 * x + 1;
+            x = x == 0 ? 1 : 0; //x == 0 if x == w
+            y = y + 25;
+            y = y * x;
+            y = y + 1;
             z = z * y;
-            y = (w + nums[2]) * x;
-            z += y;
-
+            y = y * 0;
+            y = y + w;
+            y = y + nums[2];
+            y = y * x;  // y==0 if x==0
+            z = z + y;  //to get z=0 need y = 0;
+           
             return new int[] { w, x, y, z };
         }
     }
