@@ -13,11 +13,11 @@ namespace AoC_2021.Day19
     [TestFile(File = "Input.txt", Name = "Input")]
     public class Day19 : DayBase
     {
-        private IReadOnlyList<Scan> Input;
+        private IList<Scan> Input;
         public Day19(string filePath) : base(filePath)
         {
             var input = LineInput.GetEnumerator();
-            var tmp = new List<Scan>();
+            Input = new List<Scan>();
 
             while (input.MoveNext())
             {
@@ -31,206 +31,261 @@ namespace AoC_2021.Day19
                     beacons.Add(new Beacon(new Vector3D(pos[0], pos[1], pos[2])));
                 }
 
-                tmp.Add(new Scan(key, beacons));
+                foreach (var beacon in beacons)
+                    foreach (var other in beacons.Where(b => b != beacon))
+                        beacon.AddRelated(other);
+
+                Input.Add(new Scan(key, beacons));
             }
-            Input = tmp;
         }
 
         [ExpectedResult(TestName = "Example", Result = "79")]
-        [ExpectedResult(TestName = "Input", TooHigh = 500)]
+        [ExpectedResult(TestName = "Input", Result = "467")]
         public override string Part1(string testName)
         {
-            var scans = Input.ToList();
-
-            while (SearchForOverlap(scans)) ;
-
-            var beacons = new List<Beacon>();
-
-            foreach (var scan in scans)
-                foreach (var beacon in scan.Beacons)
-                    beacons.Add(beacon);
-
-            return (beacons.Select(b => b.ToString()).Distinct().Count() - (scans.Count() - 1) * 12).ToString();
+            BuildMatchRelations();
+            Input[0].Transformed = true;
+            var beacons = TranslateAndMerge(Input[0]);
+            //return beacons.Count().ToString();
+            return "";
         }
 
+        [ExpectedResult(TestName = "Example", Result = "3621")]
+        [ExpectedResult(TestName = "Input", Result = "12226")]
         public override string Part2(string testName)
         {
             throw new NotImplementedException();
         }
 
-        private bool SearchForOverlap(IList<Scan> scans)
-        {
-            if (scans.Count() == 1) return false;
 
-            for (var c = 0; c < scans.Count() - 1; c++) {
-                var root = scans[c];
-                for (var m = c + 1; m < scans.Count(); m++)
+        private IList<Scan> Orientate(Scan source, IList<Scan> remains)
+        {
+            var result = new List<Scan>() { source };
+            if (!remains.Any()) return result;
+
+            var newMatch = new List<Scan>();
+            Vector3D vector = null;
+            do
+            {
+                vector = null;
+                foreach (var match in remains)
                 {
-                    var match = scans[m];
-                    var overlapped = root.Overlap(match);
-                    if (overlapped != null)
+                    vector = GetMatchingVector(source, match);
+                    if (vector != null)
                     {
-                        scans.Remove(root);
-                        scans.Remove(match);
-                        scans.Add(overlapped);
-                        Console.WriteLine($"{scans.Count()}");
-                        return true;
+                        Console.WriteLine($"match {source.Number} with {match.Number}");
+                        //translate match
+                        newMatch.Add(match);
+                        remains.Remove(match);
+                        break;
+                    }
+                }
+            } while (vector != null);
+
+            foreach (var scan in newMatch)
+                foreach (var orientated in Orientate(scan, remains))
+                    if (orientated != null)
+                        result.Add(orientated);
+
+            return result;
+        }
+
+
+        private IList<Beacon> TranslateAndMerge(Scan scan)
+        {
+            var unprocessedScans = scan.Matching.Where(m => !m.Scan.Transformed).ToList();
+
+            if (unprocessedScans.Count() == 0)
+            {
+                return scan.Beacons;
+            }
+            else
+            {
+                var result = scan.Beacons.ToList();
+                foreach (var unprocessed in unprocessedScans)
+                {
+                    Console.WriteLine($"{scan.Number} => {unprocessed.Scan.Number}");
+                    //transform
+                    unprocessed.Scan.Transformed = true;
+
+                    TranslateAndMerge(unprocessed.Scan);
+                }
+                return result;
+            }
+        }
+
+        private void BuildMatchRelations()
+        {
+            var unmatched = Input.Select(s => s.Number).ToList();
+            for (var c = 0; c < Input.Count() - 1; c++)
+            {
+                for (var m = c + 1; m < Input.Count(); m++)
+                {
+                    var matching = GetMatchingVector(Input[c], Input[m]);
+                    if (matching != null)
+                    {
+                        /*Input[c].Matching.Add(new ScanRelation
+                        {
+                            Scan = Input[m],
+                        });
+                        Input[m].Matching.Add(new ScanRelation
+                        {
+                            Scan = Input[c],
+                            Transform = matching
+                        });*/
+                        Console.WriteLine($"{Input[c].Number} matching {Input[m].Number}");
+                        if (unmatched.Contains(Input[c].Number)) unmatched.Remove(Input[c].Number);
+                        if (unmatched.Contains(Input[m].Number)) unmatched.Remove(Input[m].Number);
                     }
                 }
             }
-            return false;
+            var a = 3;
+        }
+
+        private Vector3D GetMatchingVector(Scan current, Scan match)
+        {
+            var unoriented = GetBeaconsVectorMatch(current.Beacons, match.Beacons).ToList();
+            var topGroup = unoriented.GroupBy(u => u.Item3.Rotation.ToString());
+
+            if (topGroup.Where(g => g.Count() >= 12).Count() > 1)
+            {
+                var a = 3;
+            }
+
+            var topGroup2 = topGroup.Where(g => g.Count() >= 12).FirstOrDefault();
+            return topGroup2?.FirstOrDefault()?.Item3 ?? null;
+        }
+
+        private IEnumerable<Tuple<Beacon, Beacon, Vector3D>> GetBeaconsVectorMatch(IList<Beacon> current, IList<Beacon> match)
+        {
+            foreach (var beacon in current)
+            {
+                var potential = new List<Beacon>();
+                foreach (var pretender in match)
+                {
+                    var ransformation = beacon.GetTransformation(pretender);
+                    if (ransformation != null)
+                        yield return Tuple.Create(beacon, pretender, ransformation);
+                }
+            }
         }
 
         private class Scan
         {
             public readonly int Number;
             public IList<Beacon> Beacons { get; private set; }
+            public IList<ScanRelation> Matching = new List<ScanRelation>();
+            public bool Transformed = false;
             public Scan(int number, IList<Beacon> beacons)
             {
                 Number = number;
                 Beacons = beacons;
-                foreach (var beacon in beacons)
-                    foreach (var other in beacons.Where(b => b != beacon))
-                        beacon.AddRelated(other);
-            }
-
-            public Scan Overlap(Scan other)
-            {
-                var rotations = new List<Rotation>();
-                foreach(var beacon in Beacons)
-                    foreach( var otherBeacon in other.Beacons)
-                    {
-                        var oRotation = beacon.GetOrientationRotation(otherBeacon);
-                        if(oRotation != null)
-                        {
-                            rotations.Add(oRotation.Value);
-                        }
-                    }
-
-                var rotation = rotations.GroupBy(r => r.rotation.ToString()).Where(g => g.Count() >= 12).FirstOrDefault();
-
-                if (rotation == null) return null;
-
-                var matched = rotation.Select(r => r.source).ToList();
-                var unmatched = other.Beacons.Where(b => !matched.Contains(b)).ToList();
-
-                var source = new Beacon(Rotate(rotation.First().source.Pos, rotation.First().rotation));
-                var target = rotation.First().target;
-                //get position of other scanner in relate to this scanner
-                var transform = new Vector3D(target.Pos.X - source.Pos.X, target.Pos.Y - source.Pos.Y, target.Pos.Z - source.Pos.Z);
-
-                var vectors = Beacons.Select(b => b.Pos).ToList();
-
-                foreach(var uPos in unmatched.Select(p => p.Pos))
-                {
-                    var tmp = Rotate(uPos, rotation.First().rotation);
-                    vectors.Add(new Vector3D(tmp.X + transform.X, tmp.Y + transform.Y, tmp.Z + transform.Z));
-                }
-
-                return new Scan(Number, vectors.Select(v => new Beacon(v)).ToList());
-            }
-
-            public static Vector3D Rotate(Vector3D pos, Rotation3D rotation)
-            {
-                var tmp = pos;
-                for (var i = 0; i * 90 < rotation.X; i++)
-                    tmp = tmp.RotateCW(Axis.X);
-                for (var i = 0; i * 90 < rotation.Y; i++)
-                    tmp = tmp.RotateCW(Axis.Y);
-                for (var i = 0; i * 90 < rotation.Z; i++)
-                    tmp = tmp.RotateCW(Axis.Z);
-                return tmp;
-            }
-
-            public IEnumerable<Vector3D> OrientateVector(Rotation3D rotation) 
-            {
-                foreach (var pos in Beacons.Select(b => b.Pos)) 
-                    yield return Rotate(pos, rotation);
             }
         }
         private class Beacon
         {
-            public readonly Vector3D Pos;
-            public IList<BeaconRel> Related = new List<BeaconRel>();
+            private Vector3D Pos;
+            private IList<BeaconRelation> Relations = new List<BeaconRelation>();
+            public long X => Pos.X;
+            public long Y => Pos.Y;
+            public long Z => Pos.Z;
 
             public Beacon(Vector3D vector)
             {
                 Pos = vector;
             }
-            public void AddRelated(Beacon other)
-            {
-                var pos = new long[3];
-                pos[0] = other.Pos.X - Pos.X;
-                pos[1] = other.Pos.Y - Pos.Y;
-                pos[2] = other.Pos.Z - Pos.Z;
 
-                Related.Add(new BeaconRel
-                {
-                    Transform = new Vector3D(pos[0], pos[1], pos[2]),
-                    Target = other,
-                    Hash = string.Join("|", pos.Select(p => Math.Abs(p)).OrderBy(p => p))
-                }); 
-            }
-            public Rotation? GetOrientationRotation(Beacon other)
+            public IEnumerable<long> dif(Beacon beacon)
             {
-                foreach(var rel in Related)
-                    foreach(var otherRel in other.Related)
-                        if (rel.Hash.Equals(otherRel.Hash))
-                        {
-                            var rotated = GetRotatedVector(otherRel.Transform, rel.Transform);
-                            if (rotated != null)
-                            {
-                                return new Rotation
-                                {
-                                    source = other,
-                                    target = this,
-                                    rotation = rotated.Rotation
-                                };
-                            }
-                        }
-                return null;
+                yield return X - beacon.X;
+                yield return Y - beacon.Y;
+                yield return Z - beacon.Z;
             }
-            public Vector3D GetRotatedVector(Vector3D next, Vector3D match)
+
+            public void AddRelated(Beacon beacon)
+            {
+                var diff = dif(beacon).ToArray();
+                var abs = diff.Select(d => Math.Abs(d)).ToArray();
+                var moveVect = new Vector3D(diff[0], diff[1], diff[2]);
+
+
+                Relations.Add(new BeaconRelation
+                {
+                    MoveVect = moveVect,
+                    DistHash = string.Join("|", abs.OrderBy(x => x)),
+                    Target = beacon,
+                    RotatedMoveVect = GetRotatedVector(moveVect).ToList()
+                });
+            }
+
+            public IEnumerable<Vector3D> GetRotatedVector(Vector3D next)
             {
                 //get all rotation twists across Z rotation
-                for (var zRot = 0; zRot < 4; zRot++)
+                for (var zRot = 0; zRot <= 4; zRot++)
                 {
                     next = next.RotateCW(Axis.Z);
                     for (var rotX = 0; rotX < 4; rotX++)
                     {
                         next = next.RotateCW(Axis.X);
-                        if (next.Equals(match)) return next;
+                        yield return next;
                     }
                 }
                 //get twist across Y rotation 90 deg
                 next = next.RotateCW(Axis.Y);
-                for (var rotZ = 0; rotZ < 4; rotZ++)
+                for (var rotZ = 0; rotZ <= 4; rotZ++)
                 {
                     next = next.RotateCW(Axis.Z);
-                    if (next.Equals(match)) return next;
+                    yield return next;
                 }
                 //get twist across Y rotation 270 deg
                 next = next.RotateCW(Axis.Y).RotateCW(Axis.Y);
-                for (var rotZ = 0; rotZ < 4; rotZ++)
+                for (var rotZ = 0; rotZ <= 4; rotZ++)
                 {
                     next = next.RotateCW(Axis.Z);
-                    if (next.Equals(match)) return next;
+                    yield return next;
+                }
+            }
+
+            public Vector3D GetTransformation(Beacon beacon)
+            {
+                foreach (var baseRel in Relations)
+                {
+                    foreach (var beaconRel in beacon.Relations)
+                        //if hash match
+                        if (baseRel.DistHash.Equals(beaconRel.DistHash))
+                        {
+                            //verify if can be orientated so that relayted matches
+                            var orientationVector = beaconRel.RotatedMoveVect.FirstOrDefault(v => v.Equals(baseRel.MoveVect));
+                            if (orientationVector != null)
+                            {
+                                var result = new Vector3D(beacon.X, beacon.Y, beacon.Z);
+
+                                for (var x = 0; x * 90 < orientationVector.Rotation.X; x++)
+                                    result = result.RotateCW(Axis.X);
+                                for (var y = 0; y * 90 < orientationVector.Rotation.Y; y++)
+                                    result = result.RotateCW(Axis.Y);
+                                for (var z = 0; z * 90 < orientationVector.Rotation.Z; z++)
+                                    result = result.RotateCW(Axis.Z);
+
+                                return result;
+                            }
+                        }
                 }
                 return null;
             }
-            public override string ToString() => $"[{Pos.X},{Pos.Y},{Pos.Z}]";
         }
 
-        private struct BeaconRel
+        private struct BeaconRelation
         {
-            public Vector3D Transform;
+            public Vector3D MoveVect;
+            public string DistHash;
             public Beacon Target;
-            public string Hash;
+            public IList<Vector3D> RotatedMoveVect;
         }
-        private struct Rotation
-        {
-            public Beacon source, target;
-            public Rotation3D rotation;
+
+        private struct ScanRelation
+        {   public Scan Scan;
+            public Beacon[,] SharedSource;
         }
     }
 }

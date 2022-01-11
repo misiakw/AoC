@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -58,6 +59,7 @@ namespace AoC_2021.Common
         public override string ToString() => $"Vec[{X},{Y}, {Z}]";
 
         public bool Equals(Vector3D other) => X == other.X && Y == other.Y && Z == other.Z;
+        public override int GetHashCode() => ToString().GetHashCode();
 
         public long NYLength => Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z);
     }
