@@ -49,18 +49,56 @@ namespace AoC_2021.Day24
 
         public override string Part1(string testName)
         {
-            var enumeator = Params.GetEnumerator();
+            var req = new Req()
+            {
+                zDivMin = 0,
+                zDivMax = 0,
+                zModMin = 0,
+                zModMax = 0
+            };
 
-           // do
-           // {
-                var a = ProcessSet(Params.ToList(), 0, new int[] { 0, 0, 0, 0 }, "");
-            //} while (enumeator.Current != null);
+            for(var s=13; s>=0; s--)
+            {
+                var par = Params[s];
+                var newReq = new Req()
+                {
+                    zDivMin = req.zDivMin,
+                    zDivMax = req.zDivMax,
+                    zModMin = req.zModMin,
+                    zModMax = req.zModMax,
+                };
+                Console.WriteLine($"--- step {s} ---");
 
-            var parsed = a.Select(x => long.Parse(x)).ToList();
-            Console.WriteLine($"min => {parsed.Min()}");
-            Console.WriteLine($"max => {parsed.Max()}");
-            
-            return "done";
+                if (1+par[2] > req.zModMax || 9+par[2] < req.zModMin)
+                {
+                    var tmp = new List<int>();
+                    for (var i= 1; i < 10; i++){
+                        tmp.Add(i - par[1]);
+                    }
+                    tmp = tmp.Where(y => y >= 0 && y < 26).ToList();
+                    newReq.zModMin = tmp.Min();
+                    newReq.zModMax = tmp.Max();
+                }
+                else
+                {
+                    Console.WriteLine("Any input?");
+                }
+
+                if (par[0] == 1)
+                {
+                    newReq.zDivMin = req.zDivMin;
+                    newReq.zDivMax = req.zDivMax;
+                }
+                else
+                {
+                    newReq.zDivMin = req.zModMin;
+                    newReq.zDivMax = req.zModMax;
+                }
+                req = newReq;
+                Console.WriteLine($"step {s} input: Z/26<{req.zDivMin},{req.zDivMax}> z%26<{req.zModMin},{req.zModMax}>");
+            }
+
+            throw new NotImplementedException();
         }
 
         public override string Part2(string testName)
@@ -68,86 +106,20 @@ namespace AoC_2021.Day24
             throw new NotImplementedException();
         }
 
-        public IList<string> ProcessSet(IList<int[]> inputs, int inputPos, int[] state, string previous)
+        private int ProcessStep(int[] param, int input, int z)
         {
-            var inps = new int[] { 9,8,7,6,5,4,3,2,1 };
-            if (inputPos == inputs.Count())
-                return new List<string>() { previous };
-            var param = inputs[inputPos];
-            var results = new List<string>();
-            if (inputPos == inputs.Count() - 1) //do last call;
-            {
-                foreach (var input in inps)
-                {
-                    var result = Process(input, param, state.CloneArray());
-                    if (result[3] == 0)
-                        results.Add($"{previous}{input}");
-                }
-            }
-            else //process to next
-            {
-                foreach (var input in inps)
-                {
-                    var result = Process(input, param, state.CloneArray());
-                    results.AddRange(ProcessSet(inputs, inputPos+1, result, $"{previous}{input}"));
-                }
-            }
-            return results;
+            int x = z % 26;
+            x += param[1];
+            z = z / param[0];
+            if (x == input)
+                return z;
+            else
+                return z * 26 + input + param[2];
         }
-
-        public int[] Process(int input, int[] nums, int[] state)
+        protected struct Req
         {
-            /*inp w
-             * mul x 0
-             * add x z
-             * mod x 26
-             * div z(\d+)
-             * add x(-?\d +)
-             * eql x w
-             * eql x 0
-             * mul y 0
-             * add y 25
-             * mul y x
-             * add y 1
-             * mul z y
-             * mul y 0
-             * add y w
-             * add y(\d+)
-             * mul y x
-             * add z y*/
-            int w = state[0];
-            int x = state[1];
-            int y = state[2];
-            int z = state[3];
-
-            w = input;
-            x = 0;
-            x = z;
-            x = x % 26;
-            z = z / nums[0];
-            x = x + nums[1]; //here potential below zero w=<1,9>, x = <0,25>
-            x = x == w ? 1 : 0;
-            x = x == 0 ? 1 : 0; //x == 0 if x == w
-            y = y + 25;
-            y = y * x;
-            y = y + 1;
-            z = z * y;
-            y = y * 0;
-            y = y + w;
-            y = y + nums[2];
-            y = y * x;  // y==0 if x==0
-            z = z + y;  //to get z=0 need y = 0;
-           
-            return new int[] { w, x, y, z };
-        }
-    }
-    public static class Extensions
-    {
-        public static int[] CloneArray(this int[] arr)
-        {
-            var result = new int[arr.Length];
-            for (var i = 0; i < arr.Length; i++) result[i] = arr[i];
-            return result;
+            public long zDivMin, zDivMax;
+            public long zModMin, zModMax;
         }
     }
 }

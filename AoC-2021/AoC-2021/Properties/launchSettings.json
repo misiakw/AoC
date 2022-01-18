@@ -2,7 +2,7 @@
   "profiles": {
     "AoC-2021": {
       "commandName": "Project",
-      "commandLineArgs": "-day=19"
+      "commandLineArgs": "-day=24"
     }
   }
 }

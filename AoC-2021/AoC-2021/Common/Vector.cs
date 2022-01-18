@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AoC_2021.Common
 {
-    public class Vector3D: IEquatable<Vector3D>
+    public class Vector3D
     {
         public long X { get; protected set; }
         public long Y { get; protected set; }
@@ -55,16 +55,20 @@ namespace AoC_2021.Common
                     return new Vector3D(A, B, Z, new Rotation3D(Rotation.X, Rotation.Y, Rotation.Z + 90));
             }
         }
-        //public Vector3D Transpose(long x, long y, long z) => new Vector3D(x + X, y + Y, z + Z, Rotation);
         public override string ToString() => $"Vec[{X},{Y}, {Z}]";
 
-        public bool Equals(Vector3D other) => X == other.X && Y == other.Y && Z == other.Z;
-        public override int GetHashCode() => ToString().GetHashCode();
+        public override int GetHashCode() => HashCode.Combine(X, Y, Z);
 
-        public long NYLength => Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z);
+        public override bool Equals(object obj)
+        {
+            return obj is Vector3D d &&
+                   X == d.X &&
+                   Y == d.Y &&
+                   Z == d.Z;
+        }
     }
 
-    public class Rotation3D: IEquatable<Rotation3D>
+    public class Rotation3D
     {
         public readonly int X, Y, Z;
         public Rotation3D(int x, int y, int z)
@@ -75,13 +79,18 @@ namespace AoC_2021.Common
         }
         public override string ToString() => $"Rot[{X},{Y},{Z}]";
 
-        public static Rotation3D Parse(string input)
+        public override bool Equals(object obj)
         {
-            var pos = input.Replace("Rot[", "").Replace("]", "").Split(",").Select(s => int.Parse(s)).ToArray();
-            return new Rotation3D(pos[0], pos[1], pos[2]);
+            return obj is Rotation3D d &&
+                   X == d.X &&
+                   Y == d.Y &&
+                   Z == d.Z;
         }
 
-        public bool Equals(Rotation3D other) => X == other.X && Y == other.Y && Z == other.Z;
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y, Z);
+        }
     }
 
     public enum Axis
