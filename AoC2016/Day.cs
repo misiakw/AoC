@@ -5,24 +5,34 @@ namespace AoC2016
 {
     public abstract class Day<T>
     {
-        protected readonly ConfigBase<T> conf;
+        public Day(int dayNum){
+            DayNum = dayNum;
+        }
+        public readonly int DayNum;
+        protected abstract string Task1(string input);
 
-        public Day(int num){
-            conf = new ConfigBase<T>(num);
+        protected abstract string Task2(string input);
+
+        private IList<Input> Inputs = new List<Input>();
+
+        public Day<T> Input<T>(string name){
+            var input = new Input($"./Inputs/Day{DayNum}", name);
+            Inputs.Add(input);
+            Console.WriteLine($"createInput {name}");
+            return this;
         }
 
         public void Exec(){
-            Console.WriteLine($">>>> {conf.DayNum} <<<<");
-
-            foreach(var input in conf.Inputs){
-                Console.WriteLine(input.Name);
-                Console.WriteLine(input.results);
+            Console.WriteLine($">>> Day {DayNum} <<<");
+            foreach(var input in Inputs){
+                Console.WriteLine($"Task1, input {input.FileName}");
+                Console.WriteLine(Task1(input.Read()));
             }
-
-
+            
+            foreach(var input in Inputs){
+                Console.WriteLine($"Task2, input {input.FileName}");
+                Console.WriteLine(Task2(input.Read()));
+            }
         }
-        protected abstract string Task1(T input);
-
-        protected abstract string Task2(T input);
     }
 }
