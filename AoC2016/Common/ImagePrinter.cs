@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 
-namespace AAoC2016.Common
+namespace AoC2016.Common
 {
     /*public class ImagePrinter
     {

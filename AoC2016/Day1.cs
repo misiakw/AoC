@@ -1,55 +1,44 @@
-﻿using AoC2016.Attributes;
-using AoC2016.InputClasses;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Step = AoC2016.Days.Day1.Step;
 
-namespace AoC2016.Day1
+namespace AoC2016
 {
-    [BasePath("Day1")]
-    [TestFile(File = "example.txt", Name = "Example")]
-    [TestFile(File = "Input.txt", Name = "Input")]
-    public class Day1 : BaseTypeDay<long>
+    public class Day1 : Day<Step>
     {
-        public Day1(string path) : base(path)
-        {}
-
-        public override string Part1(string testName = null)
+        public Day1() : base(1, false)
         {
-            var diffs = GetDifs(this.Input.ToList());
-
-            return diffs.Where(k => k.Item2 < 0).Count().ToString();
+            Input("example1")
+            .Input("example2")
+            .Input("example3")
+            .Input("output");
         }
 
-        public override string Part2(string testName = null)
+        public override Step Parse(string val) => new Step{
+                Rot = val[0],
+                Len = int.Parse(val.Substring(1))
+            };
+
+        public override IList<string> Split(string val) => val.Split(",");
+        public override string Part1(IList<Step> data, Input input)
         {
-            var slided = new List<long>();
-            for(var i=0; i+3 <= this.Input.Count; i++)
-            {
-                slided.Add(this.Input.Skip(i).Take(3).Sum());
-            }
-
-            var diffs = GetDifs(slided);
-
-            return diffs.Where(k => k.Item2 < 0).Count().ToString();
+            return "Part 1";
         }
 
-        private IList<Tuple<long, long>> GetDifs(IList<long> input)
+
+        public override string Part2(IList<Step> data, Input input)
         {
-
-            var diffs = new List<Tuple<long, long>>();
-            var prev = input.First();
-            diffs.Add(Tuple.Create(prev, (long)0));
-
-            foreach (var current in input.Skip(1))
-            {
-                diffs.Add(Tuple.Create(current, prev - current));
-                prev = current;
-            }
-
-            return diffs;
+            return "Part 2";
         }
+
+    }
+}
+namespace AoC2016.Days.Day1{
+    public class Step{
+        public char Rot;
+        public int Len;
     }
 }
