@@ -12,7 +12,10 @@ namespace AoC2016
         public Day1() : base(1, false)
         {
             Input("example1")
+                .RunPart(1, 42)
+                .RunPart(2)
             .Input("example2")
+                .RunPart(1)
             .Input("example3")
             .Input("output");
         }
@@ -23,13 +26,13 @@ namespace AoC2016
             };
 
         public override IList<string> Split(string val) => val.Split(",");
-        public override string Part1(IList<Step> data, Input input)
+        public override object Part1(IList<Step> data, Input input)
         {
-            return "Part 1";
+            return 15;
         }
 
 
-        public override string Part2(IList<Step> data, Input input)
+        public override object Part2(IList<Step> data, Input input)
         {
             return "Part 2";
         }
