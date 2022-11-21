@@ -5,7 +5,7 @@ Set of solutions for riddles from https://adventofcode.com/
 
 | Day | [2016](http://adventofcode.com/2016) | [2021](http://adventofcode.com/2021) |
 |-----|--------------------------------------|--------------------------------------|
-| 1   | ✔ ✖ | ✔ ✔ |
+| 1   | ✔ ✔ | ✔ ✔ |
 | 2   | ✖ ✖ | ✔ ✔ |
 | 3   | ✖ ✖ | ✔ ✔ |
 | 4   | ✖ ✖ | ✔ ✔ |
