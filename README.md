@@ -30,3 +30,5 @@ Set of solutions for riddles from https://adventofcode.com/
 | 23  | ✖ ✖ | ✔ ✖ | ✔ ✔ |
 | 24  | ✖ ✖ | ✔ ✖ | ✖ ✖ |
 | 25  | ✖ ✖ | ✔ ✖ | ✔ ✖ |    
+
+❓
