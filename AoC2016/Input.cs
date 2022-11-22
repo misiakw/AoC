@@ -19,6 +19,7 @@ namespace AoC2016
         public readonly Tuple<object, Type>[] Result = new Tuple<object, Type>[2];
         public readonly string Name;
         private IList<object> _storedInput;
+        public object[,] FailedResults = new object[2,2];
         public object Cache;
 
         public IList<string> Split(Func<string, IList<string>> splitFunc){

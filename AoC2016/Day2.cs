@@ -91,5 +91,3 @@ namespace AoC2016
         }
     }
 }
-namespace AoC2016.Days.Day2{
-}
