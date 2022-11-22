@@ -93,7 +93,7 @@ namespace AoC2016
 
     public abstract class Day<T> : DayBase
     {
-        public Day(int dayNum, bool forceInputParse) : base(dayNum){
+        public Day(int dayNum, bool forceInputParse = true) : base(dayNum){
             _forceInputParse = forceInputParse;
         }
         private bool _forceInputParse;
