@@ -12,9 +12,8 @@ namespace AoC2016
                 File.Create(_filePath).Close();
             }
         }
-        public string Raw{
-            get{ return File.ReadAllText(_filePath);}
-        }
+        public string Raw => File.ReadAllText(_filePath);
+        public string[] Lines => Raw.Split("\n").Select(s => s.Trim()).ToArray();
         private readonly string _filePath;
         public readonly TestType[] Tests = new TestType[2];
         public readonly Tuple<object, Type>[] Result = new Tuple<object, Type>[2];
