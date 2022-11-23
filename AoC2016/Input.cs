@@ -17,6 +17,7 @@ namespace AoC2016
         private readonly string _filePath;
         public readonly TestType[] Tests = new TestType[2];
         public readonly Tuple<object, Type>[] Result = new Tuple<object, Type>[2];
+        public readonly IList<object>[] Invalid = new IList<object>[2]{ new List<object>(), new List<object>()};
         public readonly string Name;
         private IList<object> _storedInput;
         public object[,] FailedResults = new object[2,2];

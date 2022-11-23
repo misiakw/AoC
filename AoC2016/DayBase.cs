@@ -22,6 +22,11 @@ namespace AoC2016
 
         private void ProcessTest(byte testNum, Func<Input, object> testFunc)
         {
+            foreach(var test in tests.Where(t => t.Tests.All(r => r == AoC2016.Input.TestType.Skip))){
+                test.Tests[0] = AoC2016.Input.TestType.Verbal;
+                test.Tests[1] = AoC2016.Input.TestType.Verbal;
+            }
+
             Console.WriteLine($"==== Part {testNum + 1} ====");
             foreach (var test in tests.Where(t => t.Tests[testNum] != AoC2016.Input.TestType.Skip))
             {
@@ -39,7 +44,13 @@ namespace AoC2016
                     {
                         if (desiredResult?.Item1 == null)
                         {
-                            Console.WriteLine($"Result[ {resultObj} ]");
+                            if(test.Invalid[testNum].Contains(resultObj))
+                                Console.WriteLine($"Invalid[ {resultObj} ]");
+                            else
+                                Console.WriteLine($"Result[ {resultObj} ]");
+                        }
+                        else if(test.Invalid[testNum].Contains(resultObj)){
+                             Console.WriteLine($"Invalid[ {resultObj} ]");
                         }
                         else if (resultObj.GetType() != desiredResult.Item2)
                         {
