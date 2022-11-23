@@ -17,7 +17,7 @@ namespace AoC2016
             .Input("example2")
                 //.RunPart(2)
             .Input("output")
-                .RunPart(1, 158835);
+                .RunPart(1, 158835)
                 .RunPart(2, 993);
         }
 
