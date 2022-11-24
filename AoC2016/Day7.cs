@@ -18,7 +18,7 @@ namespace AoC2016
                 .RunPart(2, 3);
             Input("output")
                 .RunPart(1, 115)
-                .RunPart(2);
+                .RunPart(2, 231);
         }
 
         public override Ip7 Parse(string val) => new Ip7(val);
