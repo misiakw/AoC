@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-namespace AoC2016
+namespace AoC2022
 {
     public abstract partial class DayBase
     {
@@ -23,13 +23,13 @@ namespace AoC2016
         private void ProcessTest(byte testNum, Func<Input, object> testFunc)
         {
             Console.WriteLine($"==== Part {testNum + 1} ====");
-            foreach (var test in tests.Where(t => t.Tests[testNum] != AoC2016.Input.TestType.Skip))
+            foreach (var test in tests.Where(t => t.Tests[testNum] != AoC2022.Input.TestType.Skip))
             {
                 try
                 {
                     var resultObj = testFunc(test);
 
-                    if (test.Tests[testNum] == AoC2016.Input.TestType.Silent)
+                    if (test.Tests[testNum] == AoC2022.Input.TestType.Silent)
                         continue;
 
                     Console.WriteLine($"\t{test.Name}");

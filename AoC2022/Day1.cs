@@ -4,30 +4,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AoC2016.Common;
-using Step = AoC2016.Days.Day1.Step;
 
-namespace AoC2016
+namespace AoC2022
 {
     public class Day1 :  DayBase
     {
         public Day1() : base(1)
         {
-            Input("example1")
-                .RunPart(1, 5)
-            .Input("output");
+            Input("example")
+                .RunPart(1, 24000)
+                .RunPart(2, 45000)
+            .Input("output")
+                .RunPart(1, 71471)
+                .RunPart(2, 211189);
         }
 
         public override object Part1(Input input)
         {
-            throw new NotImplementedException();
+            var elves = new List<int>();
+            var current = 0;
+            foreach(var line in input.Lines){
+                if(string.IsNullOrEmpty(line)){
+                    elves.Add(current);
+                    current = 0;
+                }else{
+                    current += int.Parse(line);
+                }
+            }
+            elves.Add(current);
+
+            input.Cache = elves;
+
+            return elves.OrderByDescending(x => x).First();
         }
 
         public override object Part2(Input input)
         {
-            throw new NotImplementedException();
+            var elves = (IList<int>) input.Cache;
+            return elves.OrderByDescending(x => x).Take(3).Sum();
         }
     }
-}
-namespace AoC2016.Days.Day1{
-
 }

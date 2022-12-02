@@ -1,4 +1,4 @@
-﻿namespace AoC2016
+﻿namespace AoC2022
 {
     class Program
     {

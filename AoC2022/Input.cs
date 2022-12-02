@@ -1,4 +1,4 @@
-namespace AoC2016
+namespace AoC2022
 {
     public class Input{
         public Input(string Path, string name){
@@ -12,14 +12,15 @@ namespace AoC2016
                 File.Create(_filePath).Close();
             }
         }
-        public string Raw{
-            get{ return File.ReadAllText(_filePath);}
-        }
+        public string Raw => File.ReadAllText(_filePath);
+        public string[] Lines => Raw.Split("\n").Select(s => s.Trim()).ToArray();
         private readonly string _filePath;
         public readonly TestType[] Tests = new TestType[2];
         public readonly Tuple<object, Type>[] Result = new Tuple<object, Type>[2];
+        public readonly IList<object>[] Invalid = new IList<object>[2]{ new List<object>(), new List<object>()};
         public readonly string Name;
         private IList<object> _storedInput;
+        public object[,] FailedResults = new object[2,2];
         public object Cache;
 
         public IList<string> Split(Func<string, IList<string>> splitFunc){

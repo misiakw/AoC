@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AoC2016.Common;
-using Step = AoC2016.Days.Day1.Step;
-
-namespace AoC2016
+namespace AoC2022
 {
     public class Day16 : DayBase
     {
