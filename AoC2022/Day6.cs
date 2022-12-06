@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AoC2016.Common;
+﻿using AoC.Base;
+
 namespace AoC2022
 {
     public class Day6 : DayBase
@@ -11,20 +7,59 @@ namespace AoC2022
         public Day6() : base(6)
         {
             Input("example1")
+                .RunPart(1, 7)
+                .RunPart(2, 19)
+            .Input("example2")
                 .RunPart(1, 5)
-            .Input("output");
+                .RunPart(2, 23)
+            .Input("example3")
+                .RunPart(1, 6)
+                .RunPart(2, 23)
+            .Input("example4")
+                .RunPart(1, 10)
+                .RunPart(2, 29)
+            .Input("example5")
+                .RunPart(1, 11)
+                .RunPart(2, 26)
+            .Input("output")
+                .RunPart(1, 1760)
+                .RunPart(2);
         }
 
         public override object Part1(Input input)
         {
-            throw new NotImplementedException();
+            var ctr = 0;
+            var window = new Queue<char>();
+
+            foreach(var ch in input.Raw.Trim()){
+                ctr++;
+                window.Enqueue(ch);
+                if(window.Count() == 4){
+                    if(window.Distinct().Count() == 4)
+                        return ctr;
+                    window.Dequeue();
+                }
+            }
+
+            return -1;
         }
 
         public override object Part2(Input input)
         {
-            throw new NotImplementedException();
+            var ctr = 0;
+            var window = new Queue<char>();
+
+            foreach(var ch in input.Raw.Trim()){
+                ctr++;
+                window.Enqueue(ch);
+                if(window.Count() == 14){
+                    if(window.Distinct().Count() == 14)
+                        return ctr;
+                    window.Dequeue();
+                }
+            }
+
+            return -1;
         }
     }
-}
-namespace AoC2016.Days.Day2{
 }

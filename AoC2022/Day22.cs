@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AoC2016.Common;
+
+using AoC.Base;
+
 namespace AoC2022
 {
     public class Day22 : DayBase

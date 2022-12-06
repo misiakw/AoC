@@ -1,4 +1,4 @@
-namespace AoC2022
+namespace AoC.Base
 {
     public class Input{
         public Input(string Path, string name){
@@ -15,7 +15,7 @@ namespace AoC2022
         public string Raw => File.ReadAllText(_filePath);
         public string[] Lines => Raw.Split("\n").Select(s => s.Trim()).ToArray();
         private readonly string _filePath;
-        public readonly TestType[] Tests = new TestType[2];
+        internal readonly TestType[] Tests = new TestType[2];
         public readonly Tuple<object, Type>[] Result = new Tuple<object, Type>[2];
         public readonly IList<object>[] Invalid = new IList<object>[2]{ new List<object>(), new List<object>()};
         public readonly string Name;
@@ -36,7 +36,7 @@ namespace AoC2022
             return _storedInput.Select(o => (T)o).ToList();
         }
 
-        public enum TestType{
+        internal enum TestType{
             Skip = 0, 
             Verbal = 1, 
             Silent = 2

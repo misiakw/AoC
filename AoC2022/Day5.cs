@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using AoC2016.Common;
+
+using AoC.Base;
+
 namespace AoC2022
 {
     public class Day5 : DayBase
