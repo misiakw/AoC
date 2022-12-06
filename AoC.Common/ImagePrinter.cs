@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
-namespace AoC_2021.Common
+namespace AoC.Common
 {
     public class ImagePrinter
     {
@@ -13,7 +11,7 @@ namespace AoC_2021.Common
             InputDir = inputDir;
         }
         private static bool isOpened = false;
-        public void DrawImage(int width, int height, string testName, Action<Graphics, Image> drawFunc)
+        public void DrawImage(int width, int height, string testName, Action<Image> drawFunc)
         {
 
             var fileName = Path.Combine(InputDir, "Img", $"{testName}.png");
@@ -22,20 +20,16 @@ namespace AoC_2021.Common
             if (File.Exists(fileName))
                 File.Delete(fileName);
 
-            using (var image = new Bitmap(width, height))
-            {
-                using (var canvas = Graphics.FromImage(image))
-                {
-                    drawFunc(canvas, image);
-                }
-                image.Save(fileName);
+            using (Image<Rgba32> image = new(width, height)){
+                drawFunc.Invoke(image);
+                image.SaveAsPng(fileName);
             }
-
+            /*
             if (!isOpened)
             {
                 Process.Start("explorer.exe", Path.GetDirectoryName(fileName));
                 isOpened = true;
-            }
+            }*/
         }
     }
 }

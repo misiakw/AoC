@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AoC_2021.Common
+namespace AoC.Common
 {
     public class Point
     {

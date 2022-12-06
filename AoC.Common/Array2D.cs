@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AoC_2021.Common
+namespace AoC.Common
 {
     public class Array2D<T>
     {

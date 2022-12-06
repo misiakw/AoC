@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-namespace AoC_2021.Common
+namespace AoC.Common
 {
     public static class Extensions
     {

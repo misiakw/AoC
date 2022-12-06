@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace AoC_2021.Common
+namespace AoC.Common
 {
     public class Array3D<T>
     {
