@@ -13,11 +13,11 @@ namespace AoC2022
         public Day7() : base(7)
         {
             Input("example1")
-                .RunPart(1, 95437l)
-                .RunPart(2, 24933642l)
+                .RunPart(1, 95437L)
+                .RunPart(2, 24933642L)
             .Input("output")
-                .RunPart(1, 1118405l)
-                .RunPart(2, 12545514l);
+                .RunPart(1, 1118405L)
+                .RunPart(2, 12545514L);
         }
 
         public override object Part1(Input input)
@@ -54,7 +54,7 @@ namespace AoC2022
         public override object Part2(Input input)
         {
              var root = (DiskDir) input.Cache;
-             var needed = 30000000l-(70000000l-root.Size);
+             var needed = 30000000L-(70000000L-root.Size);
 
              var dirs = root.ListDirs().Where(d => d.Size >= needed).OrderBy(d => d.Size);
              return dirs.First().Size;
