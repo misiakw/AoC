@@ -6,7 +6,7 @@ namespace AoC2022
     {
         static void Main(string[] args)
         {
-            new Launcher().Run(10);
+            new Launcher().Run(11);
             /*var day = new Day7();
             day.Execute();*/
         }
