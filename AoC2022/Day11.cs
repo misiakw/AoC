@@ -5,213 +5,160 @@ using System.Text;
 using System.Threading.Tasks;
 
 using AoC.Base;
-using Monkey = AoC2022.Days.Day11.Monkey;
+//using System.Numerics;
 
 namespace AoC2022
 {
-    public class Day11 : Day<Monkey>
+    public class Day11 : DayBase
     {
-        public Day11() : base(11, false)
+        public Day11() : base(11)
         {
             Input("example1")
                 .RunPart(1, 10605L)
-                .RunPart(2, 2713310158L)
+                //.RunPart(2, 2713310158L)
             .Input("output")
-                .RunPart(1, 58056L)
-                .RunPart(2); //1577219568 too low
+                .RunPart(1, 58056L);
+                //.RunPart(2); //1577219568 too low
         }
 
-        public override Monkey Parse(string val) => new Monkey(val);
-
-        public override object Part1(IList<Monkey> data, Input input)
+        public override object Part1(Input input)
         {
-            Monkey.Truncate(); //cleanup temp before next test
-            var monkeys = data.OrderBy(m => m.Number).ToList();
-            input.Cache = monkeys;
+            var inserts = BuildMonkeyInserts(input.Lines.Select(l => l.Trim()).ToArray())
+                .ToArray();
+            input.Cache = inserts;
 
-            for(var i=0; i<20; i++)
+            var monkeys = BuildMonkeys(inserts);
+
+            for(var i=0; i< 20; i++)
                 foreach(var monkey in monkeys)
-                    monkey.Inspect(3);
+                    monkey.Process(3);
 
-            var result = monkeys.OrderByDescending(m => m.Ctr).Take(2).Select(m => m.Ctr).ToArray();
-
-            return (long)result[0]*(long)result[1];
+            var top = monkeys.Select(m => m.Ctr).OrderByDescending(m => m).Take(2).ToArray();
+            return top[0]*top[1];
         }
 
-        public override object Part2(IList<Monkey> data, Input input)
+        public override object Part2(Input input)
         {
-            var monkeys = ((IList<Monkey>)input.Cache).OrderBy(m => m.Number).ToList();
-            foreach (var monkey in monkeys)
-                monkey.Ctr = 0;
-
-            for(var i=0; i<10000; i++)
-                foreach(var monkey in monkeys)
-                    monkey.Inspect(1);
-
-            var result = monkeys.OrderByDescending(m => m.Ctr).Take(2).Select(m => m.Ctr).ToArray();
-
-
-            return result[0]*result[1];
+            throw new NotImplementedException();
         }
 
-        public override IList<string> Split(string val) => val.Split("\n\n").ToList();
-    }
-}
-namespace AoC2022.Days.Day11{
-    public class Monkey{
-        private static IDictionary<int, Monkey> Herd = new Dictionary<int, Monkey>();
-        public readonly int Number;
-        public Queue<ModNum> ToInspect = new Queue<ModNum>();
-        private InspectorFactor inspector;
-        private long dividor = 1;
-        public int ifTrueDest, ifFalseDest;
-        public Monkey ifTrue, ifFalse;
-        public int Ctr = 0;
+        private class ModNum{
+            public static int[] modulus;
 
-        public Monkey(string description){
-            var lines = description.Split("\n");
+            private long val;
 
-            Number = int.Parse(lines[0].Substring(7, lines[0].Length-8));
+            private IDictionary<int, long> Value = new Dictionary<int, long>();
+            public ModNum(long value){
+                foreach(var mod in modulus)
+                    Value.Add(mod, value%mod);
+                val = value;
+            }
 
-            var objs = lines[1].Substring(18, lines[1].Length-18)
-                .Split(", ").Select(s => long.Parse(s));
-            foreach(var obj in objs)
-                ToInspect.Enqueue(new ModNum(obj));
+            public bool IsDividable(int div){
+                return val % div == 0;
+            }
 
-            inspector = new InspectorFactor(lines[2].Split("=", StringSplitOptions.TrimEntries)[1]);
-
-            dividor = long.Parse(lines[3].Replace("Test: divisible by", "").Trim());
-
-            ifTrueDest = int.Parse(lines[4].Replace("If true: throw to monkey", "").Trim());
-            ifFalseDest = int.Parse(lines[5].Replace("If false: throw to monkey", "").Trim());
-
-            foreach (var monkey in Herd.Values) monkey.Introduce(this);
-            Herd.Add(Number, this);
+            public static ModNum operator *(ModNum a, ModNum b){
+                return new ModNum(a.val * b.val);
+            }
+            public static ModNum operator *(ModNum a, int b){
+                return new ModNum(a.val * b);
+            }
+            public static ModNum operator +(ModNum a, int b){
+                return new ModNum(a.val + b);
+            }
+            public static ModNum operator /(ModNum a, int b){
+                return b == 1 ? a : new ModNum(a.val / b);
+            }
+        }
+        private struct MonkeyInsert{
+            public int Number;
+            public int[] Items;
+            public int divider;
+            public string[] operation;
+            public int[] Targets;
         }
 
-        public void Introduce(Monkey newbie){
-            if(newbie.ifTrueDest == Number) newbie.ifTrue = this;
-            if(newbie.ifFalseDest == Number) newbie.ifFalse = this;
-
-            if(ifTrueDest == newbie.Number) ifTrue = newbie;
-            if(ifFalseDest == newbie.Number) ifFalse = newbie;
-        }
-
-        public void Inspect(int worryReducer){
-            if (ToInspect.Count() == 0)
-                return;
-
-            while(ToInspect.Count > 0){
-                var lvl = ToInspect.Dequeue();
-                lvl = inspector.Calculate(lvl)/worryReducer;
-
-                var nextMonkey = (lvl%dividor == 0) ? ifTrue : ifFalse;
-                nextMonkey.ToInspect.Enqueue(lvl);
-                Ctr++;
+        private IEnumerable<MonkeyInsert> BuildMonkeyInserts(string[] input){
+            for(var i=0; i<input.Count(); i+=7){
+                var set = new List<string>();
+                for(var x = 0; x< 6 ; x++)
+                    set.Add(input[i+x]);
+                 yield return BuildMonkeyInsert(set.ToArray());
             }
         }
 
-        public static void Truncate(){
-            Herd = new Dictionary<int, Monkey>();
-        }
-        public override string ToString() => $"Monkey[{Number}: Ctr={Ctr}]";
+        private MonkeyInsert BuildMonkeyInsert(string[] input) => new MonkeyInsert
+        {
+            Number = int.Parse(input[0].Replace("Monkey ", "").Replace(":", "")),
+            Items = input[1].Replace("Starting items: ", "").Split(", ", StringSplitOptions.TrimEntries).Select(e => int.Parse(e)).ToArray(),
+            divider = int.Parse(input[3].Replace("Test: divisible by ", "")),
+            operation = input[2].Replace("Operation: new = ", "").Split(" ", StringSplitOptions.TrimEntries).ToArray(),
+            Targets = string.Join("|", input.Skip(4).ToArray())
+                .Replace("true", "").Replace("false", "").Replace("If : throw to monkey ", "").Split("|")
+                .Select(n => int.Parse(n)).ToArray()
+        };
 
-        private class InspectorFactor{
-            private long? b;
-            private Func<ModNum, ModNum> operatorFunc;
+        private class Monkey{
+            public readonly MonkeyInsert Insert;
+            public Monkey ifTrue;
+            public Monkey ifFalse;
+            public Queue<ModNum> Objs = new Queue<ModNum>();
+            public long Ctr = 0;
+            private int a, b, c;
+            public Monkey(MonkeyInsert insert){
+                Insert = insert;
+                foreach(var obj in Insert.Items)
+                    Objs.Enqueue(new ModNum(obj));
 
-            public InspectorFactor(string input){
-                var parts = input.Split(" ");
-                if(parts[0] == parts[2]){
-                    operatorFunc = (a) => a.Sqrt();
+                if(Insert.operation[1] == "*")
+                    if(insert.operation[0] == insert.operation[2])
+                        a = 1;
+                    else
+                        b = int.Parse(Insert.operation[2]);
+                else
+                    c = int.Parse(Insert.operation[2]);
+            }
+
+            public void Process(int divider){
+                if(!Objs.Any())
+                    return;
+
+                while(Objs.Any()){
+                    Ctr++;
+                    var item = Objs.Dequeue();
+                    item = Calculate(item);
+                    item = item / divider;
+                    if (item.IsDividable(Insert.divider))
+                        ifTrue.Objs.Enqueue(item);
+                    else
+                        ifFalse.Objs.Enqueue(item);
                 }
-                else{
-                    if (parts[2] != "old") 
-                        b = long.Parse(parts[2]);
-                    switch (parts[1][0]){
-                        case '*':
-                            operatorFunc = (a) => a * (b ?? 1);
-                            break;
-                        case '+':
-                            operatorFunc = (a) => a + (b ?? 0);
-                            break;
-                        default:
-                            throw new InvalidOperationException($"Unknown operator ${parts[1]}");
-                    }
-                }
+
+            }
+            private ModNum Calculate(ModNum num){
+                if(a != 0)
+                    return num * num;
+                else if(b != 0)
+                    return num * b;
+                else
+                    return num + c;
+            }
+        }
+
+        private Monkey[] BuildMonkeys(MonkeyInsert[] inserts){
+            ModNum.modulus = inserts.Select(m => m.divider).Distinct().ToArray();
+            var monkeys = new List<Monkey>();
+
+            foreach(var insert in inserts)
+                monkeys.Add(new Monkey(insert));
+
+            foreach(var monkey in monkeys){
+                monkey.ifTrue = monkeys.First(m => m.Insert.Number == monkey.Insert.Targets[0]);
+                monkey.ifFalse = monkeys.First(m => m.Insert.Number == monkey.Insert.Targets[1]);
             }
 
-            public ModNum Calculate(ModNum old) => 
-                operatorFunc.Invoke(old);
-        }
-    }
-
-    public class ModNum{
-        public ModNum(long rest){
-            Rest = rest;
-        }
-        public long Rest;
-        private IDictionary<long, int> Multiplications = new Dictionary<long, int>();
-        public static ModNum operator *(ModNum a, long b){
-            if (a.Multiplications.Any()){
-                a.Multiplications.PushAdd(b);
-                a.Rest *= b;
-            }else{
-                a.Multiplications.Add(a.Rest, 1);
-                a.Multiplications.PushAdd(b);
-                a.Rest = 0;
-            }
-            return a;
-        }
-
-        public static ModNum operator +(ModNum a, long val){
-            a.Rest += val;
-            return a;
-        }
-        public static ModNum operator /(ModNum a, long div) => div == 1 ? a : new ModNum(a.ToLong() / div)
-
-        public static long operator %(ModNum a, long mod){
-            return a.ToLong()%mod;
-
-            var mul = a.Multiplications.Any() ? 1L: 0L;
-
-            if(!a.Multiplications.Any() || a.Multiplications.Keys.Any(k => k%mod == 0) 
-                || a.Multiplications.Values.Any(v => v%mod == 0))
-                return a.Rest % mod;
-
-            foreach(var kv in a.Multiplications){
-                var tmp = (kv.Key%mod)*kv.Value;
-                mul *= tmp;
-            }
-            return (mul + a.Rest)%mod;
-        }
-
-        public long ToLong(){
-            if(Multiplications.Any()){
-                var result = 1L;
-                foreach (var kv in Multiplications)
-                    result *= (kv.Key * kv.Value);
-                return result + Rest;
-            }
-            else 
-                return Rest;
-        }
-        public ModNum Sqrt(){
-            return new ModNum(this.ToLong()*this.ToLong());
-            foreach(var k in Multiplications.Keys)
-                Multiplications[k] += Multiplications[k];
-            Rest = Rest * Rest;
-            return this;
-        }
-    }
-
-    public static class Ext{
-        public static IDictionary<long, int> PushAdd(this IDictionary<long, int> dict, long val){
-            if(dict.ContainsKey(val))
-                dict[val]++;
-            else
-                dict.Add(val, 1);
-            return dict;
+            return monkeys.OrderBy(m => m.Insert.Number).ToArray();
         }
     }
 }
