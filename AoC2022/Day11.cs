@@ -15,10 +15,12 @@ namespace AoC2022
         {
             Input("example1")
                 .RunPart(1, 10605L)
-                //.RunPart(2, 2713310158L)
+                .RunPart(2, 2713310158L)
             .Input("output")
-                .RunPart(1, 58056L);
-                //.RunPart(2); //1577219568 too low
+                .RunPart(1, 58056L)
+                .RunPart(2, 15048718170L); 
+                //1577219568  too low
+                //15897301084 too high
         }
 
         public override object Part1(Input input)
@@ -39,7 +41,16 @@ namespace AoC2022
 
         public override object Part2(Input input)
         {
-            throw new NotImplementedException();
+            var inserts = (MonkeyInsert[])input.Cache;
+
+            var monkeys = BuildMonkeys(inserts);
+
+            for(var i=0; i< 10000; i++)
+                foreach(var monkey in monkeys)
+                    monkey.Process(1);
+
+            var top = monkeys.Select(m => m.Ctr).OrderByDescending(m => m).Take(2).ToArray();
+            return top[0]*top[1];
         }
 
         private class ModNum{
@@ -55,17 +66,34 @@ namespace AoC2022
             }
 
             public bool IsDividable(int div){
+                if (Value.ContainsKey(div))
+                    return Value[div]%div == 0;
                 return val % div == 0;
             }
 
             public static ModNum operator *(ModNum a, ModNum b){
-                return new ModNum(a.val * b.val);
+                foreach(var key in a.Value.Keys){
+                    var value = a.Value[key];
+                    a.Value[key] = (value%key * b.Value[key]%key)%key;
+                }
+                a.val *= b.val;
+                return a;
             }
             public static ModNum operator *(ModNum a, int b){
-                return new ModNum(a.val * b);
+                foreach(var key in a.Value.Keys){
+                    var value = a.Value[key];
+                    a.Value[key] = (value%key * b%key)%key;
+                }
+                a.val *= b;
+                return a;
             }
             public static ModNum operator +(ModNum a, int b){
-                return new ModNum(a.val + b);
+                foreach(var key in a.Value.Keys){
+                    var value = a.Value[key];
+                    a.Value[key] = (value%key + b%key)%key;
+                }
+                a.val += b;
+                return a;
             }
             public static ModNum operator /(ModNum a, int b){
                 return b == 1 ? a : new ModNum(a.val / b);
