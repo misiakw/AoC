@@ -18,9 +18,7 @@ namespace AoC2022
                 .RunPart(2, 2713310158L)
             .Input("output")
                 .RunPart(1, 58056L)
-                .RunPart(2, 15048718170L); 
-                //1577219568  too low
-                //15897301084 too high
+                .RunPart(2, 15048718170L);
         }
 
         public override object Part1(Input input)
@@ -149,18 +147,10 @@ namespace AoC2022
             }
 
             public void Process(int divider){
-                if(!Objs.Any())
-                    return;
-
-                while(Objs.Any()){
-                    Ctr++;
-                    var item = Objs.Dequeue();
-                    item = Calculate(item);
-                    item = item / divider;
-                    if (item.IsDividable(Insert.divider))
-                        ifTrue.Objs.Enqueue(item);
-                    else
-                        ifFalse.Objs.Enqueue(item);
+                for(;Objs.Any(); Ctr++){
+                    var item = Calculate(Objs.Dequeue())/divider;
+                    (item.IsDividable(Insert.divider)? ifTrue: ifFalse)
+                        .Objs.Enqueue(item);
                 }
 
             }
