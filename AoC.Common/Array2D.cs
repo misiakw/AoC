@@ -41,6 +41,8 @@ namespace AoC.Common
             }
         }
 
+        public T this[Point p] => this[p.X, p.Y];
+
         public T this[long x, long y]
         {
             get

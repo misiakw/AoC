@@ -168,7 +168,8 @@ namespace AoC2022.Days.Day11{
             a.Rest += val;
             return a;
         }
-        public static ModNum operator /(ModNum a, long div) => div == 1 ? a : new ModNum(a.ToLong() / div)
+        public static ModNum operator /(ModNum a, long div) => 
+            div == 1 ? a : new ModNum(a.ToLong() / div);
 
         public static long operator %(ModNum a, long mod){
             return a.ToLong()%mod;
