@@ -15,7 +15,10 @@ namespace AoC2022
         {
             Input("example1")
                 .RunPart(1, 13)
-            .Input("output");
+                .RunPart(2, 140)
+            .Input("output")
+                .RunPart(1, 5185)
+                .RunPart(2);
         }
 
         public override SignalPacket[] Parse(string val) =>
@@ -23,12 +26,33 @@ namespace AoC2022
 
         public override object Part1(IList<SignalPacket[]> data, Input input)
         {
-            throw new NotImplementedException();
+            var pairs = new List<int>();
+            var pairNum = 1;
+            foreach (var set in data){
+                var left = set[0];
+                var right = set[1];
+                var compare = left.CompareTo(right);
+                if (compare < 0)
+                   pairs.Add(pairNum);
+                pairNum++;
+            }
+            
+            return pairs.Sum();;
         }
 
         public override object Part2(IList<SignalPacket[]> data, Input input)
         {
-            throw new NotImplementedException();
+            var div1 = new SignalPacket("[[2]]");
+            var div2 = new SignalPacket("[[6]]");
+
+            var packets = new List<SignalPacket>(){div1, div2};
+            foreach (var pair in data){
+                packets.Add(pair[0]);
+                packets.Add(pair[1]);
+            }
+            packets = packets.Order().ToList();
+
+            return (packets.IndexOf(div1)+1)*(packets.IndexOf(div2)+1);
         }
 
         public override IList<string> Split(string val) =>
@@ -60,7 +84,22 @@ namespace AoC2022.Days.Day13{
         }
         public int CompareTo(SignalPacket? other)
         {
-            throw new NotImplementedException();
+            if (packets == null && other.packets == null){ // string comparation
+                var result = value.CompareTo(other.value);
+                return result;
+            }
+
+            var leftList = packets ?? new List<SignalPacket>(){new SignalPacket(value)};
+            var rightList = other.packets ?? new List<SignalPacket>(){new SignalPacket(other.value)};
+
+            for(var i=0; i<leftList.Count(); i++){
+                if(rightList.Count() <= i) //right list ended earlier
+                    return 1;
+                var comp = leftList[i].CompareTo(rightList[i]);
+                if (comp != 0)
+                    return comp;
+            }
+            return leftList.Count() < rightList.Count() ? -1 : 0;
         }
         private string ReadPacketList(string input, int start){
             var lvl = 0;
