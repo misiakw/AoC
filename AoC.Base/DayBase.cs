@@ -95,10 +95,10 @@ namespace AoC.Base
 
     public abstract class Day<T> : DayBase
     {
-        public Day(int dayNum, bool forceInputParse) : base(dayNum){
-            _forceInputParse = forceInputParse;
+        protected Day(int dayNum) : base(dayNum)
+        {
         }
-        private bool _forceInputParse;
+
         public abstract object Part1(IList<T> data, Input input);
         public abstract object Part2(IList<T> data, Input input);
         public abstract IList<string> Split(string val);

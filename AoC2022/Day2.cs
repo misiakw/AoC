@@ -4,7 +4,7 @@ namespace AoC2022
 {
     public class Day2 : Day<char[]>
     {
-        public Day2() : base(2, false)
+        public Day2() : base(2)
         {
             Input("example1")
                 .RunPart(1, 15)
