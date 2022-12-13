@@ -12,7 +12,7 @@ namespace AoC.Base
                 File.Create(_filePath).Close();
             }
         }
-        public string Raw => File.ReadAllText(_filePath);
+        public string Raw => File.ReadAllText(_filePath).Replace("\r", "");
         public string[] Lines => Raw.Split("\n").Select(s => s.Trim()).ToArray();
         private readonly string _filePath;
         internal readonly TestType[] Tests = new TestType[2];
