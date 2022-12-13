@@ -18,7 +18,7 @@ namespace AoC2022
                 .RunPart(2, 140)
             .Input("output")
                 .RunPart(1, 5185)
-                .RunPart(2);
+                .RunPart(2, 23751);
         }
 
         public override SignalPacket[] Parse(string val) =>
