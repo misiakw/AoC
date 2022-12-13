@@ -64,11 +64,11 @@ namespace AoC2022.Days.Day13{
             
             for(var ctr=0; ctr < input.Length;)
                 if(input[ctr] == '['){
-                    var list = ReadPacketList(input, ctr);
+                    var list = ReadPacketList(input, ctr).ToArray();
                     ctr += list.Length+3;
-                    packets.Add(new SignalPacket(list));
+                    packets.Add(new SignalPacket(new string(list)));
                 }else{
-                    var number = ReadNumber(input, ctr);
+                    var number = ReadNumber(input, ctr).ToArray();
                     ctr += number.Length+1;
                     packets.Add(new SignalPacket(int.Parse(number)));
                 }
@@ -90,30 +90,23 @@ namespace AoC2022.Days.Day13{
             }
             return leftList.Count() < rightList.Count() ? -1 : 0;
         }
-        private string ReadPacketList(string input, int start){
+        private IEnumerable<char> ReadPacketList(string input, int start){
             var lvl = 0;
-            var result = string.Empty;
             for (var i = start+1; i < input.Length; i++){
                 if(input[i] == '[') lvl++;
                 if(input[i] == ']'){
                     if(lvl == 0) break;
                     lvl--;
                 }
-                result += input[i];
+                yield return input[i];
             }
-            return result;
         }
-        private string ReadNumber(string input, int start){
-            var result = string.Empty;
+        private IEnumerable<char> ReadNumber(string input, int start){
             while(start < input.Length && input[start] != ',')
-                result += input[start++];
-            return result;
+                yield return input[start++];
         }
-        public override string ToString()
-        {
-            return packets != null 
-                ? "["+string.Join(",", packets.Select(p => p.ToString()))+"]"
-                : value.ToString();
-        }
+        public override string ToString() => packets != null 
+            ? "["+string.Join(",", packets.Select(p => p.ToString()))+"]"
+            : value.ToString();
     }
 }
