@@ -26,18 +26,12 @@ namespace AoC2022
 
         public override object Part1(IList<SignalPacket[]> data, Input input)
         {
-            var pairs = new List<int>();
-            var pairNum = 1;
-            foreach (var set in data){
-                var left = set[0];
-                var right = set[1];
-                var compare = left.CompareTo(right);
-                if (compare < 0)
-                   pairs.Add(pairNum);
-                pairNum++;
-            }
+            var result = 0;
+            for(var i=0; i<data.Count(); i++)
+                if (data[i][0].CompareTo(data[i][1]) < 0)
+                    result += i+1;
             
-            return pairs.Sum();;
+            return result;
         }
 
         public override object Part2(IList<SignalPacket[]> data, Input input)
@@ -45,11 +39,9 @@ namespace AoC2022
             var div1 = new SignalPacket("[[2]]");
             var div2 = new SignalPacket("[[6]]");
 
-            var packets = new List<SignalPacket>(){div1, div2};
-            foreach (var pair in data){
-                packets.Add(pair[0]);
-                packets.Add(pair[1]);
-            }
+            var packets = data.SelectMany(d => d).ToList();
+            packets.Add(div1);
+            packets.Add(div2);
             packets = packets.Order().ToList();
 
             return (packets.IndexOf(div1)+1)*(packets.IndexOf(div2)+1);
@@ -68,9 +60,9 @@ namespace AoC2022.Days.Day13{
             value = input;
         }
         public SignalPacket(string input){
-            packets= new List<SignalPacket>();
-            var ctr = 0;
-            while(ctr < input.Length){
+            packets = new List<SignalPacket>();
+            
+            for(var ctr=0; ctr < input.Length;)
                 if(input[ctr] == '['){
                     var list = ReadPacketList(input, ctr);
                     ctr += list.Length+3;
@@ -80,14 +72,11 @@ namespace AoC2022.Days.Day13{
                     ctr += number.Length+1;
                     packets.Add(new SignalPacket(int.Parse(number)));
                 }
-            }
         }
         public int CompareTo(SignalPacket? other)
         {
-            if (packets == null && other.packets == null){ // string comparation
-                var result = value.CompareTo(other.value);
-                return result;
-            }
+            if (packets == null && other.packets == null) // string comparation
+                return value.CompareTo(other.value);
 
             var leftList = packets ?? new List<SignalPacket>(){new SignalPacket(value)};
             var rightList = other.packets ?? new List<SignalPacket>(){new SignalPacket(other.value)};
@@ -104,14 +93,13 @@ namespace AoC2022.Days.Day13{
         private string ReadPacketList(string input, int start){
             var lvl = 0;
             var result = string.Empty;
-            while(start+1 < input.Length){
-                start++;
-                if(input[start] == '[') lvl++;
-                if(input[start] == ']'){
+            for (var i = start+1; i < input.Length; i++){
+                if(input[i] == '[') lvl++;
+                if(input[i] == ']'){
                     if(lvl == 0) break;
                     lvl--;
                 }
-                result += input[start];
+                result += input[i];
             }
             return result;
         }
