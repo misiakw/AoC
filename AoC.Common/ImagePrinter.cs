@@ -11,14 +11,14 @@ namespace AoC.Common
             InputDir = inputDir;
         }
         private static bool isOpened = false;
-        public void DrawImage(int width, int height, string testName, Action<Image> drawFunc)
+        public void DrawImage(int width, int height, string Name, Action<Image> drawFunc)
         {
 
-            var fileName = Path.Combine(InputDir, "Img", $"{testName}.png");
+            var fileName = Path.Combine(InputDir, "Img", $"{Name}.png");
             if (!Directory.Exists(Path.GetDirectoryName(fileName)))
                 Directory.CreateDirectory(Path.GetDirectoryName(fileName));
-            if (File.Exists(fileName))
-                File.Delete(fileName);
+            if (File.Exists(Name))
+                File.Delete(Name);
 
             using (Image<Rgba32> image = new(width, height)){
                 drawFunc.Invoke(image);

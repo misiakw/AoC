@@ -14,7 +14,7 @@ namespace AoC2022
         public Day13() : base(13)
         {
             Input("example1")
-                .RunPart(1, 13)
+                .RunPart(1, 14)
             .Input("output");
         }
 
