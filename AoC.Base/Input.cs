@@ -15,6 +15,7 @@ namespace AoC.Base
         public string Raw => File.ReadAllText(_filePath).Replace("\r", "");
         public string[] Lines => Raw.Split("\n").Select(s => s.Trim()).ToArray();
         private readonly string _filePath;
+        public string InputDir => System.IO.Path.GetDirectoryName(_filePath).ToString();
         internal readonly TestType[] Tests = new TestType[2];
         public readonly Tuple<object, Type>[] Result = new Tuple<object, Type>[2];
         public readonly IList<object>[] Invalid = new IList<object>[2]{ new List<object>(), new List<object>()};

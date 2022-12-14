@@ -11,21 +11,23 @@ namespace AoC.Common
         }
 
         protected IDictionary<string, T> _data = new Dictionary<string, T>();
-        protected long _minX, _maxX = 0;
-        protected long _minY, _maxY = 0;
+        protected long _minX = long.MaxValue;
+        protected long _maxX = long.MinValue;
+        protected long _minY = long.MaxValue;
+        protected long _maxY = long.MinValue;
         private readonly T defaultValue;
         public long Width
         {
             get
             {
-                return _maxX - _minX;
+                return _data.Any() ? _maxX - _minX : 0;
             }
         }
         public long Height
         {
             get
             {
-                return _maxY - _minY;
+                return _data.Any() ? _maxY - _minY : 0;
             }
         }
         /// <summary>returns span of X and Y (in this order)</summary>
@@ -33,10 +35,16 @@ namespace AoC.Common
         {
             get
             {
-                return new Tuple<long, long>[2]
+                return _data.Any() 
+                ? new Tuple<long, long>[2]
                 {
                     Tuple.Create(_minX, _maxX),
                     Tuple.Create(_minY, _maxY),
+                }
+                : new Tuple<long, long>[2]
+                {
+                    Tuple.Create(0L, 0L),
+                    Tuple.Create(0L, 0L),
                 };
             }
         }
@@ -72,6 +80,8 @@ namespace AoC.Common
 
        public string Draw(Func<T, string> drawing, string split = "")
         {
+            if (!_data.Any()) return "[Empty]";
+            
             var sb = new StringBuilder();
             for(var y = _minY; y<=_maxY; y++)
             {
