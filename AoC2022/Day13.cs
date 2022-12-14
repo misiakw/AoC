@@ -14,8 +14,11 @@ namespace AoC2022
         public Day13() : base(13)
         {
             Input("example1")
-                .RunPart(1, 14)
-            .Input("output");
+                .RunPart(1, 13)
+                .RunPart(2, 140)
+            .Input("output")
+                .RunPart(1, 5185)
+                .RunPart(2, 23751);
         }
 
         public override SignalPacket[] Parse(string val) =>
@@ -23,12 +26,25 @@ namespace AoC2022
 
         public override object Part1(IList<SignalPacket[]> data, Input input)
         {
-            throw new NotImplementedException();
+            var result = 0;
+            for(var i=0; i<data.Count(); i++)
+                if (data[i][0].CompareTo(data[i][1]) < 0)
+                    result += i+1;
+            
+            return result;
         }
 
         public override object Part2(IList<SignalPacket[]> data, Input input)
         {
-            throw new NotImplementedException();
+            var div1 = new SignalPacket("[[2]]");
+            var div2 = new SignalPacket("[[6]]");
+
+            var packets = data.SelectMany(d => d).ToList();
+            packets.Add(div1);
+            packets.Add(div2);
+            packets = packets.Order().ToList();
+
+            return (packets.IndexOf(div1)+1)*(packets.IndexOf(div2)+1);
         }
 
         public override IList<string> Split(string val) =>
@@ -44,49 +60,53 @@ namespace AoC2022.Days.Day13{
             value = input;
         }
         public SignalPacket(string input){
-            packets= new List<SignalPacket>();
-            var ctr = 0;
-            while(ctr < input.Length){
+            packets = new List<SignalPacket>();
+            
+            for(var ctr=0; ctr < input.Length;)
                 if(input[ctr] == '['){
-                    var list = ReadPacketList(input, ctr);
+                    var list = ReadPacketList(input, ctr).ToArray();
                     ctr += list.Length+3;
-                    packets.Add(new SignalPacket(list));
+                    packets.Add(new SignalPacket(new string(list)));
                 }else{
-                    var number = ReadNumber(input, ctr);
+                    var number = ReadNumber(input, ctr).ToArray();
                     ctr += number.Length+1;
                     packets.Add(new SignalPacket(int.Parse(number)));
                 }
-            }
         }
         public int CompareTo(SignalPacket? other)
         {
-            throw new NotImplementedException();
+            if (packets == null && other.packets == null) // string comparation
+                return value.CompareTo(other.value);
+
+            var leftList = packets ?? new List<SignalPacket>(){new SignalPacket(value)};
+            var rightList = other.packets ?? new List<SignalPacket>(){new SignalPacket(other.value)};
+
+            for(var i=0; i<leftList.Count(); i++){
+                if(rightList.Count() <= i) //right list ended earlier
+                    return 1;
+                var comp = leftList[i].CompareTo(rightList[i]);
+                if (comp != 0)
+                    return comp;
+            }
+            return leftList.Count() < rightList.Count() ? -1 : 0;
         }
-        private string ReadPacketList(string input, int start){
+        private IEnumerable<char> ReadPacketList(string input, int start){
             var lvl = 0;
-            var result = string.Empty;
-            while(start+1 < input.Length){
-                start++;
-                if(input[start] == '[') lvl++;
-                if(input[start] == ']'){
+            for (var i = start+1; i < input.Length; i++){
+                if(input[i] == '[') lvl++;
+                if(input[i] == ']'){
                     if(lvl == 0) break;
                     lvl--;
                 }
-                result += input[start];
+                yield return input[i];
             }
-            return result;
         }
-        private string ReadNumber(string input, int start){
-            var result = string.Empty;
+        private IEnumerable<char> ReadNumber(string input, int start){
             while(start < input.Length && input[start] != ',')
-                result += input[start++];
-            return result;
+                yield return input[start++];
         }
-        public override string ToString()
-        {
-            return packets != null 
-                ? "["+string.Join(",", packets.Select(p => p.ToString()))+"]"
-                : value.ToString();
-        }
+        public override string ToString() => packets != null 
+            ? "["+string.Join(",", packets.Select(p => p.ToString()))+"]"
+            : value.ToString();
     }
 }
