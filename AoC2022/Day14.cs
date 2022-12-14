@@ -1,5 +1,6 @@
 ﻿using AoC.Base;
 using AoC.Common;
+using ImageMagick;
 
 namespace AoC2022
 {
@@ -23,6 +24,7 @@ namespace AoC2022
             while (DropSand(map))
                 ctr++;
 
+            PrintImg(map, input.InputDir, $"{input.Name}-Part1");
             return ctr;
         }
 
@@ -30,11 +32,14 @@ namespace AoC2022
         {   
             var map = GetMap(input);
 
+            PrintImg(map, input.InputDir, $"{input.Name}-empty");
+
             var ctr = 0;
             var abyss = (int)map.Bounds[1].Item2 + 1;
             while (DropSand(map, abyss))
                 ctr++;
 
+            PrintImg(map, input.InputDir, $"{input.Name}-Part2");
             return ctr;
         }
 
@@ -95,6 +100,30 @@ namespace AoC2022
         private int GetDrawDir(int s, int f){
             var d = s - f;
             return d == 0 ? d : d > 0 ? 1 : -1;
+        }
+
+        private void PrintImg(Array2D<char> map, string dir, string name){
+            var printer = new ImagePrinter(dir);
+            printer.DrawImage((int)map.Width*10, (int)map.Height * 10, name,
+            img => {
+                var startX = map.Bounds[0].Item1;
+                var startY = map.Bounds[1].Item1;
+                for(var y=startY; y <= map.Bounds[1].Item2; y++)
+                    for(var x=startX; x <= map.Bounds[0].Item2; x++){
+                        var rect = new DrawableRectangle((x-startX)*10, (y-startY)*10,(x-startX)*10+10, (y-startY)*10+10);
+                        MagickColor color = new MagickColor("red");
+                        switch(map[x, y]){
+                            case '#':
+                                color = new MagickColor("gray");
+                                break;
+                            case 'o':
+                                color = new MagickColor("yellow");
+                                break;
+                        }
+                        if(map[x, y] != '.') 
+                            img.Draw(new DrawableStrokeColor(color), new DrawableStrokeWidth(1), new DrawableFillColor(color), rect);
+                    }
+            });
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+﻿using ImageMagick;
 
 namespace AoC.Common
 {
@@ -11,7 +10,7 @@ namespace AoC.Common
             InputDir = inputDir;
         }
         private static bool isOpened = false;
-        public void DrawImage(int width, int height, string Name, Action<Image> drawFunc)
+        public void DrawImage(int width, int height, string Name, Action<MagickImage> drawFunc)
         {
 
             var fileName = Path.Combine(InputDir, "Img", $"{Name}.png");
@@ -20,9 +19,9 @@ namespace AoC.Common
             if (File.Exists(Name))
                 File.Delete(Name);
 
-            using (Image<Rgba32> image = new(width, height)){
-                drawFunc.Invoke(image);
-                image.SaveAsPng(fileName);
+            using(MagickImage image = new MagickImage(new MagickColor(0,0,0,0), width, height)){
+                drawFunc(image);
+                image.Write(fileName, MagickFormat.Png);
             }
             /*
             if (!isOpened)

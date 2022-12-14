@@ -12,4 +12,8 @@
   <ProjectReference Include="../AoC.Base/AoC.Base.csproj" />
 </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Magick.NET-Q16-x64" Version="12.2.1" />
+  </ItemGroup>
+
 </Project>
