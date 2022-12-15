@@ -15,17 +15,18 @@ namespace AoC2022
         {
             Input("example1")
                 .RunPart(1, 26)
-                .RunPart(2, 56000011)
+                .RunPart(2, 56000011L)
             .Input("output")
-                .RunPart(1, 6275922);
+                .RunPart(1, 6275922)
+                .RunPart(2, 11747175442119L);
         }
 
         public override object Part1(Input input)
         {
             var searchLine = input.Name == "example1" ? 10 : 2000000;
             input.Cache = PrepareInput(input.Lines);
-            var sensors = (IList<Sensor>)((Tuple<List<Sensor>, List<Beacon>>)input.Cache).Item1;
-            var beacons = (IList<Beacon>)((Tuple<List<Sensor>, List<Beacon>>)input.Cache).Item2;
+            var sensors = (IList<Sensor>)((Tuple<List<Sensor>, List<Point>>)input.Cache).Item1;
+            var beacons = (IList<Point>)((Tuple<List<Sensor>, List<Point>>)input.Cache).Item2;
 
             var considerable = sensors.Where(s => Math.Abs(searchLine - s.Y) <= s.Range).ToList();
 
@@ -45,23 +46,25 @@ namespace AoC2022
 
         public override object Part2(Input input)
         {
-            var maxVal = input.Name == "example1" ? 20 : 4000000;
-            var sensors = (IList<Sensor>)((Tuple<List<Sensor>, List<Beacon>>)input.Cache).Item1;
-            var beacons = (IList<Beacon>)((Tuple<List<Sensor>, List<Beacon>>)input.Cache).Item2;
+            var maxVal = input.Name == "example1" ? 20L : 4000000L;
+            var sensors = (IList<Sensor>)((Tuple<List<Sensor>, List<Point>>)input.Cache).Item1;
 
-            var map = new Array2D<byte>(0);
+            var map = new Dictionary<long, IList<Range>>();
 
-            foreach(var sensor in sensors.Take(3))
-                map = sensor.FillMap(map, maxVal);
+            foreach(var sensor in sensors)
+                sensor.AddRangeToMap(map, maxVal);
 
-            Console.WriteLine(map.Draw(b => b == 0 ? ".": $"{(char)b}"));
+            var kv = map.First(x => x.Value.Count > 1);
 
-            return maxVal;
+            var y = kv.Key;
+            var x = kv.Value.Order().First().End+1;
+
+            return x*4000000 + y;
         }
 
-        private Tuple<List<Sensor>, List<Beacon>> PrepareInput(IList<string> lines){
+        private Tuple<List<Sensor>, List<Point>> PrepareInput(IList<string> lines){
             var sensors = new List<Sensor>();
-            var beacons = new Dictionary<string, Beacon>();
+            var beacons = new Dictionary<string, Point>();
 
             foreach(var line in lines){
                 var parts = line.Replace("Sensor at ", "")
@@ -72,7 +75,7 @@ namespace AoC2022
 
 
                 if(!beacons.ContainsKey($"{parts[1][0]}|{parts[1][1]}"))
-                    beacons.Add($"{parts[1][0]}|{parts[1][1]}", new Beacon(parts[1][0], parts[1][1]));
+                    beacons.Add($"{parts[1][0]}|{parts[1][1]}", new Point(parts[1][0], parts[1][1]));
                 sensors.Add(new Sensor(parts[0][0], parts[0][1], beacons[$"{parts[1][0]}|{parts[1][1]}"]));
             }
 
@@ -81,20 +84,85 @@ namespace AoC2022
 
         protected class Sensor : Point
         {
-            private Beacon beacon;
+            private Point beacon;
             public readonly long Range;
-            public Sensor(long X, long Y, Beacon beacon) : base(X, Y)
+            public Sensor(long X, long Y, Point beacon) : base(X, Y)
             {
                 this.beacon = beacon;
                 this.Range = Math.Abs(beacon.X - X) + Math.Abs(beacon.Y - Y);
             }
             public bool IsInRange(long x, long y) => Math.Abs(x - X) + Math.Abs(y - Y) <= Range;
-        }
-        protected class Beacon : Point
-        {
-            public Beacon(long X, long Y) : base(X, Y)
-            {
+
+            public void AddRangeToMap(IDictionary<long, IList<Range>> map, long delmiter){
+                var startY = WithDelmiter(Y-Range, delmiter);
+                var stopY = WithDelmiter(Y+Range, delmiter);
+                var minX = WithDelmiter(X-Range, delmiter);
+                var maxX = WithDelmiter(X+Range, delmiter);
+                for(var line=startY; line<=Y; line++){
+                    var diff = line-Y + Range;
+                    AddRangeToMap(map, new Range(WithDelmiter(X-diff, delmiter), WithDelmiter(X+diff, delmiter)), line);
+                }
+                for(var line=Y+1; line<=stopY; line++){
+                    var diff = Range - (line - Y);
+                    AddRangeToMap(map, new Range(WithDelmiter(X-diff, delmiter), WithDelmiter(X+diff, delmiter)), line);
+                }
             }
+
+            private void AddRangeToMap(IDictionary<long, IList<Range>> map, Range range, long line){
+                if (!map.ContainsKey(line))
+                        map.Add(line, new List<Range>());
+
+                var overlapping = map[line].Where(r => r.Overlap(range)).ToList();
+                foreach(var overlap in overlapping){
+                    map[line].Remove(overlap);
+                    range = range + overlap;
+                }
+
+                var previous = map[line].FirstOrDefault(r => r.End+1 == range.Start);
+                if(previous != null){
+                    map[line].Remove(previous);
+                    range = range + previous;
+                }
+                var next = map[line].FirstOrDefault(r => r.Start-1 == range.End);
+                if(next != null){
+                    map[line].Remove(next);
+                    range = range + next;
+                }
+
+                map[line].Add(range);
+            }
+            private long WithDelmiter(long val, long delmiter){
+                if (val < 0) return 0;
+                if(val > delmiter) return delmiter;
+                return val;
+            }
+        }
+
+        public class Range: IComparable<Range>{
+            public long Start{ get; protected set;}
+            public long End{ get; protected set;}
+            public Range(long start, long end){
+                Start = start;
+                End = end;
+            }
+
+            public int CompareTo(Range? other) =>  Start.CompareTo(other?.Start ?? long.MinValue);
+
+            public bool Overlap(Range other){
+                if (other.Start <= Start && other.End >= Start)
+                    return true;
+                if (Start <= other.Start && End >= other.Start)
+                    return true;
+                return false;
+            }
+
+            public static Range operator +(Range a, Range b){
+                a.Start = a.Start <= b.Start? a.Start: b.Start;
+                a.End = a.End >= b.End? a.End: b.End;
+                return a;
+            }
+
+            public override string ToString() => $"[{Start} -> {End}]";
         }
     }
 }
