@@ -15,9 +15,9 @@ namespace AoC2022
         {
             Input("example1")
                 .RunPart(1, 1651)
+                .RunPart(2, 1707)
             .Input("output")
-                .RunPart(1); //1709 to low, 2839 too high //2000, 1822 Not Right
-                //WhyNot 1869 
+                .RunPart(1, 2059);
         }
 
         public override object Part1(Input input)
@@ -27,14 +27,16 @@ namespace AoC2022
             var toOpen = AA.DistanceTo.Keys.ToList();
 
             var result =  Process(AA, 30, 0, "AA");
-            Console.WriteLine(result.Item2);
-            return result.Item1;
-
+            return result;
         }
 
         public override object Part2(Input input)
         {
-            throw new NotImplementedException();
+            var AA = ReadInput(input);
+
+            var toOpen = AA.DistanceTo.Keys.ToList();
+
+            return AA.Flow;
         }
         private Valve ReadInput(Input input){
             var valves = new Dictionary<string, Valve>();
@@ -63,35 +65,35 @@ namespace AoC2022
             return valves["AA"];
         }
 
-        private Tuple<int, string> Process(Valve current, int stepsToGo, int value, string opened)
+        private int Process(Valve current, int stepsToGo, int value, string opened)
         {
-            if(stepsToGo <0){
-                return Tuple.Create(value, opened); //no time left
+            if(stepsToGo < 0){
+                return value; //no time left
             }
 
             var split = opened.Split("=>").Select(s => s.Split("|").First()).ToArray();
-            var potentials = current.DistanceTo.Keys.Where(v => split.All(s => s != v.Name)).ToList();
+            var potentials = current.DistanceTo.Where(kv => kv.Value < stepsToGo)
+                .Select(kv => kv.Key).Where(v => split.All(s => s != v.Name)).ToList();
             var flowSet = current.DistanceTo.Keys.Where(v => split.Contains(v.Name)).ToList();
             var flow = flowSet.Select(v=> v.Flow).Sum() + current.Flow;
 
             if (!potentials.Any()){
-                opened += $"|{stepsToGo}*{flow}*{value}*{stepsToGo*flow}*{value+(stepsToGo*flow)}";
-                return Tuple.Create(value+(stepsToGo*flow), opened); //no change, in future calculate 
+                return value+(stepsToGo*flow); //no change, in future calculate 
             }
 
-            var result = Tuple.Create(int.MinValue, "default");
+            var result = int.MinValue;
             foreach(var next in potentials){
                     var steps = current.DistanceTo[next] + 1;
-                    if (steps >= stepsToGo){
-                        steps = stepsToGo;
-                        return Tuple.Create(value+(flow * steps), opened);
-                    }
-                    var output = Process(next, stepsToGo-steps, value+(flow * steps), opened+$"|{steps}*{flow}*{value}*{flow * steps}=>{next.Name}");
-                    if(output.Item1 > result.Item1) result = output;
+                    var output = steps > stepsToGo 
+                        ? Process(next, 0, value+(flow * stepsToGo), opened)
+                        : Process(next, stepsToGo-steps, value+(flow * steps), opened+$"=>{next.Name}");
+                    if(output > result) result = output;
                 }
 
             return result;
         }
+
+        
 
         internal class Valve{
             public readonly string Name;
