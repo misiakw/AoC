@@ -15,13 +15,20 @@ namespace AoC2022
         {
             Input("example1")
                 .RunPart(1, 1651)
-            .Input("output");
+            .Input("output")
+                .RunPart(1); //1709 to low, 2839 too high //2000, 1822 Not Right
         }
 
         public override object Part1(Input input)
         {
             var AA = ReadInput(input);
-            return Process(AA, new Valve[0], 0, 1, input.Lines.Count());
+
+            var toOpen = AA.DistanceTo.Keys.ToList();
+
+            var result =  Process(AA, 30, 0, "AA");
+            Console.WriteLine(result.Item2);
+            return result.Item1;
+
         }
 
         public override object Part2(Input input)
@@ -47,35 +54,39 @@ namespace AoC2022
                     valves[src].Leads.Add(valve);
             }
 
+            foreach(var valve in valves.Values){
+                foreach(var dst in valves.Values.Where(v => v.Flow > 0 && v!= valve))
+                    valve.DistanceTo.Add(dst, valve.PathTo(dst, 0, string.Empty));
+            }
+
             return valves["AA"];
         }
 
-        private int Process(Valve current, Valve[] opened, int alreadyFlown, int time, int numOfValves){
-            if (time == 31) return alreadyFlown;
-
-            time++;
-            alreadyFlown += opened.Sum(v => v.Flow);
-
-            var openedList = new List<Valve>(opened);
-            if(!opened.Contains(current)){ // open valve
-                openedList.Add(current);
-                if (time == 31) return alreadyFlown;
+        private Tuple<int, string> Process(Valve current, int stepsToGo, int value, string opened)
+        {
+            if(stepsToGo <0){
+                return Tuple.Create(value, opened); //no time left
             }
 
-            if(openedList.Count() == numOfValves){
-                while(time < 31){
-                    time++;
-                    alreadyFlown += opened.Sum(v => v.Flow);
+            var split = opened.Split("=>").Select(s => s.Split("|").First()).ToArray();
+            var potentials = current.DistanceTo.Keys.Where(v => split.All(s => s != v.Name)).ToList();
+            var flowSet = current.DistanceTo.Keys.Where(v => split.Contains(v.Name)).ToList();
+            var flow = flowSet.Select(v=> v.Flow).Sum() + current.Flow;
+
+            if (!potentials.Any()){
+                opened += $"|{stepsToGo}*{flow}*{value}*{stepsToGo*flow}*{value+(stepsToGo*flow)}";
+                return Tuple.Create(value+(stepsToGo*flow), opened); //no change, in future calculate 
+            }
+
+            var result = Tuple.Create(int.MinValue, "default");
+            foreach(var next in potentials){
+                    var steps = current.DistanceTo[next] + 1;
+                    if (steps >= stepsToGo){
+                        return Tuple.Create(value+(flow * steps), opened);
+                    }
+                    var output = Process(next, stepsToGo-steps, value+(flow * steps), opened+$"|{steps}*{flow}*{value}*{flow * steps}=>{next.Name}");
+                    if(output.Item1 > result.Item1) result = output;
                 }
-                return alreadyFlown;
-            }
-
-            var result = int.MinValue; //move to next
-            foreach(var next in current.Leads){
-                var thisResult = Process(next, openedList.ToArray(), alreadyFlown, time, numOfValves);
-                if (thisResult > result)
-                    result = thisResult;
-            }
 
             return result;
         }
@@ -84,12 +95,30 @@ namespace AoC2022
             public readonly string Name;
             public readonly int Flow;
             public IList<Valve> Leads = new List<Valve>();
+            public bool Opened = false;
+
+            public IDictionary<Valve, int> DistanceTo = new Dictionary<Valve, int>();
 
             public Valve(string name, int flow){
                 Name = name;
                 Flow = flow;
             }
             public override string ToString() => $"Valve[{Name}, {Flow}]";
+
+            public int PathTo(Valve dest, int steps, string visited){
+                if (this == dest) return steps;
+
+                var min = int.MaxValue;
+
+                var visitedStr = visited.Split(",").ToList();
+
+                foreach(var lead in Leads.Where(l => !visitedStr.Any(v => l.Name == v))){
+                    var path = lead.PathTo(dest, steps+1, visited != string.Empty? visited+$",{lead.Name}": lead.Name);
+                    if (path < min) min = path;
+                }
+
+                return min;
+            }
         }
     }
 }
