@@ -17,6 +17,7 @@ namespace AoC2022
                 .RunPart(1, 1651)
             .Input("output")
                 .RunPart(1); //1709 to low, 2839 too high //2000, 1822 Not Right
+                //WhyNot 1869 
         }
 
         public override object Part1(Input input)
@@ -82,6 +83,7 @@ namespace AoC2022
             foreach(var next in potentials){
                     var steps = current.DistanceTo[next] + 1;
                     if (steps >= stepsToGo){
+                        steps = stepsToGo;
                         return Tuple.Create(value+(flow * steps), opened);
                     }
                     var output = Process(next, stepsToGo-steps, value+(flow * steps), opened+$"|{steps}*{flow}*{value}*{flow * steps}=>{next.Name}");
