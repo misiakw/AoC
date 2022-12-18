@@ -31,17 +31,17 @@ namespace AoC2022
                         if(line[2] == "/")
                             pwd = root;
                         else if (line[2] == "..")
-                            pwd = pwd.Root;
+                            pwd = pwd?.Root;
                         else
-                            pwd = pwd.Directories.First(d => d.Name == line[2]);
+                            pwd = pwd?.Directories.First(d => d.Name == line[2]);
                     }else{
                         //ls, do nothing
                     }
                 }else{
                     if(line[0] == "dir")
-                        pwd.Directories.Add(new DiskDir(line[1], pwd));
+                        pwd?.Directories.Add(new DiskDir(line[1], pwd));
                     else
-                        pwd.Files.Add(new DiskFile(line[1], long.Parse(line[0])));
+                        pwd?.Files.Add(new DiskFile(line[1], long.Parse(line[0])));
                 }
             }
 
@@ -53,8 +53,8 @@ namespace AoC2022
 
         public override object Part2(Input input)
         {
-             var root = (DiskDir) input.Cache;
-             var needed = 30000000L-(70000000L-root.Size);
+             var root = (DiskDir?) (input.Cache ?? new DiskDir("/", null));
+             var needed = 30000000L-(70000000L-root?.Size);
 
              var dirs = root.ListDirs().Where(d => d.Size >= needed).OrderBy(d => d.Size);
              return dirs.First().Size;
@@ -83,9 +83,9 @@ namespace AoC2022
             public override long Size => Files.Sum(f => f.Size) + Directories.Sum(d => d.Size);
             public IList<DiskDir> Directories = new List<DiskDir>();
             public IList<DiskFile> Files = new List<DiskFile>();
-            public readonly DiskDir Root;
+            public readonly DiskDir? Root = null;
 
-            public DiskDir(string name, DiskDir root): base(name){
+            public DiskDir(string name, DiskDir? root): base(name){
                 this.Root = root;
             }
 

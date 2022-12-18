@@ -54,7 +54,7 @@ namespace AoC2022
 namespace AoC2022.Days.Day13{
     public class SignalPacket : IComparable<SignalPacket>
     {
-        private IList<SignalPacket> packets;
+        private IList<SignalPacket> packets = new List<SignalPacket>();
         private int value;
         public SignalPacket(int input){
             value = input;
@@ -75,11 +75,11 @@ namespace AoC2022.Days.Day13{
         }
         public int CompareTo(SignalPacket? other)
         {
-            if (packets == null && other.packets == null) // string comparation
-                return value.CompareTo(other.value);
+            if (packets == null && other?.packets == null) // string comparation
+                return value.CompareTo(other?.value);
 
             var leftList = packets ?? new List<SignalPacket>(){new SignalPacket(value)};
-            var rightList = other.packets ?? new List<SignalPacket>(){new SignalPacket(other.value)};
+            var rightList = other?.packets ?? new List<SignalPacket>(){new SignalPacket(other?.value ?? 0)};
 
             for(var i=0; i<leftList.Count(); i++){
                 if(rightList.Count() <= i) //right list ended earlier

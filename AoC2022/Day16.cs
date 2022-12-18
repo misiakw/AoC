@@ -98,8 +98,6 @@ namespace AoC2022
 
             return result;
         }
-
-        private static int i = 0;
         private int ProcessPart2(
             string me, int meTick, int meFlow, string ele, int eleTick, int eleFlow,
             string usedArr, string path,

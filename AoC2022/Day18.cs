@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using AoC.Base;
+﻿using AoC.Base;
 using AoC.Common;
+using Range = AoC.Common.Range;
 
 namespace AoC2022
 {
@@ -47,19 +42,11 @@ namespace AoC2022
 
         public override object Part2(Input input)
         {
-            var map = (Array3D<int>)input.Cache;
+            var map = (Array3D<int>)(input.Cache ?? new Array3D<int>(0));
 
-            var bounds = new long[3,2];
-            bounds[0,0] = map.Bounds[0].Item1-1;
-            bounds[0,1] = map.Bounds[0].Item2+1;
-            bounds[1,0] = map.Bounds[1].Item1-1;
-            bounds[1,1] = map.Bounds[1].Item2+1;
-            bounds[2,0] = map.Bounds[2].Item1-1;
-            bounds[2,1] = map.Bounds[2].Item2+1;
+            var bounds = map.Bounds.Select(b => new Range(b.Min-1, b.Max+1)).ToArray();
 
-            var shore = GetShore(map, bounds[0,0]-1, bounds[1, 0], bounds[2, 0], bounds);
-
-            return shore.Values.Sum();
+            return GetShoreLen(map, bounds[0].Min, bounds[1].Min, bounds[2].Min, bounds);
         }
 
         private IEnumerable<int[]> Neighbours(int[] arr) => Neighbours(arr[0], arr[1], arr[2]);
@@ -72,26 +59,21 @@ namespace AoC2022
             yield return new int[3]{x, y, z+1};
         }
 
-        private IDictionary<string, int> GetShore(Array3D<int> map, long x, long y, long z, long[,] bounds){
+        private int GetShoreLen(Array3D<int> map, int[] pos, Range[] bounds)
+            => GetShoreLen(map, pos[0], pos[1], pos[2], bounds);
+        private int GetShoreLen(Array3D<int> map, long x, long y, long z, Range[] bounds){
             map[x, y, z] = -1;
             var toTest = Neighbours((int)x, (int)y, (int)z)
-                .Where(c => c[0] >= bounds[0, 0] && c[0] <= bounds[0, 1]
-                    && c[1] >= bounds[1, 0] && c[1] <= bounds[1, 1]
-                    && c[2] >= bounds[2, 0] && c[2] <= bounds[2, 1]).ToList();
+                .Where(c => c[0] >= bounds[0].Min && c[0] <= bounds[0].Max
+                    && c[1] >= bounds[1].Min && c[1] <= bounds[1].Max
+                    && c[2] >= bounds[2].Min && c[2] <= bounds[2].Max).ToList();
 
-            var count = 0;
-            var result = new Dictionary<string, int>();
-            foreach(var coords in toTest){
-                if(map[coords[0], coords[1], coords[2]] > 0){
-                    count ++;
-                }else if(map[coords[0], coords[1], coords[2]] == 0){
-                    foreach(var kv in GetShore(map, coords[0], coords[1], coords[2], bounds))
-                        result.Add(kv.Key, kv.Value);
-                }
-            }
-
-            if(count > 0 && !result.ContainsKey($"{x},{y},{z}"))
-                result.Add($"{x},{y},{z}", count);
+            var result = 0;
+            foreach(var coords in toTest)
+                if(map[coords[0], coords[1], coords[2]] > 0)
+                    result ++;
+                else if(map[coords[0], coords[1], coords[2]] == 0)
+                    result += GetShoreLen(map, coords, bounds);
 
             return result;
         }

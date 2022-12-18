@@ -35,7 +35,7 @@ namespace AoC2022
 
         public override object Part2(Input input)
         {
-            var elves = (IList<int>) input.Cache;
+            var elves = (IList<int>) (input?.Cache ?? new List<int>());
             return elves.OrderByDescending(x => x).Take(3).Sum();
         }
     }

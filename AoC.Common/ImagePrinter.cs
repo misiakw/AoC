@@ -9,13 +9,12 @@ namespace AoC.Common
         {
             InputDir = inputDir;
         }
-        private static bool isOpened = false;
         public void DrawImage(int width, int height, string Name, Action<MagickImage> drawFunc)
         {
 
             var fileName = Path.Combine(InputDir, "Img", $"{Name}.png");
             if (!Directory.Exists(Path.GetDirectoryName(fileName)))
-                Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+                Directory.CreateDirectory(Path.GetDirectoryName(fileName) ?? string.Empty);
             if (File.Exists(Name))
                 File.Delete(Name);
 
@@ -23,12 +22,6 @@ namespace AoC.Common
                 drawFunc(image);
                 image.Write(fileName, MagickFormat.Png);
             }
-            /*
-            if (!isOpened)
-            {
-                Process.Start("explorer.exe", Path.GetDirectoryName(fileName));
-                isOpened = true;
-            }*/
         }
     }
 }

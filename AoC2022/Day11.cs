@@ -39,7 +39,7 @@ namespace AoC2022
 
         public override object Part2(Input input)
         {
-            var inserts = (MonkeyInsert[])input.Cache;
+            var inserts = (MonkeyInsert[])(input.Cache ?? new MonkeyInsert[0]);
 
             var monkeys = BuildMonkeys(inserts);
 
@@ -52,7 +52,7 @@ namespace AoC2022
         }
 
         private class ModNum{
-            public static int[] modulus;
+            public static int[] modulus = new int[0];
 
             private long val;
 
@@ -127,8 +127,8 @@ namespace AoC2022
 
         private class Monkey{
             public readonly MonkeyInsert Insert;
-            public Monkey ifTrue;
-            public Monkey ifFalse;
+            public Monkey? ifTrue = null;
+            public Monkey? ifFalse = null;
             public Queue<ModNum> Objs = new Queue<ModNum>();
             public long Ctr = 0;
             private int a, b, c;
@@ -149,7 +149,7 @@ namespace AoC2022
             public void Process(int divider){
                 for(;Objs.Any(); Ctr++){
                     var item = Calculate(Objs.Dequeue())/divider;
-                    (item.IsDividable(Insert.divider)? ifTrue: ifFalse)
+                    (item.IsDividable(Insert.divider)? ifTrue: ifFalse)?
                         .Objs.Enqueue(item);
                 }
 

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using AoC.Base;
 using AoC.Common;
+using Range = AoC.Common.Range;
 
 namespace AoC2022
 {
@@ -47,7 +48,7 @@ namespace AoC2022
         public override object Part2(Input input)
         {
             var maxVal = input.Name == "example1" ? 20L : 4000000L;
-            var sensors = (IList<Sensor>)((Tuple<List<Sensor>, List<Point>>)input.Cache).Item1;
+            var sensors = (IList<Sensor>)(((Tuple<List<Sensor>, List<Point>>)input.Cache).Item1 ?? new List<Sensor>());
 
             var map = new Dictionary<long, IList<Range>>();
 
@@ -57,7 +58,7 @@ namespace AoC2022
             var kv = map.First(x => x.Value.Count > 1);
 
             var y = kv.Key;
-            var x = kv.Value.Order().First().End+1;
+            var x = kv.Value.Order().First().Max+1;
 
             return x*4000000 + y;
         }
@@ -118,12 +119,12 @@ namespace AoC2022
                     range = range + overlap;
                 }
 
-                var previous = map[line].FirstOrDefault(r => r.End+1 == range.Start);
+                var previous = map[line].FirstOrDefault(r => r.Max+1 == range.Min);
                 if(previous != null){
                     map[line].Remove(previous);
                     range = range + previous;
                 }
-                var next = map[line].FirstOrDefault(r => r.Start-1 == range.End);
+                var next = map[line].FirstOrDefault(r => r.Min-1 == range.Max);
                 if(next != null){
                     map[line].Remove(next);
                     range = range + next;
@@ -136,33 +137,6 @@ namespace AoC2022
                 if(val > delmiter) return delmiter;
                 return val;
             }
-        }
-
-        public class Range: IComparable<Range>{
-            public long Start{ get; protected set;}
-            public long End{ get; protected set;}
-            public Range(long start, long end){
-                Start = start;
-                End = end;
-            }
-
-            public int CompareTo(Range? other) =>  Start.CompareTo(other?.Start ?? long.MinValue);
-
-            public bool Overlap(Range other){
-                if (other.Start <= Start && other.End >= Start)
-                    return true;
-                if (Start <= other.Start && End >= other.Start)
-                    return true;
-                return false;
-            }
-
-            public static Range operator +(Range a, Range b){
-                a.Start = a.Start <= b.Start? a.Start: b.Start;
-                a.End = a.End >= b.End? a.End: b.End;
-                return a;
-            }
-
-            public override string ToString() => $"[{Start} -> {End}]";
         }
     }
 }

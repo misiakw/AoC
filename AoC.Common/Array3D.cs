@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AoC.Common
+﻿namespace AoC.Common
 {
     public class Array3D<T>
     {
-        public Array3D(T def = default(T))
+        public Array3D(T? def = default(T))
         {
             defaultValue = def;
         }
@@ -18,7 +15,7 @@ namespace AoC.Common
         protected long _maxY = long.MinValue;
         protected long _minZ  = long.MaxValue;
         protected long _maxZ = long.MinValue;
-        private readonly T defaultValue;
+        private readonly T? defaultValue;
         public long RangeX
         {
             get
@@ -41,15 +38,15 @@ namespace AoC.Common
             }
         }
         /// <summary>returns span of X and Y (in this order)</summary>
-        public Tuple<long, long>[] Bounds
+        public Range[] Bounds
         {
             get
             {
-                return new Tuple<long, long>[3]
+                return new Range[3]
                 {
-                    Tuple.Create(_minX, _maxX),
-                    Tuple.Create(_minY, _maxY),
-                    Tuple.Create(_minZ, _maxZ)
+                    new Range(_minX, _maxX),
+                    new Range(_minY, _maxY),
+                    new Range(_minZ, _maxZ)
                 };
             }
         }

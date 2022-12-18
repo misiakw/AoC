@@ -8,7 +8,7 @@ namespace AoC.Base
         public void Run(int? dayNum = null)
         {
             var days = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.BaseType == typeof(DayBase) || t.BaseType.BaseType == typeof(DayBase));
+                .Where(t => t.BaseType == typeof(DayBase) || t?.BaseType?.BaseType == typeof(DayBase));
 
             if (dayNum.HasValue)
             {
@@ -37,8 +37,8 @@ namespace AoC.Base
         }
         private void RunDay(Type t)
         {
-            MethodInfo method = typeof(Launcher).GetMethod(nameof(Launcher.RunDay));
-            MethodInfo generic = method.MakeGenericMethod(t);
+            MethodInfo? method = typeof(Launcher).GetMethod(nameof(Launcher.RunDay));
+            MethodInfo? generic = method?.MakeGenericMethod(t);
             generic.Invoke(this, null);
         }
     }

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 namespace AoC.Common
 {
     public class Array2D<T>
     {
-        public Array2D(T def = default(T)){
+        public Array2D(T? def = default(T)){
             defaultValue = def;
         }
 
@@ -15,7 +13,7 @@ namespace AoC.Common
         protected long _maxX = long.MinValue;
         protected long _minY = long.MaxValue;
         protected long _maxY = long.MinValue;
-        private readonly T defaultValue;
+        private readonly T? defaultValue;
         public long Width
         {
             get
@@ -55,14 +53,14 @@ namespace AoC.Common
         {
             get
             {
-                var key = $"{x},{y}";
+                string key = $"{x},{y}";
                 return _data.ContainsKey(key)
                     ? _data[key]
                     : defaultValue;
             }
             set
             {
-                var key = $"{x},{y}";
+                string key = $"{x},{y}";
                 if (_data.ContainsKey(key))
                 {
                     _data[key] = value;

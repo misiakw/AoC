@@ -22,7 +22,7 @@ namespace AoC.Base
             ProcessTest(1, Part2);
         }
 
-        private async void ProcessTest(byte testNum, Func<Input, object> testFunc)
+        private void ProcessTest(byte testNum, Func<Input, object> testFunc)
         {
             Console.WriteLine($"==== Part {testNum + 1} ====");
             foreach (var test in tests.Where(t => t.Tests[testNum] != TestType.Skip))
@@ -32,8 +32,8 @@ namespace AoC.Base
 
                     Console.WriteLine($"\t{test.Name}");
 
-                    var start = DateTime.Now;         
-                    var resultObj = testFunc(test);                    
+                    var start = DateTime.Now;
+                    var resultObj = testFunc(test);
                     var stop = DateTime.Now;
                     var span = new TimeSpan(stop.Ticks - start.Ticks);
 

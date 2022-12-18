@@ -25,8 +25,8 @@ namespace AoC2022
         public override object Part1(Input input)
         {
             var map = new Array2D<byte>(byte.MaxValue);
-            Point start = null;
-            Point end = null;
+            Point start = new Point(0,0);
+            Point end = new Point(0,0);
             for(var y=0; y<input.Lines.Count(); y++)
                 for(var x=0; x<input.Lines[y].Length; x++)
                     if (input.Lines[y][x] == 'S'){
@@ -48,7 +48,7 @@ namespace AoC2022
         public override object Part2(Input input)
         {
             var map = new Array2D<byte>(byte.MaxValue);
-            Point start = null;
+            Point start = new Point(0,0);
             var ends = new List<Point>();
             for(var y=0; y<input.Lines.Count(); y++)
                 for(var x=0; x<input.Lines[y].Length; x++)

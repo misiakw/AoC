@@ -38,7 +38,7 @@ namespace AoC2022
                 try{
                 for(var i=0; i<amount; i++)
                         stacks[dest].Push(stacks[source].Pop());
-                }catch(Exception e){
+                }catch(Exception){
                     Console.Write($"line {line}: ");
                     Console.WriteLine(cmd);
                 }
@@ -70,7 +70,7 @@ namespace AoC2022
                         tempStack.Push(stacks[source].Pop());
                     while(tempStack.Any())
                         stacks[dest].Push(tempStack.Pop());
-                }catch(Exception e){
+                }catch(Exception){
                     Console.Write($"line {line}: ");
                     Console.WriteLine(cmd);
                 }
