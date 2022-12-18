@@ -11,9 +11,13 @@ namespace AoC.Common
         }
 
         protected IDictionary<string, T> _data = new Dictionary<string, T>();
-        protected long _minX, _maxX = 0;
-        protected long _minY, _maxY = 0;
-        protected long _minZ, _maxZ = 0;
+        public IList<T> ToList() => _data.Select(kv=> kv.Value).ToList();
+        protected long _minX = long.MaxValue;
+        protected long _maxX = long.MinValue;
+        protected long _minY = long.MaxValue;
+        protected long _maxY = long.MinValue;
+        protected long _minZ  = long.MaxValue;
+        protected long _maxZ = long.MinValue;
         private readonly T defaultValue;
         public long RangeX
         {
@@ -50,6 +54,7 @@ namespace AoC.Common
             }
         }
 
+        public T this[long[] arr] => this[arr[0], arr[1], arr[2]]; 
         public T this[long x, long y, long z]
         {
             get

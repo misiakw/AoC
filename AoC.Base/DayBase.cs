@@ -22,22 +22,24 @@ namespace AoC.Base
             ProcessTest(1, Part2);
         }
 
-        private void ProcessTest(byte testNum, Func<Input, object> testFunc)
+        private async void ProcessTest(byte testNum, Func<Input, object> testFunc)
         {
             Console.WriteLine($"==== Part {testNum + 1} ====");
             foreach (var test in tests.Where(t => t.Tests[testNum] != TestType.Skip))
             {
                 try
                 {
-                    var start = DateTime.Now; 
-                    var resultObj = testFunc(test);
+
+                    Console.WriteLine($"\t{test.Name}");
+
+                    var start = DateTime.Now;         
+                    var resultObj = testFunc(test);                    
                     var stop = DateTime.Now;
                     var span = new TimeSpan(stop.Ticks - start.Ticks);
 
                     if (test.Tests[testNum] == TestType.Silent)
                         continue;
 
-                    Console.WriteLine($"\t{test.Name}");
                     var desiredResult = test.Result[testNum];
 
                     if (resultObj != null)
