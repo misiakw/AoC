@@ -8,7 +8,7 @@ namespace AoC.Common
             defaultValue = def;
         }
 
-        protected IDictionary<string, T> _data = new Dictionary<string, T>();
+        protected IDictionary<string, T?> _data = new Dictionary<string, T?>();
         protected long _minX = long.MaxValue;
         protected long _maxX = long.MinValue;
         protected long _minY = long.MaxValue;
@@ -47,9 +47,9 @@ namespace AoC.Common
             }
         }
 
-        public T this[Point p] => this[p.X, p.Y];
+        public T? this[Point p] => this[p.X, p.Y];
 
-        public T this[long x, long y]
+        public T? this[long x, long y]
         {
             get
             {
@@ -76,7 +76,7 @@ namespace AoC.Common
             }
         }
 
-       public string Draw(Func<T, string> drawing, string split = "")
+       public string Draw(Func<T?, string> drawing, string split = "")
         {
             if (!_data.Any()) return "[Empty]";
             

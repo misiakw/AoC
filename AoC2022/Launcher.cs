@@ -39,7 +39,8 @@ namespace AoC.Base
         {
             MethodInfo? method = typeof(Launcher).GetMethod(nameof(Launcher.RunDay));
             MethodInfo? generic = method?.MakeGenericMethod(t);
-            generic.Invoke(this, null);
+            if(generic !=  null)
+                generic.Invoke(this, null);
         }
     }
 }

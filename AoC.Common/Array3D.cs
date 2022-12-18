@@ -7,8 +7,8 @@
             defaultValue = def;
         }
 
-        protected IDictionary<string, T> _data = new Dictionary<string, T>();
-        public IList<T> ToList() => _data.Select(kv=> kv.Value).ToList();
+        protected IDictionary<string, T?> _data = new Dictionary<string, T?>();
+        public IList<T?> ToList() => _data.Select(kv=> kv.Value).ToList();
         protected long _minX = long.MaxValue;
         protected long _maxX = long.MinValue;
         protected long _minY = long.MaxValue;
@@ -51,8 +51,8 @@
             }
         }
 
-        public T this[long[] arr] => this[arr[0], arr[1], arr[2]]; 
-        public T this[long x, long y, long z]
+        public T? this[long[] arr] => this[arr[0], arr[1], arr[2]]; 
+        public T? this[long x, long y, long z]
         {
             get
             {

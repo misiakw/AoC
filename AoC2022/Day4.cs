@@ -55,7 +55,7 @@ namespace AoC2022
 
         public override object Part2(Input input)
         {
-            return input.Cache;
+            return (int)(input.Cache ?? 0);
         }
     }
 }

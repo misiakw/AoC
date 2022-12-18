@@ -53,9 +53,10 @@ namespace AoC2022
 
         public override object Part2(Input input)
         {
-             var root = (DiskDir?) (input.Cache ?? new DiskDir("/", null));
+             var root = (DiskDir) (input.Cache ?? new DiskDir("/", null));
              var needed = 30000000L-(70000000L-root?.Size);
 
+             if(root == null) return 0;
              var dirs = root.ListDirs().Where(d => d.Size >= needed).OrderBy(d => d.Size);
              return dirs.First().Size;
         }

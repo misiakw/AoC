@@ -108,8 +108,8 @@ namespace AoC.Base
         public abstract object Part2(IList<T> data, Input input);
         public abstract IList<string> Split(string val);
         public abstract T Parse(string val);
-        public override object Part1(Input input) => Part1(input.Prepare<T>(Split, Parse), input);
+        public override object Part1(Input input) => Part1((IList<T>)input.Prepare<T>(Split, Parse), input);
 
-        public override object Part2(Input input) => Part2(input.Prepare<T>(Split, Parse), input);
+        public override object Part2(Input input) => Part2((IList<T>)input.Prepare<T>(Split, Parse), input);
     }
 }

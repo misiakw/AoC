@@ -19,15 +19,13 @@
             X += dx;
             Y += dy;
         }
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Point point &&
                    X == point.X &&
                    Y == point.Y;
         }
-        public override string ToString()
-        {
-            return $"Point[{X},{Y}]";
-        }
+        public override string ToString() => $"Point[{X},{Y}]";
+        public override int GetHashCode() => base.GetHashCode();
     }
 }

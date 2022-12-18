@@ -52,7 +52,7 @@
 
         public override int GetHashCode() => HashCode.Combine(X, Y, Z);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Vector3D d &&
                    X == d.X &&
@@ -72,7 +72,7 @@
         }
         public override string ToString() => $"Rot[{X},{Y},{Z}]";
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Rotation3D d &&
                    X == d.X &&

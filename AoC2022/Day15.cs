@@ -48,6 +48,8 @@ namespace AoC2022
         public override object Part2(Input input)
         {
             var maxVal = input.Name == "example1" ? 20L : 4000000L;
+            if (input.Cache == null) 
+                return 0;
             var sensors = (IList<Sensor>)(((Tuple<List<Sensor>, List<Point>>)input.Cache).Item1 ?? new List<Sensor>());
 
             var map = new Dictionary<long, IList<Range>>();
