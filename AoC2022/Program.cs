@@ -6,7 +6,7 @@ namespace AoC2022
     {
         static void Main(string[] args)
         {
-            new Launcher().Run(18);
+            new Launcher().Run(19);
         }
     }
 }
