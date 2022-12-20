@@ -14,18 +14,23 @@ namespace AoC2022
         public Day16() : base(16)
         {
             Input("example1")
-            //.RunPart(1, 1651)
-            //.RunPart(2, 1707)
+                .RunPart(1, 1651)
+                .RunPart(2, 1707)
             .Input("output")
-                //.RunPart(1, 2059)
-                .RunPart(2);
+                .RunPart(1, 2059);
+                //.RunPart(2);
         }
 
         public override object Part1(Input input)
         {
             var AA = ReadInput(input);
             input.Cache = AA;
+            Console.WriteLine("input prepared, start");
+            var start = DateTime.Now;
             var result = Process(AA, 30, 0, "AA");
+            var stop = DateTime.Now;
+            var span = TimeSpan.FromTicks(stop.Ticks - start.Ticks);
+            Console.WriteLine($"{span.Minutes}:{span.Seconds}.{span.Milliseconds}.{span.Microseconds}");
             return result;
         }
 

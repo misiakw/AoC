@@ -36,6 +36,7 @@ namespace AoC.Base
                     var resultObj = testFunc(test);
                     var stop = DateTime.Now;
                     var span = new TimeSpan(stop.Ticks - start.Ticks);
+                    var timeStr = $"{span.Hours}:{span.Minutes}:{span.Seconds}.{span.Milliseconds}.{span.Microseconds}";
 
                     if (test.Tests[testNum] == TestType.Silent)
                         continue;
@@ -46,17 +47,17 @@ namespace AoC.Base
                     {
                         if (desiredResult?.Item1 == null)
                         {
-                            Console.WriteLine($"Result[ {resultObj} ] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+                            Console.WriteLine($"Result[ {resultObj} ] running: {timeStr}");
                         }
                         else if (resultObj.GetType() != desiredResult.Item2)
                         {
-                            Console.WriteLine($"Result[ {resultObj} ] Expected[ {desiredResult.Item1} ] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+                            Console.WriteLine($"Result[ {resultObj} ] Expected[ {desiredResult.Item1} ] running: {timeStr}");
                         }
                         else
                         {
                             if (resultObj.GetType().GetInterface("IComparable") != null)
                             {
-                                VerifyComparable((IComparable)resultObj, desiredResult.Item1, span);
+                                VerifyComparable((IComparable)resultObj, desiredResult.Item1, timeStr);
                             }
                         }
                     }
@@ -70,28 +71,28 @@ namespace AoC.Base
             }
         }
 
-        private void VerifyComparable(IComparable compResult, object desired, TimeSpan span)
+        private void VerifyComparable(IComparable compResult, object desired, string timeStr)
         {
             switch (compResult.CompareTo(desired))
             {
                 case -1:
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"[ {compResult} ] too low Expected[ { desired} ] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+                    Console.WriteLine($"[ {compResult} ] too low Expected[ { desired} ] running: {timeStr}");
                     Console.ResetColor();
                     break;
                 case 1:
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"[ {compResult} ] too High Expected[ { desired} ] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+                    Console.WriteLine($"[ {compResult} ] too High Expected[ { desired} ] running: {timeStr}");
                     Console.ResetColor();
                     break;
                 case 0:
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.WriteLine($"Correct[ {compResult} ] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+                    Console.WriteLine($"Correct[ {compResult} ] running: {timeStr}");
                     Console.ResetColor();
                     break;
                 default:
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine($"Invalid compare Result[ {compResult} ] <> Expected[ { desired} ] running: {span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+                    Console.WriteLine($"Invalid compare Result[ {compResult} ] <> Expected[ { desired} ] running: {timeStr}");
                     Console.ResetColor();
                     break;
             }
