@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Concurrent;
+using System.Text;
 
 namespace AoC.Common
 {
@@ -8,7 +9,7 @@ namespace AoC.Common
             defaultValue = def;
         }
 
-        protected IDictionary<string, T?> _data = new Dictionary<string, T?>();
+        protected ConcurrentDictionary<string, T?> _data = new ConcurrentDictionary<string, T?>();
         protected long _minX = long.MaxValue;
         protected long _maxX = long.MinValue;
         protected long _minY = long.MaxValue;
@@ -67,7 +68,7 @@ namespace AoC.Common
                 }
                 else
                 {
-                    _data.Add(key, value);
+                    _data.TryAdd(key, value);
                     if (_minX > x) _minX = x;
                     if (_maxX < x) _maxX = x;
                     if (_minY > y) _minY = y;
