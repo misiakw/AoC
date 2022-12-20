@@ -13,7 +13,16 @@ namespace AoC.Base
                 File.Create(_filePath).Close();
             }
         }
-        public string Raw => File.ReadAllText(_filePath).Replace("\r", "");
+        protected string _content = string.Empty;
+        public string Raw
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_content))
+                    _content = File.ReadAllText(_filePath).Replace("\r", "");
+                return _content;
+            }
+        }
         public string[] Lines => Raw.Split("\n").Select(s => s.Trim()).ToArray();
         private readonly string _filePath;
         public string InputDir => System.IO.Path.GetDirectoryName(_filePath)?.ToString() ?? string.Empty;

@@ -43,7 +43,7 @@ namespace AoC2022
         private class Blueprint{
             public readonly int Number;
             public IList<Robot> PriceList = new List<Robot>();
-            private Robot geodeBot = null;
+            private Robot geodeBot;
             private int[] MaxResource;
             public Blueprint(string recepie){
                 var parts = recepie.Split(":", StringSplitOptions.RemoveEmptyEntries)
