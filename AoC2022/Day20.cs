@@ -21,16 +21,13 @@ namespace AoC2022
         {
             var orig = input.Lines.Select(int.Parse).ToArray();
 
-            var circle = new Circle<int>(orig);
+            var circle = new Day20Circle(orig);
 
-            /*for (i=0; i<len; i++){
-                var newPos = (i+orig[i])%len;
-                if (newPos < 0)
-                    newPos += len;
-                Console.WriteLine($"pos {i} val {orig[i]} new Pos {newPos}");
-            }*/
+            Console.WriteLine(string.Join(", ", circle.ToList()));
+            circle.Mix();
+            Console.WriteLine(string.Join(", ", circle.ToList()));
 
-            throw new NotImplementedException();
+            return 0;
         }
 
         public override object Part2(Input input)
@@ -42,7 +39,7 @@ namespace AoC2022
     public class Circle<T>{
         protected int currentPos = 0;
         public int Len {get; protected set; } = 0;
-        private CircleObj<T>? Elem;
+        protected CircleObj<T>? Elem;
         
         public Circle(T[] data){
             Elem = new CircleObj<T>(data[0]);
@@ -56,7 +53,44 @@ namespace AoC2022
             Elem.Left = tmp;
             tmp.Right = Elem;
         }
-        
+
+        public IList<T> ToList(){
+            var result = new List<T>();
+            for(var x=0; x<Len; x++)
+                result.Add(this[x]);
+            return result;
+        }
+
+        public T this[int x]{
+            get {
+                GoTo(x);
+                return Elem.Value;
+            }
+        }
+
+        protected CircleObj<T> GoTo(int x){
+            var pos = x % Len;
+            if (pos < 0) pos = Len + pos;
+
+            if (currentPos < pos)
+            {
+                while (currentPos < pos)
+                {
+                    Elem = Elem.Right;
+                    currentPos++;
+                }
+            }
+            else if (currentPos > pos)
+            {
+                while (currentPos > pos)
+                {
+                    Elem = Elem.Left;
+                    currentPos--;
+                }
+            }
+            return Elem;
+        }
+
         protected class CircleObj<V>{
             public readonly V Value;
             public CircleObj(V value){
@@ -70,5 +104,20 @@ namespace AoC2022
 
         public override string ToString() => $"Circle({Elem})";
     }
-    
+
+    public class Day20Circle : Circle<int>
+    {
+        private CircleObj<int>[] baseOrder;
+        public Day20Circle(int[] data) : base(data)
+        {
+            baseOrder = new CircleObj<int>[data.Length];
+            for(var i=0; i<data.Length; i++)
+                baseOrder[i] = GoTo(i);
+        }
+
+        public void Mix(){
+
+        }
+    }
+
 }
