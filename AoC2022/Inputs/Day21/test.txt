@@ -1,0 +1,5 @@
+root: b + c
+a: 10
+b: humn + c
+c: 5
+humn: 6
