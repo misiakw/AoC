@@ -62,7 +62,7 @@ namespace AoC2022
         private class Blueprint{
             public readonly int Number;
             public IList<IRobot> PriceList = new List<IRobot>();
-            private IRobot geodeBot;
+            private IRobot? geodeBot;
             private int[] MaxResource;
             private int currentMax = 0;
             public Blueprint(string recepie){
@@ -105,7 +105,8 @@ namespace AoC2022
                         if (price > MaxResource[i]) MaxResource[i] = price;
                     }
                 }
-                PriceList.Remove(geodeBot);
+                if(geodeBot != null)
+                    PriceList.Remove(geodeBot);
             }
 
             private static Array2D<int> maxOx = new Array2D<int>(-1);

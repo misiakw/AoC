@@ -73,6 +73,8 @@ namespace AoC2022
 
         public IList<T> ToList(){
             var result = new List<T>();
+            if (Start == null)
+                return result;
             var el = Start;
             for(var x=0; x<Len; x++){
                 result.Add(el.Value);
@@ -88,7 +90,7 @@ namespace AoC2022
         protected CircleObj<T> Get(long x){
             var pos = x % Len;
                 if (pos < 0) pos = Len + pos;
-                var el = Start;
+                CircleObj<T> el = Start;
                 var hops = 0;
                 if(pos > Len/2){
                     el = Start.Left;
