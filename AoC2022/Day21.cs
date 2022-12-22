@@ -12,9 +12,9 @@ namespace AoC2022
     {
         public Day21() : base(21)
         {
-            Input("test")
-                //.RunPart(2)
-            .Input("example1")
+            //Input("test")
+            //.RunPart(2)
+            Input("example1")
                 .RunPart(1, 152L)
                 .RunPart(2, 301L)
             .Input("output")
@@ -28,7 +28,10 @@ namespace AoC2022
             foreach (var line in input.Lines)
                 herd.Introduce(line);
 
-            return herd.Solve("root", false).Value;
+            var result = herd.Solve("root", false);
+            if (result == null)
+                throw new InvalidDataException();
+            return result.Value;
         }
 
         public override object Part2(Input input)
@@ -42,15 +45,18 @@ namespace AoC2022
 
             var l = herd.Solve(herd.Root.Left, true);
             var r = herd.Solve(herd.Root.Right, true);
-            if(l == null){
+            if (l == null)
+            {
+                if (r == null) throw new InvalidDataException();
                 number = herd.GetNumTupple(herd.Root.Left);
                 value = r.Value;
             }
-            else{
+            else
+            {
                 number = herd.GetNumTupple(herd.Root.Right);
                 value = l.Value;
             }
-            return (long)((value-number.Item2)/number.Item1);
+            return (long)((value - number.Item2) / number.Item1);
         }
 
         protected class Herd
@@ -63,10 +69,12 @@ namespace AoC2022
                 var parts = input.Split(":", StringSplitOptions.TrimEntries);
                 var operation = parts[1].Split(" ", StringSplitOptions.TrimEntries);
 
-                if (operation.Length == 1){
+                if (operation.Length == 1)
+                {
                     var val = long.Parse(operation[0]);
-                    _herd.Add(parts[0], new Monkey() {
-                        Name = parts[0], 
+                    _herd.Add(parts[0], new Monkey()
+                    {
+                        Name = parts[0],
                         Value = val
                     });
                 }
@@ -101,14 +109,14 @@ namespace AoC2022
 
             public long? Solve(string name, bool modHumn)
             {
-                if (modHumn && name == "humn") 
+                if (modHumn && name == "humn")
                     return null;
                 var monkey = _herd[name];
                 if (!monkey.Value.HasValue)
                 {
                     var l = Solve(monkey.Left, modHumn);
                     var r = Solve(monkey.Right, modHumn);
-                    if (l == null || r == null)
+                    if (l == null || r == null || monkey.Action == null)
                         return null;
                     monkey.Value = monkey.Action.Invoke(l.Value, r.Value);
                 }
@@ -116,8 +124,10 @@ namespace AoC2022
             }
 
             // a*humn+b
-            public Tuple<decimal, decimal> GetNumTupple(string name){
-                if(name == "humn"){
+            public Tuple<decimal, decimal> GetNumTupple(string name)
+            {
+                if (name == "humn")
+                {
                     decimal a = 1;
                     decimal b = 0;
                     return Tuple.Create(a, b);
@@ -126,32 +136,38 @@ namespace AoC2022
                 var lv = Solve(monkey.Left, true);
                 var rv = Solve(monkey.Right, true);
 
-                if(lv == null){
+                if (lv == null)
+                {
+                    if (rv == null) throw new InvalidDataException();
                     var t = GetNumTupple(monkey.Left);
                     var val = (decimal)rv.Value;
-                    switch (monkey.operation){
+                    switch (monkey.operation)
+                    {
                         case '+':
-                            return Tuple.Create(t.Item1, t.Item2+val);
+                            return Tuple.Create(t.Item1, t.Item2 + val);
                         case '-':
-                            return Tuple.Create(t.Item1, t.Item2-val);
+                            return Tuple.Create(t.Item1, t.Item2 - val);
                         case '*':
-                            return Tuple.Create(t.Item1*val, t.Item2*val);
+                            return Tuple.Create(t.Item1 * val, t.Item2 * val);
                         case '/':
-                            return Tuple.Create(t.Item1/val, t.Item2/val);
+                            return Tuple.Create(t.Item1 / val, t.Item2 / val);
                     }
-                }else{
-                   var t = GetNumTupple(monkey.Right);
+                }
+                else
+                {
+                    var t = GetNumTupple(monkey.Right);
                     var val = (decimal)lv.Value;
-                    switch (monkey.operation){
+                    switch (monkey.operation)
+                    {
                         case '+':
-                            return Tuple.Create(t.Item1, t.Item2+val);
+                            return Tuple.Create(t.Item1, t.Item2 + val);
                         case '-':
-                            return Tuple.Create(-1*t.Item1, val-t.Item2);
+                            return Tuple.Create(-1 * t.Item1, val - t.Item2);
                         case '*':
-                            return Tuple.Create(t.Item1*val, t.Item2*val);
+                            return Tuple.Create(t.Item1 * val, t.Item2 * val);
                         case '/':
                             throw new Exception("idunno... probably not needed :P");
-                    } 
+                    }
                 }
 
                 throw new Exception("oops, sould not reach this point...");
