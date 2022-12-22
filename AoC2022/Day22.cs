@@ -1,5 +1,6 @@
 ﻿using AoC.Base;
 using AoC.Common;
+using ImageMagick;
 
 namespace AoC2022
 {
@@ -8,8 +9,9 @@ namespace AoC2022
         public Day22() : base(22)
         {
             Input("example1")
-                .RunPart(1, 5)
-            .Input("output");
+            //.RunPart(1, 6032)
+            .Input("output")
+                .RunPart(1); //75290 Too High
         }
 
         public override object Part1(Input input)
@@ -17,8 +19,12 @@ namespace AoC2022
             var trip = new Journey(input);
             trip.Proceed();
 
-
-            throw new NotImplementedException();
+            var rowPart = (trip.Location.Y + 1) * 1000;
+            var colPart = (trip.Location.X + 1) * 4;
+            var dirPart = trip.Dir == 'R' ? 0
+                : trip.Dir == 'D' ? 1
+                : trip.Dir == 'L' ? 2 : 3;
+            return rowPart + colPart + dirPart;
         }
 
         public override object Part2(Input input)
@@ -26,16 +32,22 @@ namespace AoC2022
             throw new NotImplementedException();
         }
 
-        private class Journey{
+        private class Journey
+        {
             private Array2D<char> map = new Array2D<char>(' ');
             private IList<Step> steps = new List<Step>();
-            private char Dir = 'R';
-            private Point Location;
+            public char Dir { get; private set; } = 'R';
+            public Point Location;
+            private ImagePrinter printer;
+            private string name;
 
-            public Journey(Input input){
+            public Journey(Input input)
+            {
+                printer = new ImagePrinter(input.InputDir);
+                name = input.Name;
                 var y = 0;
-                var lines  = input.Raw.Split("\n").ToArray();
-                foreach (var line in lines.Take(input.Lines.Count()-2))
+                var lines = input.Raw.Split("\n").ToArray();
+                foreach (var line in lines.Take(input.Lines.Count() - 2))
                 {
                     var x = 0;
                     foreach (var ch in line.TrimEnd())
@@ -52,34 +64,105 @@ namespace AoC2022
                 {
                     if (ch == 'L' || ch == 'R')
                     {
-                        steps.Add(new Step{
+                        steps.Add(new Step
+                        {
                             Distance = int.Parse(tmp),
                             Rotate = ch
                         });
                         tmp = string.Empty;
-                    }else
+                    }
+                    else
                         tmp += ch;
                 }
                 var X = 0L;
-                for(; X<lines.First().Length; X++)
+                for (; X < lines.First().Length; X++)
                     if (map[X, 0] == '.')
                         break;
                 map[X, 0] = 'S';
                 Location = new Point(X, 0);
             }
 
-            public void Proceed(){
-                Console.WriteLine(map.Draw(c => c.ToString()));
-                Console.WriteLine("===============================================");
-                foreach (var step in steps){
+            private MagickImage initImg;
+
+            public void Proceed()
+            {
+                var i = 1;
+                foreach (var step in steps)
+                {
                     var dif = GetDif(Dir);
                     Move(step.Distance, dif);
                     Dir = Rotate(step.Rotate);
-                    Console.WriteLine(map.Draw(c => c.ToString()));
-                    Console.WriteLine("===============================================");
+                    Draw($"{i++}-{step.Distance}{step.Rotate}-{Dir}");
                 }
 
-                Console.WriteLine(map.Draw(c => c.ToString()));
+                Draw($"end");
+            }
+
+            private void Draw(string name)
+            {
+                printer.DrawImage((int)map.Width * 6, (int)map.Height * 6, $"{this.name}-{name}",
+                img =>
+                {
+                    img.Settings.StrokeColor = MagickColors.Red;
+                    img.Settings.StrokeWidth = 1;
+                    img.Settings.FillColor = MagickColors.White;
+
+                    var border = new DrawableBorderColor(MagickColors.Black);
+                    var drawables = new List<IDrawable>();
+                    for (var y = 0; y <= map.Height; y++)
+                    {
+                        for (var x = 0; x <= map.Width; x++)
+                        {
+                            var ch = map[x, y];
+                            if (map[x, y] == ' ') continue;
+                            var rect = new DrawableRectangle(x * 6, y * 6, x * 6 + 5, y * 6 + 5);
+                            var fill = ch == '#'
+                                ? MagickColors.Gray
+                                : MagickColors.LightGreen;
+                            if (x == Location.X && y == Location.Y)
+                                fill = MagickColors.Blue;
+                            drawables.AddRange(new IDrawable[3]
+                            { new DrawableStrokeColor(fill), new DrawableFillColor(fill), rect});
+
+                            switch (ch)
+                            {
+                                case 'R':
+                                    drawables.AddRange(new IDrawable[4]
+                                        { new DrawableStrokeColor(MagickColors.Red),
+                                         new DrawableFillColor(MagickColors.Red),
+                                        new DrawableLine(x*6, y*6, x*6+5, y*6+3),
+                                        new DrawableLine(x*6+5, y*6+3, x*6, y*6+5) }
+                                    );
+                                    break;
+                                case 'L':
+                                    drawables.AddRange(new IDrawable[4]
+                                        { new DrawableStrokeColor(MagickColors.Red),
+                                         new DrawableFillColor(MagickColors.Red),
+                                        new DrawableLine(x*6+5, y*6, x*6, y*6+3),
+                                        new DrawableLine(x*6, y*6+3, x*6+5, y*6+5) }
+                                    );
+                                    break;
+                                case 'D':
+                                    drawables.AddRange(new IDrawable[4]
+                                        { new DrawableStrokeColor(MagickColors.Red),
+                                         new DrawableFillColor(MagickColors.Red),
+                                        new DrawableLine(x*6, y*6, x*6+3, y*6+5),
+                                        new DrawableLine(x*6+3, y*6+5, x*6+5, y*6) }
+                                    );
+                                    break;
+                                case 'U':
+                                    drawables.AddRange(new IDrawable[4]
+                                        { new DrawableStrokeColor(MagickColors.Red),
+                                         new DrawableFillColor(MagickColors.Red),
+                                        new DrawableLine(x*6, y*6+5, x*6+3, y*6),
+                                        new DrawableLine(x*6+3, y*6, x*6+5, y*6+5) }
+                                    );
+                                    break;
+                            }
+                        }
+                    }
+                    img.Draw(drawables);
+                });
             }
 
             private Tuple<long, long> GetDif(char dir)
@@ -96,24 +179,29 @@ namespace AoC2022
                         return Tuple.Create(0L, 1L);
                 }
             }
-            private void Move(long dist, Tuple<long, long> dir){
+            private void Move(long dist, Tuple<long, long> dir)
+            {
                 var ToMove = dist;
                 var x = Location.X;
                 var y = Location.Y;
-                while(ToMove > 0){
-                    var nX = x+dir.Item1;
-                    var nY = x+dir.Item2;
-                    if(map[nX, nY] == ' '){
+                while (ToMove > 0)
+                {
+                    var nX = x + dir.Item1;
+                    var nY = y + dir.Item2;
+                    if (map[nX, nY] == ' ')
+                    {
                         var newPos = Wrap(x, y);
-                        if (newPos == null){
-                    map[nX, nY] = Dir;
+                        if (newPos == null)
+                        {
                             Location = new Point(x, y);
                             return;
                         }
                         nX = newPos.Item1;
-                        nY =newPos.Item2;
-                    }else if(map[nX, nY] == '#'){
-                    map[nX, nY] = Dir;
+                        nY = newPos.Item2;
+                    }
+                    else if (map[nX, nY] == '#')
+                    {
+                        map[x, y] = Dir;
                         Location = new Point(x, y);
                         return;
                     }
@@ -122,42 +210,50 @@ namespace AoC2022
                     map[nX, nY] = Dir;
                     ToMove--;
                 }
-                map[x, y] = 'O';
                 Location = new Point(x, y);
             }
-            private Tuple<long, long>? Wrap(long x, long y){
+            private Tuple<long, long>? Wrap(long x, long y)
+            {
                 var nx = x;
                 var ny = y;
-                if(Dir == 'U' || Dir == 'D'){
+                if (Dir == 'U' || Dir == 'D')
+                {
                     //wrap Y
-                    var dif = Dir == 'U'? -1: 1;
-                    while(map[x, y+dif] != ' ')
-                        y+=dif;
-                }else{
-                    //wrap X
-                    var dif = Dir == 'L'? -1: 1;
-                    while(map[x+dif, y] != ' ')
-                        x+=dif;
+                    var dif = Dir == 'U' ? 1 : -1;
+                    while (map[x, y + dif] != ' ')
+                        y += dif;
+                    ny = y;
                 }
-                return map[nx, ny] == '#' ? null: Tuple.Create(nx, ny);
+                else
+                {
+                    //wrap X
+                    var dif = Dir == 'L' ? 1 : -1;
+                    while (map[x + dif, y] != ' ')
+                        x += dif;
+                    nx = x;
+                }
+                return map[nx, ny] == '#' ? null : Tuple.Create(nx, ny);
             }
 
-            private char Rotate(char dir){
-                switch(Dir){
+            private char Rotate(char dir)
+            {
+                switch (this.Dir)
+                {
                     case 'U':
-                        return dir == 'C'? 'R' : 'L';
+                        return dir == 'R' ? 'R' : 'L';
                     case 'R':
-                        return dir == 'C'? 'D' : 'U';
+                        return dir == 'R' ? 'D' : 'U';
                     case 'D':
-                        return dir == 'C'? 'L' : 'R';
+                        return dir == 'R' ? 'L' : 'R';
                     default:
-                        return dir == 'C'? 'U' : 'D';
+                        return dir == 'R' ? 'U' : 'D';
 
                 }
             }
         }
 
-        private struct Step{
+        private struct Step
+        {
             public int Distance;
             public char Rotate;
         }
@@ -166,11 +262,11 @@ namespace AoC2022
         {
             var map = new Array2D<char>(' ');
 
-            
+
 
             var steps = new List<string>();
-            
-           
+
+
 
             return Tuple.Create(map, steps);
         }
