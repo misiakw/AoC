@@ -17,7 +17,8 @@ namespace AoC2022
             //.RunPart(1, "2=-1=0")
             .Input("example1")
                 .RunPart(1, "2=-1=0")
-            .Input("output");
+            .Input("output")
+                .RunPart(1, "2-00=12=21-0=01--000");
         }
 
         public override SafuNum Parse(string val) => SafuNum.Parse(val);
@@ -26,10 +27,7 @@ namespace AoC2022
         {
             var sum = SafuNum.Parse("0");
             foreach (var safu in data)
-            {
                 sum = sum + safu;
-                Console.WriteLine(safu);
-            }
 
             return sum.ToString();
         }
@@ -75,7 +73,7 @@ namespace AoC2022.Days.Day25
                 }
                 sum.Add(tmp);
             }
-
+            sum.Reverse();
             return new SafuNum(sum.ToArray());
         }
 
@@ -90,7 +88,58 @@ namespace AoC2022.Days.Day25
 
         public static SafuNum operator +(SafuNum A, SafuNum B)
         {
-            return A;
+            var output = new List<short>();
+            short pass = 0;
+            var lenA = A._value.Length-1;
+            var lenB = B._value.Length-1;
+            for(var i=0; ; i++){
+                if(lenA == i && lenB == i)
+                    break;
+                if (lenA < i && lenB >= i){
+                    //pass remains of B
+                    for(; lenB >= i; i++){
+                        var tmp = (short)(B._value[lenB-i] + pass);
+                        pass = ProcessVal(ref tmp);
+                        output.Add(tmp);
+                    }
+                    break;
+                }else if(lenA >= i && lenB < i){
+                    //pass remains of A                    
+                    for(; lenA >= i; i++){
+                        var tmp = (short)(A._value[lenA-i] + pass);
+                        pass = ProcessVal(ref tmp);
+                        output.Add(tmp);
+                    }
+                    break;
+                } else{
+                    var tmp = (short)(A._value[lenA-i] + B._value[lenB-i] + pass);
+                    pass = ProcessVal(ref tmp);
+                    output.Add(tmp);
+                }
+            }
+            output.Reverse();
+            return new SafuNum(output.ToArray());
+        }
+        private static short ProcessVal(ref short value){
+            short pass = 0;
+            if(value < -2){
+                pass = -1;
+                value += 5;
+            }
+            if(value > 2){
+                pass = 1;
+                value -= 5;
+            }
+            return pass;
+        }
+        public int ToInt(){
+            int result = 0;
+            int pow = 1;
+            for(var i = _value.Length-1; i>=0; i--){
+                result += _value[i]*pow;
+                pow *= 5;
+            }
+            return result;
         }
     }
 }
