@@ -17,19 +17,30 @@ namespace AoC2022
                 //.RunPart(1)
             .Input("example1")
                 .RunPart(1, 18)
+                .RunPart(2, 54)
+                //.RunPart(1, 18)
             .Input("output")
-                .RunPart(1, 257);
+                //.RunPart(1, 257)
+                .RunPart(2);
         }
 
         public override object Part1(Input input){
             var solver = new Day24Solver(input);
 
-            return solver.GoAhead(0, 0, solver.WaitToStart());
+            return solver.GoToEnd(0);
         }
 
         public override object Part2(Input input)
         {
-            throw new NotImplementedException();
+            var solver = new Day24Solver(input);
+
+            var toEnd = solver.GoToEnd(0);
+            Console.WriteLine($"Went to end in {toEnd} minutes");
+            var back = solver.GoBack(toEnd);
+            Console.WriteLine($"Went back in {back} minutes");
+            toEnd = solver.GoToEnd(back);
+            Console.WriteLine($"Went to end in {toEnd} minutes");
+            return toEnd;
         }
 
         protected class Day24Solver{
@@ -39,7 +50,7 @@ namespace AoC2022
             protected int rows;
             protected int cols;
             protected int topWindState = 0;
-            protected long longestSoFar = 2000; //because reasons -it worked and int.maxvalue used too much memory...
+            protected long longestSoFar = 900; //because reasons -it worked and int.maxvalue used too much memory and result of first input suggests it should be ok...
 
             public Day24Solver(Input input)
         {
@@ -75,18 +86,23 @@ namespace AoC2022
             windMap.Add(0, baseWind);
         }
 
-            public long WaitToStart(){
-            int time = 0;
-            var map = GetWind(time);
-            while(map[0,0] != Dirs.None){
-                map = GetWind(++time);
-            }
-            return time;
+        public long GoToEnd(long step){
+            var result = GoAhead(0, -1, cols-1, rows, step, true);
+            longestSoFar = 900;
+            preTestedPaths = new Dictionary<string, long>();
+            return result;
         }
 
-        public long GoAhead(int x, int y, long step, bool wasStationary = false){
+        public long GoBack(long step){
+            var result = GoAhead(cols-1, rows, 0, -1, step, true);
+            longestSoFar = 900;
+            preTestedPaths = new Dictionary<string, long>();
+            return result;
+        }
+
+        private long GoAhead(int x, int y, int dx, int dy, long step, bool wasStationary = false){
             if(!wasStationary){
-                if(x == cols-1 && y==rows){
+                if(x == dx && y==dy){
                     if(step < longestSoFar) longestSoFar = step;
                     return step;
                 }
@@ -94,19 +110,21 @@ namespace AoC2022
                     return int.MaxValue;
             }
             var state = GetWind(step);
-            if (step > longestSoFar || state[x, y] != Dirs.None)
-                return int.MaxValue;
+            if (step > longestSoFar)
+                    return int.MaxValue;
+            if(x>=0 && y>=0 && x<cols && y < rows && state[x, y] != Dirs.None)
+                    return int.MaxValue;
             var key = $"{x}|{y}|{step}";
             if(preTestedPaths.ContainsKey(key))
                 return preTestedPaths[key];
 
             var results = new List<long>();
 
-            results.Add(GoAhead(x+1, y, step+1));            
-            results.Add(GoAhead(x-1, y, step+1));
-            results.Add(GoAhead(x, y+1, step+1));
-            results.Add(GoAhead(x, y-1, step+1));
-            results.Add(GoAhead(x, y, step+1, true));
+            results.Add(GoAhead(x+1, y, dx, dy, step+1));            
+            results.Add(GoAhead(x-1, y, dx, dy, step+1));
+            results.Add(GoAhead(x, y+1, dx, dy, step+1));
+            results.Add(GoAhead(x, y-1, dx, dy, step+1));
+            results.Add(GoAhead(x, y, dx, dy, step+1, true));
 
             var result = results.Min();
             preTestedPaths.Add(key, result);
