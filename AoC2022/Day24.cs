@@ -20,8 +20,8 @@ namespace AoC2022
                 .RunPart(2, 54)
                 //.RunPart(1, 18)
             .Input("output")
-                //.RunPart(1, 257)
-                .RunPart(2);
+                .RunPart(1, 257)
+                .RunPart(2, 828);
         }
 
         public override object Part1(Input input){
@@ -35,11 +35,8 @@ namespace AoC2022
             var solver = new Day24Solver(input);
 
             var toEnd = solver.GoToEnd(0);
-            Console.WriteLine($"Went to end in {toEnd} minutes");
             var back = solver.GoBack(toEnd);
-            Console.WriteLine($"Went back in {back} minutes");
             toEnd = solver.GoToEnd(back);
-            Console.WriteLine($"Went to end in {toEnd} minutes");
             return toEnd;
         }
 
