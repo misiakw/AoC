@@ -1,8 +1,10 @@
 ﻿using AoC.Base;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AoC2022
 {
-    public class Day2 : Day<char[]>
+    public class Day2 : LegacyDay<char[]>
     {
         public Day2() : base(2)
         {
@@ -16,7 +18,7 @@ namespace AoC2022
 
         public override char[] Parse(string val) => new char[2]{val[0], val[2]};
 
-        public override object Part1(IList<char[]> data, Input input)
+        public override object Part1(IList<char[]> data, LegacyInput input)
         {
             var score = 0;
             foreach(var set in data){
@@ -32,7 +34,7 @@ namespace AoC2022
             return score;
         }
 
-        public override object Part2(IList<char[]> data, Input input)
+        public override object Part2(IList<char[]> data, LegacyInput input)
         {
             var score = 0;
             foreach(var set in data){

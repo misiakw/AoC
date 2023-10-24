@@ -1,8 +1,10 @@
 ﻿using AoC.Base;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AoC2022
 {
-    public class Day6 : DayBase
+    public class Day6 : LegacyDayBase
     {
         public Day6() : base(6)
         {
@@ -26,7 +28,7 @@ namespace AoC2022
                 .RunPart(2);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var ctr = 0;
             var window = new Queue<char>();
@@ -44,7 +46,7 @@ namespace AoC2022
             return -1;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var ctr = 0;
             var window = new Queue<char>();

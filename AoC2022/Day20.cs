@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day20 : DayBase
+    public class Day20 : LegacyDayBase
     {
         public Day20() : base(20)
         {
@@ -22,7 +23,7 @@ namespace AoC2022
                 .RunPart(2, 6641234038999L);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var circle = new Day20Circle(input.Lines.Select(long.Parse).ToArray());
             circle.Mix();
@@ -35,7 +36,7 @@ namespace AoC2022
             return a + b + c;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var orig = input.Lines.Select(long.Parse).ToArray();
             for (var i = 0; i < orig.Length; i++)

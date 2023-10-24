@@ -1,4 +1,7 @@
-﻿namespace AoC.Common
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace AoC.Common
 {
     public class Array3D<T>
     {

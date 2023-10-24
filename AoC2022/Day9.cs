@@ -9,7 +9,7 @@ using AoC.Common;
 
 namespace AoC2022
 {
-    public class Day9 : DayBase
+    public class Day9 : LegacyDayBase
     {
         public Day9() : base(9)
         {
@@ -23,7 +23,7 @@ namespace AoC2022
                 .RunPart(2, 2578);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var rope = new Rope(1);
 
@@ -34,7 +34,7 @@ namespace AoC2022
             return rope.TailMoveCount;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var rope = new Rope(9);
 

@@ -1,10 +1,13 @@
 ﻿using AoC.Base;
 using AoC.Common;
 using ImageMagick;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AoC2022
 {
-    public class Day22 : DayBase
+    public class Day22 : LegacyDayBase
     {
         public Day22() : base(22)
         {
@@ -14,7 +17,7 @@ namespace AoC2022
                 .RunPart(1); //75290 Too High
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var trip = new Journey(input);
             trip.Proceed();
@@ -27,7 +30,7 @@ namespace AoC2022
             return rowPart + colPart + dirPart;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             throw new NotImplementedException();
         }
@@ -41,7 +44,7 @@ namespace AoC2022
             private ImagePrinter printer;
             private string name;
 
-            public Journey(Input input)
+            public Journey(LegacyInput input)
             {
                 printer = new ImagePrinter(input.InputDir);
                 name = input.Name;
@@ -258,7 +261,7 @@ namespace AoC2022
             public char Rotate;
         }
 
-        private Tuple<Array2D<char>, List<string>> ReadInput(Input input)
+        private Tuple<Array2D<char>, List<string>> ReadInput(LegacyInput input)
         {
             var map = new Array2D<char>(' ');
 

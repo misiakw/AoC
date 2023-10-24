@@ -8,7 +8,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day10 : DayBase
+    public class Day10 : LegacyDayBase
     {
         public Day10() : base(10)
         {
@@ -19,7 +19,7 @@ namespace AoC2022
                 .RunPart(2, "BJFRHRFU");
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var x = 1;
             int nextStop = 20;
@@ -46,7 +46,7 @@ namespace AoC2022
             return signalStrength;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             //result visible on console
             return "BJFRHRFU";

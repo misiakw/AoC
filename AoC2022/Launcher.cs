@@ -1,46 +1,25 @@
-﻿using System;
+﻿using AoC.Base.TestInputs;
+using System;
+using System.Linq;
 using System.Reflection;
 
 namespace AoC.Base
 {
-    public class Launcher
+    public static class Launcher
     {
-        public void Run(int? dayNum = null)
+        private static void Execute<R, T>(this IDay<R, T> day) where T : TestInputBase<R>
         {
-            var days = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.BaseType == typeof(DayBase) || t?.BaseType?.BaseType == typeof(DayBase));
+            var tests = day.GetTests();
 
-            if (dayNum.HasValue)
+            Console.WriteLine($"Running {day.GetType().Name}. Total Tests: {tests.Length}");
+
+            foreach(var test in tests.Where(t => t.RunPart1))
             {
-                var type = days.FirstOrDefault(d => d.Name == $"Day{dayNum}");
-                if (type != null)
-                {
-                    RunDay(type);
-                    return;
-                }
+                var result = day.Part1(test);
+                var outcome = test.GetOutcome(1, result);
 
-
+                Console.WriteLine($"Test {test.Name} Result: {result} Outcome: {outcome}");
             }
-
-            foreach (var day in days)
-            {
-                Console.WriteLine(day.FullName);
-            }
-
-            Console.WriteLine($"run day {dayNum}");
-        }
-
-        public void RunDay<T>() where T : DayBase
-        {
-            DayBase day = (DayBase)Activator.CreateInstance<T>();
-            day.Execute();
-        }
-        private void RunDay(Type t)
-        {
-            MethodInfo? method = typeof(Launcher).GetMethod(nameof(Launcher.RunDay));
-            MethodInfo? generic = method?.MakeGenericMethod(t);
-            if(generic !=  null)
-                generic.Invoke(this, null);
         }
     }
 }

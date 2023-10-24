@@ -1,10 +1,12 @@
 ﻿using AoC.Base;
 using AoC.Common;
+using System.Collections.Generic;
+using System.Linq;
 using Range = AoC.Common.Range;
 
 namespace AoC2022
 {
-    public class Day18 : DayBase
+    public class Day18 : LegacyDayBase
     {
         public Day18() : base(18)
         {
@@ -18,7 +20,7 @@ namespace AoC2022
                 .RunPart(2, 2428);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var map = new Array3D<int>(0);
 
@@ -40,7 +42,7 @@ namespace AoC2022
             return map.ToList().Sum();
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var map = (Array3D<int>)(input.Cache ?? new Array3D<int>(0));
 

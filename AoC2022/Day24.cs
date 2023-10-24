@@ -9,7 +9,7 @@ using AoC.Common;
 
 namespace AoC2022
 {
-    public class Day24 : DayBase
+    public class Day24 : LegacyDayBase
     {
         public Day24() : base(24)
         {
@@ -24,13 +24,13 @@ namespace AoC2022
                 .RunPart(2, 828);
         }
 
-        public override object Part1(Input input){
+        public override object Part1(LegacyInput input){
             var solver = new Day24Solver(input);
 
             return solver.GoToEnd(0);
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var solver = new Day24Solver(input);
 
@@ -49,7 +49,7 @@ namespace AoC2022
             protected int topWindState = 0;
             protected long longestSoFar = 900; //because reasons -it worked and int.maxvalue used too much memory and result of first input suggests it should be ok...
 
-            public Day24Solver(Input input)
+            public Day24Solver(LegacyInput input)
         {
             rows = input.Lines.Count() -2;
             cols = input.Lines.First().Length-2;

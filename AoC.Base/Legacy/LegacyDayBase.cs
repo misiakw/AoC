@@ -1,28 +1,29 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using AoC.Base.TestInputs;
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using TestType = AoC.Base.Input.TestType;
+using TestType = AoC.Base.LegacyInput.TestType;
 
 namespace AoC.Base
 {
-    public abstract partial class DayBase
+    public abstract partial class LegacyDayBase: IDay<object, LegacyInput>, IRuntime
     {
         private readonly int dayNum;
-        protected IList<Input> tests = new List<Input>();
+        protected IList<LegacyInput> tests = new List<LegacyInput>();
 
-        public DayBase(int dayNum)
+        public LegacyDayBase(int dayNum)
         {
             this.dayNum = dayNum;
         }
-        public abstract object Part1(Input input);
-        public abstract object Part2(Input input);
+        public abstract object Part1(LegacyInput input);
+        public abstract object Part2(LegacyInput input);
 
         public virtual void Execute(){           
             ProcessTest(0, Part1);
             ProcessTest(1, Part2);
         }
 
-        private void ProcessTest(byte testNum, Func<Input, object> testFunc)
+        private void ProcessTest(byte testNum, Func<LegacyInput, object> testFunc)
         {
             Console.WriteLine($"==== Part {testNum + 1} ====");
             foreach (var test in tests.Where(t => t.Tests[testNum] != TestType.Skip))
@@ -36,7 +37,7 @@ namespace AoC.Base
                     var resultObj = testFunc(test);
                     var stop = DateTime.Now;
                     var span = new TimeSpan(stop.Ticks - start.Ticks);
-                    var timeStr = $"{span.Hours}:{span.Minutes}:{span.Seconds}.{span.Milliseconds}.{span.Microseconds}";
+                    var timeStr = $"{span.Hours}:{span.Minutes}:{span.Seconds}.{span.Milliseconds}";
 
                     if (test.Tests[testNum] == TestType.Silent)
                         continue;
@@ -97,20 +98,24 @@ namespace AoC.Base
                     break;
             }
         }
+
+        public LegacyInput[] GetTests() => tests.ToArray();
+
+        public IRuntime GetRuntime() => this;
     }
 
-    public abstract class Day<T> : DayBase
+    public abstract class LegacyDay<T> : LegacyDayBase
     {
-        protected Day(int dayNum) : base(dayNum)
+        protected LegacyDay(int dayNum) : base(dayNum)
         {
         }
 
-        public abstract object Part1(IList<T> data, Input input);
-        public abstract object Part2(IList<T> data, Input input);
+        public abstract object Part1(IList<T> data, LegacyInput input);
+        public abstract object Part2(IList<T> data, LegacyInput input);
         public abstract IList<string> Split(string val);
         public abstract T Parse(string val);
-        public override object Part1(Input input) => Part1((IList<T>)input.Prepare<T>(Split, Parse), input);
+        public override object Part1(LegacyInput input) => Part1((IList<T>)input.Prepare<T>(Split, Parse), input);
 
-        public override object Part2(Input input) => Part2((IList<T>)input.Prepare<T>(Split, Parse), input);
+        public override object Part2(LegacyInput input) => Part2((IList<T>)input.Prepare<T>(Split, Parse), input);
     }
 }

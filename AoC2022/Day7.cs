@@ -8,7 +8,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day7 : DayBase
+    public class Day7 : LegacyDayBase
     {
         public Day7() : base(7)
         {
@@ -20,7 +20,7 @@ namespace AoC2022
                 .RunPart(2, 12545514L);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var root = new DiskDir("/", null);
             var pwd = root;
@@ -51,7 +51,7 @@ namespace AoC2022
             return dirs.Sum(d => d.Size);
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
              var root = (DiskDir) (input.Cache ?? new DiskDir("/", null));
              var needed = 30000000L-(70000000L-root?.Size);

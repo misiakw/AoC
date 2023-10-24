@@ -7,7 +7,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day3 : DayBase
+    public class Day3 : LegacyDayBase
     {
         public Day3() : base(3)
         {
@@ -19,7 +19,7 @@ namespace AoC2022
                 .RunPart(2, 2681);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var sum = 0;
             foreach(var line in input.Lines){
@@ -34,7 +34,7 @@ namespace AoC2022
             return sum;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var sum = 0;
             var iter = input.Lines.GetEnumerator();

@@ -8,7 +8,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day8 : DayBase
+    public class Day8 : LegacyDayBase
     {
         public Day8() : base(8)
         {
@@ -20,7 +20,7 @@ namespace AoC2022
                 .RunPart(2, 486540);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var width = input.Lines.First().Count();
             var height = input.Lines.Count();
@@ -45,7 +45,7 @@ namespace AoC2022
             return count;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var width = input.Lines.First().Count();
             var height = input.Lines.Count();
@@ -62,7 +62,7 @@ namespace AoC2022
             return scenicScore;
         }
 
-        private Tree[,] ReadInput(Input input){
+        private Tree[,] ReadInput(LegacyInput input){
             var width = input.Lines.First().Count();
             var height = input.Lines.Count();
             var trees = new Tree[width, height];

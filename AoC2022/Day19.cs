@@ -10,7 +10,7 @@ using AoC.Common;
 
 namespace AoC2022
 {
-    public class Day19 : DayBase
+    public class Day19 : LegacyDayBase
     {
         public Day19() : base(19)
         {
@@ -22,7 +22,7 @@ namespace AoC2022
                 .RunPart(2, 3003);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var blueprints = ReadInput(input).ToArray();
             input.Cache = blueprints;
@@ -35,7 +35,7 @@ namespace AoC2022
             return result.Sum();
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var blueprints = (Blueprint[])(input.Cache ?? new Blueprint[0]);
             var result = new List<int>();
@@ -52,7 +52,7 @@ namespace AoC2022
             return mul;
         }
 
-        private IEnumerable<Blueprint> ReadInput(Input input)
+        private IEnumerable<Blueprint> ReadInput(LegacyInput input)
         {
             foreach (var line in input.Lines)
                 yield return new Blueprint(line);

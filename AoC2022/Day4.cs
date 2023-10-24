@@ -8,7 +8,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day4 : DayBase
+    public class Day4 : LegacyDayBase
     {
         public Day4() : base(4)
         {
@@ -20,7 +20,7 @@ namespace AoC2022
                 .RunPart(2, 881);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             IDictionary<int, IList<int>> dict = new Dictionary<int, IList<int>>();
             var containing = 0;
@@ -53,7 +53,7 @@ namespace AoC2022
             return containing;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             return (int)(input.Cache ?? 0);
         }

@@ -1,20 +1,26 @@
 ﻿using AoC.Base;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AoC2022
 {
-    public class Day1 :  DayBase
+    public class Day1 : IDay<object, LegacyInput>
     {
-        public Day1() : base(1)
+        public LegacyInput[] GetTests()
         {
-            Input("example")
-                .RunPart(1, 24000)
-                .RunPart(2, 45000)
-            .Input("output")
-                .RunPart(1, 71471)
-                .RunPart(2, 211189);
+            var tests = new List<LegacyInput>();
+            var example = new LegacyInput($"./Inputs/Day1/output.txt", "output");
+            example.Tests[0] = LegacyInput.TestType.Verbal;
+            example.Result[0] = Tuple.Create((object)71471, typeof(int));
+            example.Tests[1] = LegacyInput.TestType.Verbal;
+            example.Result[1] = Tuple.Create((object)211189, typeof(int));
+            tests.Add(example);
+
+            return tests.ToArray();
         }
 
-        public override object Part1(Input input)
+        public object Part1(LegacyInput input)
         {
             var elves = new List<int>();
             var current = 0;
@@ -33,10 +39,12 @@ namespace AoC2022
             return elves.OrderByDescending(x => x).First();
         }
 
-        public override object Part2(Input input)
+        public object Part2(LegacyInput input)
         {
             var elves = (IList<int>) (input?.Cache ?? new List<int>());
             return elves.OrderByDescending(x => x).Take(3).Sum();
         }
+
+        public IRuntime GetRuntime() => new Runtime<object, LegacyInput>(this);
     }
 }

@@ -9,7 +9,7 @@ using AoC2022.Days.Day25;
 
 namespace AoC2022
 {
-    public class Day25 : Day<SafuNum>
+    public class Day25 : LegacyDay<SafuNum>
     {
         public Day25() : base(25)
         {
@@ -23,7 +23,7 @@ namespace AoC2022
 
         public override SafuNum Parse(string val) => SafuNum.Parse(val);
 
-        public override object Part1(IList<SafuNum> data, Input input)
+        public override object Part1(IList<SafuNum> data, LegacyInput input)
         {
             var sum = SafuNum.Parse("0");
             foreach (var safu in data)
@@ -32,7 +32,7 @@ namespace AoC2022
             return sum.ToString();
         }
 
-        public override object Part2(IList<SafuNum> data, Input input)
+        public override object Part2(IList<SafuNum> data, LegacyInput input)
         {
             throw new NotImplementedException();
         }

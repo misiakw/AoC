@@ -1,4 +1,6 @@
-﻿namespace AoC.Common
+﻿using System;
+
+namespace AoC.Common
 {
     public class Vector3D
     {

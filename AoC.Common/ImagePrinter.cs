@@ -1,4 +1,6 @@
 ﻿using ImageMagick;
+using System;
+using System.IO;
 
 namespace AoC.Common
 {

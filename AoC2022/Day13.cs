@@ -9,7 +9,7 @@ using SignalPacket = AoC2022.Days.Day13.SignalPacket;
 
 namespace AoC2022
 {
-    public class Day13 : Day<SignalPacket[]>
+    public class Day13 : LegacyDay<SignalPacket[]>
     {
         public Day13() : base(13)
         {
@@ -24,7 +24,7 @@ namespace AoC2022
         public override SignalPacket[] Parse(string val) =>
             val.Split("\n").Select(s => new SignalPacket(s.Substring(1, s.Length - 2))).ToArray();
 
-        public override object Part1(IList<SignalPacket[]> data, Input input)
+        public override object Part1(IList<SignalPacket[]> data, LegacyInput input)
         {
             var result = 0;
             for(var i=0; i<data.Count(); i++)
@@ -34,7 +34,7 @@ namespace AoC2022
             return result;
         }
 
-        public override object Part2(IList<SignalPacket[]> data, Input input)
+        public override object Part2(IList<SignalPacket[]> data, LegacyInput input)
         {
             var div1 = new SignalPacket("[[2]]");
             var div2 = new SignalPacket("[[6]]");
@@ -42,7 +42,7 @@ namespace AoC2022
             var packets = data.SelectMany(d => d).ToList();
             packets.Add(div1);
             packets.Add(div2);
-            packets = packets.Order().ToList();
+            packets = packets.OrderBy(p => p).ToList();
 
             return (packets.IndexOf(div1)+1)*(packets.IndexOf(div2)+1);
         }

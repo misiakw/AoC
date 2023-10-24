@@ -9,7 +9,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day11 : DayBase
+    public class Day11 : LegacyDayBase
     {
         public Day11() : base(11)
         {
@@ -21,7 +21,7 @@ namespace AoC2022
                 .RunPart(2, 15048718170L);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var inserts = BuildMonkeyInserts(input.Lines.Select(l => l.Trim()).ToArray())
                 .ToArray();
@@ -37,7 +37,7 @@ namespace AoC2022
             return top[0]*top[1];
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var inserts = (MonkeyInsert[])(input.Cache ?? new MonkeyInsert[0]);
 

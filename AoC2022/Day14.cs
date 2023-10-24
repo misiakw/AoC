@@ -1,10 +1,11 @@
 ﻿using AoC.Base;
 using AoC.Common;
 using ImageMagick;
+using System.Linq;
 
 namespace AoC2022
 {
-    public class Day14 : DayBase
+    public class Day14 : LegacyDayBase
     {
         public Day14() : base(14)
         {
@@ -16,7 +17,7 @@ namespace AoC2022
                 .RunPart(2, 27194);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var map = GetMap(input);
 
@@ -28,7 +29,7 @@ namespace AoC2022
             return ctr;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {   
             var map = GetMap(input);
 
@@ -43,7 +44,7 @@ namespace AoC2022
             return ctr;
         }
 
-        private Array2D<char> GetMap(Input input){
+        private Array2D<char> GetMap(LegacyInput input){
             var map = new Array2D<char>('.');
 
             foreach(var line in input.Lines){

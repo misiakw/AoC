@@ -9,7 +9,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day5 : DayBase
+    public class Day5 : LegacyDayBase
     {
         public Day5() : base(5)
         {
@@ -21,7 +21,7 @@ namespace AoC2022
                 .RunPart(2, "TZLTLWRNF");
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var parts = input.Raw.Split("\n\n");
             var stacks = ReadIput(parts[0].Split("\n"));
@@ -50,7 +50,7 @@ namespace AoC2022
             return result;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var parts = input.Raw.Split("\n\n");
             var stacks = ReadIput(parts[0].Split("\n"));

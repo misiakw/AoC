@@ -10,7 +10,7 @@ using AoC2022.Days.Day12;
 
 namespace AoC2022
 {
-    public class Day12 : DayBase
+    public class Day12 : LegacyDayBase
     {
         public Day12() : base(12)
         {
@@ -22,7 +22,7 @@ namespace AoC2022
                 .RunPart(2, 386);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var map = new Array2D<byte>(byte.MaxValue);
             Point start = new Point(0,0);
@@ -45,7 +45,7 @@ namespace AoC2022
             return result[end];
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var map = new Array2D<byte>(byte.MaxValue);
             Point start = new Point(0,0);

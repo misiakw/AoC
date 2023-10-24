@@ -9,7 +9,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day16 : DayBase
+    public class Day16 : LegacyDayBase
     {
         public Day16() : base(16)
         {
@@ -21,7 +21,7 @@ namespace AoC2022
                 //.RunPart(2);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var AA = ReadInput(input);
             input.Cache = AA;
@@ -30,11 +30,11 @@ namespace AoC2022
             var result = Process(AA, 30, 0, "AA");
             var stop = DateTime.Now;
             var span = TimeSpan.FromTicks(stop.Ticks - start.Ticks);
-            Console.WriteLine($"{span.Minutes}:{span.Seconds}.{span.Milliseconds}.{span.Microseconds}");
+            Console.WriteLine($"{span.Minutes}:{span.Seconds}.{span.Milliseconds}");
             return result;
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var AA = ReadInput(input);
             var valves = AA.DistanceTo.Keys.ToList();
@@ -43,7 +43,7 @@ namespace AoC2022
             var result = ProcessPart2("AA", 0, 0, "AA", 0, 0, "AA", "", valves.ToDictionary(k => k.Name));
             return result;
         }
-        private Valve ReadInput(Input input)
+        private Valve ReadInput(LegacyInput input)
         {
             var valves = new Dictionary<string, Valve>();
             var paths = new Dictionary<string, string[]>();

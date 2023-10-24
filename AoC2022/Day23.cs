@@ -9,7 +9,7 @@ using AoC.Common;
 
 namespace AoC2022
 {
-    public class Day23 : DayBase
+    public class Day23 : LegacyDayBase
     {
         public Day23() : base(23)
         {
@@ -23,7 +23,7 @@ namespace AoC2022
                 .RunPart(2, 1079);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var elves = GetElves(input);
             var moves = new Queue<char>(new char[4]{ 'N', 'S', 'W', 'E' });
@@ -62,7 +62,7 @@ namespace AoC2022
             return elves.First().Print().Where(c => c == '.').Count();
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var elves = GetElves(input);
             var moves = new Queue<char>(new char[4]{ 'N', 'S', 'W', 'E' });
@@ -102,7 +102,7 @@ namespace AoC2022
             return i+1;
         }
 
-        private IList<Elf> GetElves(Input input){
+        private IList<Elf> GetElves(LegacyInput input){
             var map = new Array2D<Elf?>(null);
             var elves = new List<Elf>();
 

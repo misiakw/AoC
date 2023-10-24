@@ -10,7 +10,7 @@ using Range = AoC.Common.Range;
 
 namespace AoC2022
 {
-    public class Day15 : DayBase
+    public class Day15 : LegacyDayBase
     {
         public Day15() : base(15)
         {
@@ -22,7 +22,7 @@ namespace AoC2022
                 .RunPart(2, 11747175442119L);
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             var searchLine = input.Name == "example1" ? 10 : 2000000;
             input.Cache = PrepareInput(input.Lines);
@@ -45,7 +45,7 @@ namespace AoC2022
             return line.Count - beacons.Where(b => b.Y == searchLine && line.Keys.Contains(b.X)).Count();
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             var maxVal = input.Name == "example1" ? 20L : 4000000L;
             if (input.Cache == null) 
@@ -60,7 +60,7 @@ namespace AoC2022
             var kv = map.First(x => x.Value.Count > 1);
 
             var y = kv.Key;
-            var x = kv.Value.Order().First().Max+1;
+            var x = kv.Value.OrderBy(p => p).First().Max+1;
 
             return x*4000000 + y;
         }

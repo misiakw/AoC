@@ -8,7 +8,7 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day17 : DayBase
+    public class Day17 : LegacyDayBase
     {
         public Day17() : base(17)
         {
@@ -17,12 +17,12 @@ namespace AoC2022
             .Input("output");
         }
 
-        public override object Part1(Input input)
+        public override object Part1(LegacyInput input)
         {
             throw new NotImplementedException();
         }
 
-        public override object Part2(Input input)
+        public override object Part2(LegacyInput input)
         {
             throw new NotImplementedException();
         }

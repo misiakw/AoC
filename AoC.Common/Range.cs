@@ -1,3 +1,5 @@
+using System;
+
 namespace AoC.Common
 {
     public class Range: IComparable<Range>
