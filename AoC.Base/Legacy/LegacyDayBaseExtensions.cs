@@ -22,7 +22,7 @@ namespace AoC.Base
             tests.Last().Tests[part-1] = testType;
 
             if(result != null){
-                tests.Last().Result[part-1] = Tuple.Create((object)result, typeof(T));
+                tests.Last().SetResult(part, result);
             }
 
             return this;

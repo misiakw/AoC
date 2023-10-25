@@ -14,8 +14,9 @@ namespace AoC.Base.TestInputs
         protected readonly string _filePath;
         public readonly string Name;
         public readonly string InputDir;
-        public bool RunPart1 = true;
-        public bool RunPart2 = true;
+        public bool RunPart1 = false;
+        public bool RunPart2 = false;
+        protected Result[] _results = new Result[2];
 
         public TestInputBase(string filePath, string name)
         {
@@ -50,5 +51,16 @@ namespace AoC.Base.TestInputs
         }
 
         public abstract Tuple<Outcome, Result> GetOutcome(int test, Result result);
+
+        protected TestInputBase<Result> SetResult(byte testNum, Result result)
+        {
+            if (testNum < 1 || testNum > 2)
+                throw new InvalidDataException("Parts to run should be 1 or 2");
+            _results[testNum-1] = result;
+            return this;
+        }
+
+        public TestInputBase<Result> Part1(Result result) => SetResult(1, result);
+        public TestInputBase<Result> Part2(Result result) => SetResult(2, result);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AoC.Base;
+using AoC.Base.TestInputs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,15 +10,12 @@ namespace AoC2022
     {
         public LegacyInput[] GetTests()
         {
-            var tests = new List<LegacyInput>();
-            var example = new LegacyInput($"./Inputs/Day1/output.txt", "output");
-            example.Tests[0] = LegacyInput.TestType.Verbal;
-            example.Result[0] = Tuple.Create((object)71471, typeof(int));
-            example.Tests[1] = LegacyInput.TestType.Verbal;
-            example.Result[1] = Tuple.Create((object)211189, typeof(int));
-            tests.Add(example);
+            var builder = new InputBuilder<object, LegacyInput>();
+            builder.New("./Inputs/Day1/output.txt", "output")
+                .Part1(71471)
+                .Part2(211189);
 
-            return tests.ToArray();
+            return builder.Build();
         }
 
         public object Part1(LegacyInput input)

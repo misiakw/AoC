@@ -19,7 +19,15 @@ namespace AoC.Base
             }
         }
         public readonly TestType[] Tests = new TestType[2];
-        public readonly Tuple<object, Type>[] Result = new Tuple<object, Type>[2];
+        public Tuple<object, Type>[] Result
+        {
+            get => _results.Select(r => Tuple.Create(r, r?.GetType())).ToArray();
+        }
+        public void SetResult(byte testNum, object result)
+        {
+            _results[testNum] = result;
+        }
+
         public readonly IList<object>[] Invalid = new IList<object>[2] { new List<object>(), new List<object>() };
         private IList<object?> _storedInput = new List<object?>();
         public object[,] FailedResults = new object[2, 2];
