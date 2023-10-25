@@ -22,7 +22,7 @@ namespace AoC.Base
             tests.Last().Tests[part-1] = testType;
 
             if(result != null){
-                tests.Last().SetResult(part, result);
+                tests.Last().SetResult(part-1, result);
             }
 
             return this;

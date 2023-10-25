@@ -23,7 +23,7 @@ namespace AoC.Base
         {
             get => _results.Select(r => Tuple.Create(r, r?.GetType())).ToArray();
         }
-        public void SetResult(byte testNum, object result)
+        public void SetResult(int testNum, object result)
         {
             _results[testNum] = result;
         }
