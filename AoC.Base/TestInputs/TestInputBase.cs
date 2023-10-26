@@ -32,10 +32,10 @@ namespace AoC.Base.TestInputs
             InputDir = Path.GetDirectoryName(_filePath)?.ToString() ?? string.Empty;
         }
 
-        protected async Task<string> GetRaw()
+        public async Task<string> GetRaw()
             => await File.ReadAllTextAsync(_filePath);
 
-        protected async Task<IEnumerable<string>> ReadLines()
+        public async Task<IEnumerable<string>> ReadLines()
         {
             var result = new List<string>();
             using (StreamReader sr = File.OpenText(_filePath))

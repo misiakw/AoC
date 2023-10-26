@@ -6,237 +6,158 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using AoC.Base;
+using AoC.Base.TestInputs;
 
 namespace AoC2022
 {
-    public class Day16 : LegacyDayBase
+    public class Day16 : AbstractDay<int, IComparableInput<int>>
     {
-        public Day16() : base(16)
+        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
         {
-            Input("example1")
-                .RunPart(1, 1651)
-                .RunPart(2, 1707)
-            .Input("output")
-                .RunPart(1, 2059);
-                //.RunPart(2);
+            builder.New("example1", "./Inputs/Day16/example1.txt")
+                .Part1(1651)
+                .Part2(1707);
+            builder.New("output", "./Inputs/Day16/output.txt")
+                .Part1(2059);
+            //.RunPart(2);
         }
 
-        public override object Part1(LegacyInput input)
+        //private IDictionary<string, Node> nodes;
+        private int amountOfNodes;
+
+        public override int Part1(IComparableInput<int> input)
         {
-            var AA = ReadInput(input);
-            input.Cache = AA;
-            Console.WriteLine("input prepared, start");
-            var start = DateTime.Now;
-            var result = Process(AA, 30, 0, "AA");
-            var stop = DateTime.Now;
-            var span = TimeSpan.FromTicks(stop.Ticks - start.Ticks);
-            Console.WriteLine($"{span.Minutes}:{span.Seconds}.{span.Milliseconds}");
+            var nodes = ReadNodes(input);
+            amountOfNodes = nodes.Count();
+            return GetOptimalFlow(30, 0, nodes["AA"], 0);
+        }
+
+        public override int Part2(IComparableInput<int> input)
+        {
+            return 5;
+        }
+
+        private IDictionary<string, Node> ReadNodes(IComparableInput<int> input)
+        {
+            IDictionary<string, Node> result = new Dictionary<string, Node>();
+          //  var paths = new Dictionary<string, int>();
+            var task = input.ReadLines();
+            task.Wait();
+
+            foreach (var line in task.Result)
+            {
+                var node = new Node(line);
+                foreach(var x in node.Paths.Keys)
+                {
+                    var key = string.Join("|", ((new List<string>() { node.Name, x }).OrderBy(x => x).ToArray()));
+                    //if (!paths.ContainsKey(key))
+                    //    paths.Add(key, 1);
+                }
+                result.Add(node.Name, node);
+            }
+            result = CompressGraph(result);
+
+            //dodaj mapę innych ścierzek
+
+            var path = GetShortestPath(result["AA"], result["HH"], result.Count(), result);
+
+            int i = 0;
+            foreach (var n in result.Values)
+                n.Flag = 1 << i++;
+
             return result;
         }
 
-        public override object Part2(LegacyInput input)
+        private IDictionary<string, Node> CompressGraph(IDictionary<string, Node> result)
         {
-            var AA = ReadInput(input);
-            var valves = AA.DistanceTo.Keys.ToList();
-            valves.Add(AA);
-            Console.WriteLine("input prepared, start");
-            var result = ProcessPart2("AA", 0, 0, "AA", 0, 0, "AA", "", valves.ToDictionary(k => k.Name));
+            foreach (var kv in result)
+            {
+                if (kv.Key == "AA" || kv.Value.Flow > 0)
+                    continue;
+
+                foreach (var n in kv.Value.Paths)
+                    result[n.Key].Paths.Remove(kv.Key);
+
+                foreach (var l in kv.Value.Paths)
+                    foreach (var r in kv.Value.Paths.Where(x => x.Key != l.Key))
+                        if (!result[r.Key].Paths.ContainsKey(l.Key))
+                        {
+                            result[r.Key].Paths.Add(l.Key, l.Value + 1);
+                            result[l.Key].Paths.Add(r.Key, l.Value + 1);
+                        }
+                        else if (result[r.Key].Paths[l.Key] > l.Value + r.Value)
+                        {
+                            result[r.Key].Paths[l.Key] = l.Value + r.Value;
+                            result[l.Key].Paths[r.Key] = l.Value + r.Value;
+                        }
+
+                result.Remove(kv.Key);
+            }
             return result;
         }
-        private Valve ReadInput(LegacyInput input)
+
+        private int GetShortestPath(Node start, Node end, int leftToGo, IDictionary<string, Node> nodes)
         {
-            var valves = new Dictionary<string, Valve>();
-            var paths = new Dictionary<string, string[]>();
-            var regex = new Regex(@"Valve ([A-Z]{2}) has flow rate=(\d+); tunnel[s]? lead[s]? to valve[s]? ([A-Z, ]*)");
-
-            foreach (var line in input.Lines)
-            {
-                var match = regex.Match(line);
-                var valve = new Valve(match.Groups[1].Value, int.Parse(match.Groups[2].Value));
-                valves.Add(valve.Name, valve);
-                paths.Add(valve.Name, match.Groups[3].Value.Split(", ").ToArray());
-
-                foreach (var dest in paths[valve.Name])
-                    if (valves.ContainsKey(dest))
-                        valve.Leads.Add(valves[dest]);
-
-                foreach (var src in paths.Where(p => p.Value.Contains(valve.Name)).Select(p => p.Key))
-                    valves[src].Leads.Add(valve);
-            }
-
-            foreach (var valve in valves.Values)
-            {
-                foreach (var dst in valves.Values.Where(v => v.Flow > 0 && v != valve))
-                    valve.DistanceTo.Add(dst, valve.PathTo(dst, 0, string.Empty));
-            }
-
-            return valves["AA"];
-        }
-
-        private int Process(Valve current, int stepsToGo, int value, string opened)
-        {
-            if (stepsToGo < 0)
-            {
-                return value; //no time left
-            }
-
-            var split = opened.Split("=>").Select(s => s.Split("|").First()).ToArray();
-            var potentials = current.DistanceTo.Where(kv => kv.Value < stepsToGo)
-                .Select(kv => kv.Key).Where(v => split.All(s => s != v.Name)).ToList();
-            var flowSet = current.DistanceTo.Keys.Where(v => split.Contains(v.Name)).ToList();
-            var flow = flowSet.Select(v => v.Flow).Sum() + current.Flow;
-
-            if (!potentials.Any())
-            {
-                return value + (stepsToGo * flow); //no change, in future calculate 
-            }
-
-            var result = int.MinValue;
-            foreach (var next in potentials)
-            {
-                var steps = current.DistanceTo[next] + 1;
-                var output = steps > stepsToGo
-                    ? Process(next, 0, value + (flow * stepsToGo), opened)
-                    : Process(next, stepsToGo - steps, value + (flow * steps), opened + $"=>{next.Name}");
-                if (output > result) result = output;
-            }
-
-            return result;
-        }
-        private int ProcessPart2(
-            string me, int meTick, int meFlow, string ele, int eleTick, int eleFlow,
-            string usedArr, string path,
-            IDictionary<string, Valve> valves)
-        {
-            if (meTick >= 30 && eleTick >= 30)
-                return -1;//
-
-            var available = valves.Where(kv => !usedArr.Split(",").Contains(kv.Key))
-                .Select(kv => kv.Value).ToList();
-
-            if (meTick <= eleTick)
-            {
-                var meVal = valves[me];
-                var toUse = meVal.DistanceTo
-                    .Where(kv => kv.Value < (30 - meTick - 1) && available.Contains(kv.Key));
-
-                if (!toUse.Any())
-                {
-                    return ProcessPart2(me, 30, meFlow, ele, eleTick, eleFlow, usedArr,
-                        path + $"=>{me}|m|FIN", valves);
-                }
-
-                var result = new List<int>();
-                foreach (var tu in toUse)
-                {
-                    var newTick = meTick + meVal.DistanceTo[tu.Key] + 1;
-                    var newFlow = meFlow + tu.Key.Flow;
-                    result.Add(ProcessPart2(tu.Key.Name, newTick, newFlow, ele, eleTick, eleFlow,
-                        usedArr + $"=>{tu.Key.Name}", path + $"{tu.Key.Name}|m|{newTick}", valves));
-                }
-                return result.Max();
-            }
-            else
-            {
-                var eleVal = valves[ele];
-                var toUse = eleVal.DistanceTo
-                    .Where(kv => kv.Value < (30 - eleTick - 1) && available.Contains(kv.Key));
-
-                if (!toUse.Any())
-                {
-                    return ProcessPart2(me, meTick, meFlow, ele, 30, eleFlow, usedArr,
-                        path + $"=>{me}|e|FIN", valves);
-                }
-
-                var result = new List<int>();
-                foreach (var tu in toUse)
-                {
-                    var newTick = eleTick + eleVal.DistanceTo[tu.Key] + 1;
-                    var newFlow = eleFlow + tu.Key.Flow;
-                    result.Add(ProcessPart2(me, meTick, meFlow, tu.Key.Name, newTick, newFlow,
-                        usedArr + $"=>{tu.Key.Name}", path + $"{tu.Key.Name}|e|{newTick}", valves));
-                }
-                return result.Max();
-            }
-        }
-
-        /*if(tick == 0)
-            return i++;
-
-        var meList = meInp.Split("=>").Select(s=>s.Split("|").ToArray());
-        var mePos = int.Parse(meList.Last()[0]);
-        var meVal = mePos == tick ? valves[meList.Last()[1]]: null;
-        var visited = meList.Select(v => v[1]).ToList();
-
-        var eleList = eleInp.Split("=>").Select(s=>s.Split("|").ToArray());
-        var elePos = int.Parse(eleList.Last()[0]);
-        var eleVal = elePos == tick ? valves[eleList.Last()[1]]: null;
-        visited.AddRange(eleList.Select(v => v[1]));
-
-        var available = valves.Where(kv => !visited.Contains(kv.Key)).Select(kv => kv.Value).ToList();
-
-        if(tick == mePos){
-            var set = meVal.DistanceTo
-                .Where(kv => kv.Value < mePos && available.Contains(kv.Key));
-            if (!set.Any()){
-                return i++;
-            }
-            var result = new List<int>();
-            foreach(var valve in set){
-                var nextPos = mePos - valve.Value - 1;
-                result.Add(MeAndEleList(meInp+$"=>{nextPos}|{valve.Key.Name}", 
-                    eleInp, nextPos > elePos ? elePos : nextPos,
-                    valves, path+$"=>{valve.Key.Name}|m|{nextPos}"));
-            }
-            return result.Max();
-        }else{
-            var set = eleVal.DistanceTo
-                .Where(kv => kv.Value < elePos && available.Contains(kv.Key));
-            if (!set.Any()){
-                return i++;
-            }
-            var result = new List<int>();
-            foreach(var valve in set){
-                var nextPos = elePos - valve.Value - 1;
-                result.Add(MeAndEleList(meInp, eleInp+$"=>{nextPos}|{valve.Key.Name}",
-                    nextPos > mePos ? mePos : nextPos,
-                    valves, path+$"=>{valve.Key.Name}|m|{nextPos}"));
-            }
-            return result.Max();
-        }*/
-    }
-
-    internal class Valve
-    {
-        public readonly string Name;
-        public readonly int Flow;
-        public IList<Valve> Leads = new List<Valve>();
-        public bool Opened = false;
-
-        public IDictionary<Valve, int> DistanceTo = new Dictionary<Valve, int>();
-
-        public Valve(string name, int flow)
-        {
-            Name = name;
-            Flow = flow;
-        }
-        public override string ToString() => $"Valve[{Name}, {Flow}]";
-
-        public int PathTo(Valve dest, int steps, string visited)
-        {
-            if (this == dest) return steps;
-
+            //jesli osoagnales cel zwroc 0
+            if (start == end)
+                return 0;
+            //jesli skonczyl sie czas zwroc -1
+            if (leftToGo <= 0)
+                return -1;
             var min = int.MaxValue;
-
-            var visitedStr = visited.Split(",").ToList();
-
-            foreach (var lead in Leads.Where(l => !visitedStr.Any(v => l.Name == v)))
+            //rusz sie po wszystkich, wez pod uwage najmniejsza droge wieksza niż 0
+            foreach (var n in start.Paths)
             {
-                var path = lead.PathTo(dest, steps + 1, visited != string.Empty ? visited + $",{lead.Name}" : lead.Name);
-                if (path < min) min = path;
+                var node = nodes[n.Key];
+                var tmp = GetShortestPath(node, end, leftToGo - n.Value, nodes);
+                if (tmp > 0 && tmp + n.Value < min)
+                    min = tmp + n.Value;
             }
+            return min < int.MaxValue ? min : -1;
+        }
+
+       /* private Node ExtendPaths(Node node, IDictionary<string, Node> nodes)
+        {
+
+        } */
+
+        private int GetOptimalFlow(int time, int flow,  Node node, int openedValves)
+        {
+            var min = int.MaxValue;
+            //jesli wszystkie są otwarte - nic więcej nie zrobisz, zwróc flow
+            if (openedValves == (1 << amountOfNodes) - 1)
+                return flow;
+            //jeśli zawór jest zamknięty zdejmij minutę na otwarcie, przelicz jego flow i odpal ponownie
+            if ((openedValves & node.Flag) == 0)
+            {
+                var newFlow = GetOptimalFlow(time - 1, flow + (time - 1) * node.Flow, node, openedValves | node.Flag);
+                if (newFlow < min)
+                    min = newFlow;
+            }
+            //jeśli nie masz sąsiada do któego dojdziesz, zakończ z akrualnym flow
+            //w innym przypadku leć po wszystkich sąsiadach do których 
 
             return min;
+        }
+
+        internal class Node
+        {
+            public readonly string Name;
+            public readonly int Flow;
+            public int Flag;
+            public IDictionary<string, int> Paths = new Dictionary<string, int>();
+            
+            public Node(string line)
+            {
+                var regex = new Regex(@"Valve ([A-Z]+) has flow rate=(\d+); tunnel[s]? lead[s]? to valve[s]? ([A-Z, ]*)");
+                var match = regex.Match(line);
+                Name = match.Groups[1].Value;
+                Flow = int.Parse(match.Groups[2].Value);
+                foreach(var n in match.Groups[3].Value.Split(","))
+                {
+                    Paths.Add(n.Trim(), 1);
+                }
+            }
         }
     }
 }
