@@ -14,33 +14,39 @@ namespace AoC2022
     {
         public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
         {
-            builder.New("example1", "./Inputs/Day16/example1.txt")
+            /*builder.New("example1", "./Inputs/Day16/example1.txt")
                 .Part1(1651)
-                .Part2(1707);
+                .Part2(1707);*/
             builder.New("output", "./Inputs/Day16/output.txt")
-                .Part1(2059);
-            //.RunPart(2);
+                .Part1(2059)
+                .Part2(2);
         }
-
-        //private IDictionary<string, Node> nodes;
-        private int amountOfNodes;
 
         public override int Part1(IComparableInput<int> input)
         {
             var nodes = ReadNodes(input);
-            amountOfNodes = nodes.Count();
-            return GetOptimalFlow(30, 0, nodes["AA"], 0);
+            return GetOptimalFlow(30, 0, nodes["AA"], 0, nodes);
         }
 
         public override int Part2(IComparableInput<int> input)
         {
-            return 5;
+            var nodes = ReadNodes(input);
+            var allOptions = (1 << nodes.Count) - 1;
+
+            var max = 0;
+            for (var i = 0; i< allOptions/2; i++)
+            {
+                var me = GetOptimalFlow(26, 0, nodes["AA"], i, nodes);
+                var elefant = GetOptimalFlow(26, 0, nodes["AA"], ~i, nodes);
+                if (me + elefant > max)
+                    max = me + elefant;
+            }
+            return max;
         }
 
         private IDictionary<string, Node> ReadNodes(IComparableInput<int> input)
         {
             IDictionary<string, Node> result = new Dictionary<string, Node>();
-          //  var paths = new Dictionary<string, int>();
             var task = input.ReadLines();
             task.Wait();
 
@@ -50,16 +56,10 @@ namespace AoC2022
                 foreach(var x in node.Paths.Keys)
                 {
                     var key = string.Join("|", ((new List<string>() { node.Name, x }).OrderBy(x => x).ToArray()));
-                    //if (!paths.ContainsKey(key))
-                    //    paths.Add(key, 1);
                 }
                 result.Add(node.Name, node);
             }
-            result = CompressGraph(result);
-
-            //dodaj mapę innych ścierzek
-
-            var path = GetShortestPath(result["AA"], result["HH"], result.Count(), result);
+            result = ExtendPaths(CompressGraph(result));
 
             int i = 0;
             foreach (var n in result.Values)
@@ -93,51 +93,59 @@ namespace AoC2022
 
                 result.Remove(kv.Key);
             }
+
             return result;
         }
 
-        private int GetShortestPath(Node start, Node end, int leftToGo, IDictionary<string, Node> nodes)
+        private IDictionary<string, Node> ExtendPaths(IDictionary<string, Node> nodes)
         {
-            //jesli osoagnales cel zwroc 0
-            if (start == end)
-                return 0;
-            //jesli skonczyl sie czas zwroc -1
-            if (leftToGo <= 0)
-                return -1;
-            var min = int.MaxValue;
-            //rusz sie po wszystkich, wez pod uwage najmniejsza droge wieksza niż 0
-            foreach (var n in start.Paths)
+            var amountOfNodes = nodes.Count();
+            while (nodes.Values.Any(v => v.Paths.Count < amountOfNodes - 1))
             {
-                var node = nodes[n.Key];
-                var tmp = GetShortestPath(node, end, leftToGo - n.Value, nodes);
-                if (tmp > 0 && tmp + n.Value < min)
-                    min = tmp + n.Value;
+                var startNode = nodes.Values.First(v => v.Paths.Count < amountOfNodes - 1);
+                var keysToProcess = startNode.Paths.Keys.ToArray();
+                foreach (var midNodeKey in keysToProcess)
+                    foreach (var endNodeKey in nodes[midNodeKey].Paths.Keys)
+                        if (startNode.Name != endNodeKey && !startNode.Paths.ContainsKey(endNodeKey))
+                        {
+                            var dist = nodes[midNodeKey].Paths[endNodeKey] + startNode.Paths[midNodeKey];
+                            startNode.Paths.Add(endNodeKey, dist);
+                            nodes[endNodeKey].Paths.Add(startNode.Name, dist);
+                        }
             }
-            return min < int.MaxValue ? min : -1;
+            return nodes;
         }
 
-       /* private Node ExtendPaths(Node node, IDictionary<string, Node> nodes)
+        private IDictionary<string, int> cache = new Dictionary<string, int>();
+        private int GetOptimalFlow(int time, int flow,  Node node, int openedValves, IDictionary<string, Node> nodes)
         {
+            var state = $"{time}|{flow}|{node.Name}|{openedValves}";
+            if (cache.ContainsKey(state))
+                return cache[state];
 
-        } */
-
-        private int GetOptimalFlow(int time, int flow,  Node node, int openedValves)
-        {
-            var min = int.MaxValue;
+            var amountOfNodes = nodes.Count();
             //jesli wszystkie są otwarte - nic więcej nie zrobisz, zwróc flow
             if (openedValves == (1 << amountOfNodes) - 1)
                 return flow;
+            var max = flow;
             //jeśli zawór jest zamknięty zdejmij minutę na otwarcie, przelicz jego flow i odpal ponownie
-            if ((openedValves & node.Flag) == 0)
+            if ((openedValves & node.Flag) == 0 && node.Flow > 0)
             {
-                var newFlow = GetOptimalFlow(time - 1, flow + (time - 1) * node.Flow, node, openedValves | node.Flag);
-                if (newFlow < min)
-                    min = newFlow;
+                var newFlow = GetOptimalFlow(time - 1, flow + (time - 1) * node.Flow, node, openedValves | node.Flag, nodes);
+                if (newFlow > max)
+                    max = newFlow;
             }
             //jeśli nie masz sąsiada do któego dojdziesz, zakończ z akrualnym flow
             //w innym przypadku leć po wszystkich sąsiadach do których 
+            foreach(var next in node.Paths.Where(kv => kv.Value < time).Select(k => nodes[k.Key]).Where(n => (openedValves & n.Flag) == 0))
+            {
+                var newFlow = GetOptimalFlow(time - node.Paths[next.Name], flow, next, openedValves, nodes);
+                if (newFlow > max)
+                    max = newFlow;
+            }
 
-            return min;
+            cache.Add(state, max);
+            return max;
         }
 
         internal class Node
