@@ -60,7 +60,13 @@ namespace AoC.Base.TestInputs
             return this;
         }
 
-        public TestInputBase<Result> Part1(Result result) => SetResult(1, result);
-        public TestInputBase<Result> Part2(Result result) => SetResult(2, result);
+        public TestInputBase<Result> Part1(Result result){
+            RunPart1 = true;
+            return SetResult(1, result);
+        }
+        public TestInputBase<Result> Part2(Result result){
+            RunPart2 = true;
+            return SetResult(2, result);
+        }
     }
 }

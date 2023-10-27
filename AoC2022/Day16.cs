@@ -14,9 +14,9 @@ namespace AoC2022
     {
         public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
         {
-            /*builder.New("example1", "./Inputs/Day16/example1.txt")
+            builder.New("example1", "./Inputs/Day16/example1.txt")
                 .Part1(1651)
-                .Part2(1707);*/
+                .Part2(1707);
             builder.New("output", "./Inputs/Day16/output.txt")
                 .Part1(2059)
                 .Part2(2);
@@ -53,13 +53,9 @@ namespace AoC2022
             foreach (var line in task.Result)
             {
                 var node = new Node(line);
-                foreach(var x in node.Paths.Keys)
-                {
-                    var key = string.Join("|", ((new List<string>() { node.Name, x }).OrderBy(x => x).ToArray()));
-                }
                 result.Add(node.Name, node);
             }
-            result = ExtendPaths(CompressGraph(result));
+            result = CompressGraph(ExtendPaths(result));
 
             int i = 0;
             foreach (var n in result.Values)
