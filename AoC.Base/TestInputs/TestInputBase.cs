@@ -16,6 +16,7 @@ namespace AoC.Base.TestInputs
         public readonly string InputDir;
         public bool RunPart1 = false;
         public bool RunPart2 = false;
+        public bool SkipBoth = false;
         protected Result[] _results = new Result[2];
 
         public TestInputBase(string filePath, string name)
@@ -32,10 +33,10 @@ namespace AoC.Base.TestInputs
             InputDir = Path.GetDirectoryName(_filePath)?.ToString() ?? string.Empty;
         }
 
-        protected async Task<string> GetRaw()
+        public async Task<string> GetRaw()
             => await File.ReadAllTextAsync(_filePath);
 
-        protected async Task<IEnumerable<string>> ReadLines()
+        public async Task<IEnumerable<string>> ReadLines()
         {
             var result = new List<string>();
             using (StreamReader sr = File.OpenText(_filePath))
@@ -60,7 +61,18 @@ namespace AoC.Base.TestInputs
             return this;
         }
 
-        public TestInputBase<Result> Part1(Result result) => SetResult(1, result);
-        public TestInputBase<Result> Part2(Result result) => SetResult(2, result);
+        public TestInputBase<Result> Part1(Result result){
+            RunPart1 = true;
+            return SetResult(1, result);
+        }
+        public TestInputBase<Result> Part2(Result result){
+            RunPart2 = true;
+            return SetResult(2, result);
+        }
+        public TestInputBase<Result> Off()
+        {
+            SkipBoth = true;
+            return this;
+        }
     }
 }

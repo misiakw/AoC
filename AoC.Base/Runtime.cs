@@ -30,8 +30,10 @@ namespace AoC.Base
                 Console.WriteLine($"Process Test {test.Name}");
                 IDay<Result, Tests> dayObj = (IDay<Result, Tests>)Activator.CreateInstance(dayType);
 
-                ProcessTest(1, dayObj.Part1, test);
-                ProcessTest(2, dayObj.Part2, test);
+                if (test.RunPart1)
+                    ProcessTest(1, dayObj.Part1, test);
+                if (test.RunPart2)
+                    ProcessTest(2, dayObj.Part2, test);
             }
         }
 

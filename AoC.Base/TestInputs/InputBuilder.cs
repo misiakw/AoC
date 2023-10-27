@@ -7,6 +7,7 @@ namespace AoC.Base.TestInputs
     public class InputBuilder<TResult, TInput> where TInput: TestInputBase<TResult>
     {
         private IList<TInput> inputs = new List<TInput>();
+        private readonly string _path;
 
         public TInput New(string path, string name)
         {
