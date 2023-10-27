@@ -18,6 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Inputs\Day17\example1.txt" />
+    <None Remove="Inputs\Day17\output.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Inputs\Day22\test.txt" />
   </ItemGroup>
 
