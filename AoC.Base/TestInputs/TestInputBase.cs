@@ -16,6 +16,7 @@ namespace AoC.Base.TestInputs
         public readonly string InputDir;
         public bool RunPart1 = false;
         public bool RunPart2 = false;
+        public bool SkipBoth = false;
         protected Result[] _results = new Result[2];
 
         public TestInputBase(string filePath, string name)
@@ -67,6 +68,11 @@ namespace AoC.Base.TestInputs
         public TestInputBase<Result> Part2(Result result){
             RunPart2 = true;
             return SetResult(2, result);
+        }
+        public TestInputBase<Result> Off()
+        {
+            SkipBoth = true;
+            return this;
         }
     }
 }

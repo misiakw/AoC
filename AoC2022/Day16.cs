@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
 using AoC.Base;
 using AoC.Base.TestInputs;
 
@@ -19,13 +16,18 @@ namespace AoC2022
                 .Part2(1707);
             builder.New("output", "./Inputs/Day16/output.txt")
                 .Part1(2059)
-                .Part2(2);
+                .Part2(2790);
         }
+
+
+        private IDictionary<string, int> cache = new Dictionary<string, int>();
+        private int amountOfNodes = 0;
 
         public override int Part1(IComparableInput<int> input)
         {
             var nodes = ReadNodes(input);
-            return GetOptimalFlow(30, 0, nodes["AA"], 0, nodes);
+            amountOfNodes = nodes.Count();
+            return GetOptimalFlow(30, nodes["AA"], 0, nodes);
         }
 
         public override int Part2(IComparableInput<int> input)
@@ -34,12 +36,15 @@ namespace AoC2022
             var allOptions = (1 << nodes.Count) - 1;
 
             var max = 0;
-            for (var i = 0; i< allOptions/2; i++)
+            for (var i = 0; i< (allOptions+1)/2; i++)
             {
-                var me = GetOptimalFlow(26, 0, nodes["AA"], i, nodes);
-                var elefant = GetOptimalFlow(26, 0, nodes["AA"], ~i, nodes);
+                var me = GetOptimalFlow(26,  nodes["AA"], i, nodes);
+                var elefant = GetOptimalFlow(26, nodes["AA"], ~i, nodes);
                 if (me + elefant > max)
+                {
                     max = me + elefant;
+                    Console.WriteLine(max);
+                }
             }
             return max;
         }
@@ -112,30 +117,19 @@ namespace AoC2022
             return nodes;
         }
 
-        private IDictionary<string, int> cache = new Dictionary<string, int>();
-        private int GetOptimalFlow(int time, int flow,  Node node, int openedValves, IDictionary<string, Node> nodes)
+        private int GetOptimalFlow(int time,  Node node, int openedValves, IDictionary<string, Node> nodes)
         {
-            var state = $"{time}|{flow}|{node.Name}|{openedValves}";
+            var state = $"{time}|{node.Name}|{openedValves}";
             if (cache.ContainsKey(state))
                 return cache[state];
 
-            var amountOfNodes = nodes.Count();
-            //jesli wszystkie są otwarte - nic więcej nie zrobisz, zwróc flow
-            if (openedValves == (1 << amountOfNodes) - 1)
-                return flow;
-            var max = flow;
-            //jeśli zawór jest zamknięty zdejmij minutę na otwarcie, przelicz jego flow i odpal ponownie
-            if ((openedValves & node.Flag) == 0 && node.Flow > 0)
-            {
-                var newFlow = GetOptimalFlow(time - 1, flow + (time - 1) * node.Flow, node, openedValves | node.Flag, nodes);
-                if (newFlow > max)
-                    max = newFlow;
-            }
-            //jeśli nie masz sąsiada do któego dojdziesz, zakończ z akrualnym flow
-            //w innym przypadku leć po wszystkich sąsiadach do których 
+            var max = 0;
+            if ((openedValves & node.Flag) == 0)
+                max = GetOptimalFlow(time - 1, node, openedValves | node.Flag, nodes) + (time - 1) * node.Flow;
+
             foreach(var next in node.Paths.Where(kv => kv.Value < time).Select(k => nodes[k.Key]).Where(n => (openedValves & n.Flag) == 0))
             {
-                var newFlow = GetOptimalFlow(time - node.Paths[next.Name], flow, next, openedValves, nodes);
+                var newFlow = GetOptimalFlow(time - node.Paths[next.Name], next, openedValves, nodes);
                 if (newFlow > max)
                     max = newFlow;
             }
