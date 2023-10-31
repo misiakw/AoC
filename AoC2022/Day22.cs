@@ -12,6 +12,8 @@ namespace AoC2022
     {
         public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
         {
+            //builder.New("test", "./Inputs/Day22/test.txt")
+            //    .Part1(6032);
             builder.New("example1", "./Inputs/Day22/example1.txt")
                 .Part1(6032);
             //builder.New("output", "./Inputs/Day22/output.txt")
@@ -38,27 +40,38 @@ namespace AoC2022
             public readonly int Width = 0;
             public int pX = 0;
             public int pY = 0;
-            private readonly IList<string> Data = new List<string>();
+            private readonly char[,] Data;
             private readonly Queue<int> Steps = new Queue<int>();
             private Dir dir = Dir.Right;
 
             public Map(IComparableInput<int> input) {
                 var t = input.ReadLines();
                 t.Wait();
+                var lines = t.Result.ToArray();
+                var maxWidth = lines.Select(l => l.Length).Max() + 2;
 
-                foreach (var line in t.Result) {
+                Data = new char[maxWidth, lines.Length];
+
+                for(var y= 0; y < lines.Length; y++)
+                    for (var x = 0; x < maxWidth; x++)
+                        Data[x, y] = '@';
+
+                foreach (var line in lines) {
                     if (string.IsNullOrEmpty(line))
                         break;
                     if (Height == 0)
                     {
                         for (var i = 0; i < line.Length; i++)
-                            if (line[i] != ' ')
+                            if (line[i] != ' ' && line[i] != '#')
                             {
                                 pX = i;
                                 break;
                             }
                     }
-                    Data.Add(line);
+                    for (var x = 0; x < line.Length; x++)
+                        if (line[x] != ' ')
+                            Data[x+1, Height+1] = line[x];
+
                     Height++;
                     if (Width < line.Length)
                         Width = line.Length;
@@ -81,11 +94,22 @@ namespace AoC2022
                     Steps.Enqueue(steps);
             }
 
+            public void Print()
+            {
+                for (var y = 0; y < Height+2; y++)
+                {
+                    var sb = new StringBuilder();
+                    for (var x = 0; x < Width+2; x++)
+                        sb.Append(Data[x, y]);
+                    Console.WriteLine(sb.ToString());
+                }
+            }
+
             public bool CanProsess() => Steps.Any();
 
             public void Process()
             {
-                var step = Steps.Dequeue();
+               var step = Steps.Dequeue();
 
 
                 Console.WriteLine($"======== Step: {(step >= 0 ? step : step == -1 ? "CCW" : "CW")} ========");
@@ -96,102 +120,30 @@ namespace AoC2022
                     dir = (Dir)(dirInt < 0 ? (4 - dirInt) : dirInt % 4);
                     return;
                 }
+                var dx = dir == Dir.Right ? 1 : dir == Dir.Left ? -1 : 0;
+                var dy = dir == Dir.Down ? 1 : dir == Dir.Up ? -1 : 0; ;
 
-                switch (dir)
+                //o ile są kroki do zrobienia
+                while (step-- > 0)
                 {
-                    case Dir.Right:
-                        MarchRight(step);
-                        break;
-                    case Dir.Left:
-                        MarchLeft(step);
-                        break;
-                    case Dir.Up:
-                        MarchUp(step);
-                        break;
-                    case Dir.Down:
-                        MarchDown(step);
-                        break;
-                }
-                foreach (var line in Data)
-                    Console.WriteLine(line);
-
-            }
-
-            private void March(int steps, Func<char> nextChar, Func<bool> eol, Action proceed, Func<bool> rewind, char printCh)
-            {
-                while (steps > 0)
-                {
-                    //jesli koniec przewiń na drugą stronę
-                    if (eol())
+                    //sprawdx czy nastepny krok nie jest w koncu lini
+                    if (Data[pX + dx, pY + dy] == '@')
                     {
-                        if (!rewind()) //przeskocz na kolejny
-                            return; //co jesli rewind w ściane, zakończ
-                        continue;
+                        var tx = pX;
+                        var ty = pY;
+                        //jesli tak, cofnij sie do poczatku
+                        //jesli wyladujesz na scianie, zakoncz bez przesuwania
                     }
-                    var ch = nextChar();
-                    if (ch == '#')//jeśli sciana
-                        return; //zakoncz
-                    proceed();
-                    steps--;
-                    var tmp = new StringBuilder(Data[pY]);
-                    tmp[pX] = printCh;
-                    Data[pY] = tmp.ToString();
+
+                    //sprawdz czy nastepny ruch nie w sciane
+                    //jesli tak, zakoncz
+                    //jesli nie, przesun
                 }
-            }
 
-            private bool RewindHorizontal(int progress, Func<string, int, bool> canRewind)
-            {
-                var line = Data[pY];
-                var tmp = pX;
-                while (canRewind(line, tmp))
-                    tmp -= progress;
-                if (line[tmp + progress] == '#')
-                    return false;
-                pX = tmp;
-                return true;
+                Print();
             }
-            private void MarchRight(int steps)
-                => March(steps,
-                    () => Data[pY][pX + 1],
-                    () => pX + 1 >= Data[pY].Length || Data[pY][pX + 1] == ' ',
-                    () => pX++,
-                    () => RewindHorizontal(1, (line, tmp) => tmp >= 0 && line[tmp] != ' '),
-                    '>');
-            private void MarchLeft(int steps)
-                => March(steps,
-                    () => Data[pY][pX - 1],
-                    () => pX - 1 < 0 || Data[pY][pX - 1] == ' ',
-                    () => pX--,
-                    () => RewindHorizontal(-1, (line, tmp) => tmp < line.Length),
-                    '<');
-
-            private bool RewindVertical(int progress, Func<int, bool> canRewind)
-            {
-                var tmp = pY;
-                while (canRewind(tmp))
-                    tmp -= progress;
-                if (Data[tmp][pX] == '#')
-                    return false;
-                pY = tmp;
-                return true;
-            }
-            private void MarchUp(int steps)
-                => March(steps,
-                    () => Data[pY-1][pX],
-                    () => pY-1 < 0 || Data[pY-1][pX] == ' ',
-                    () => pY--,
-                    () => RewindVertical(-1, (tmp) => tmp >= 0 && Data[tmp][pX] != ' '),
-                    '^');
-            private void MarchDown(int steps)
-                => March(steps,
-                    () => Data[pY + 1][pX],
-                    () => pY - 1 > Height || Data[pY + 1][pX] == ' ',
-                    () => pY++,
-                    () => RewindVertical(1, (tmp) => tmp >= 0 && Data[tmp][pX] != ' '),
-                    'v');
-
             public int GetScore()
-                => 1000 * (pY + 1) + 4 * (pX + 1) + dir == Dir.Right ? 0 : dir == Dir.Down ? 1 : dir == Dir.Left ? 2 : 3;
+                => (1000 * pY) + (4 * pX) + (dir == Dir.Right ? 0 : dir == Dir.Down ? 1 : dir == Dir.Left ? 2 : 3);
         }
 
         private enum Dir{
