@@ -16,7 +16,8 @@ namespace AoC2022
             //    .Part1(6032);
             builder.New("example1", "./Inputs/Day22/example1.txt")
                 .Part1(6032);
-            //builder.New("output", "./Inputs/Day22/output.txt")
+            builder.New("output", "./Inputs/Day22/output.txt")
+                .Part1(0); //116100 too high;
             //    .Part2(0); //75290 Too High
         }
 
@@ -39,7 +40,7 @@ namespace AoC2022
             public readonly int Height = 0;
             public readonly int Width = 0;
             public int pX = 0;
-            public int pY = 0;
+            public int pY = 1;
             private readonly char[,] Data;
             private readonly Queue<int> Steps = new Queue<int>();
             private Dir dir = Dir.Right;
@@ -64,7 +65,7 @@ namespace AoC2022
                         for (var i = 0; i < line.Length; i++)
                             if (line[i] != ' ' && line[i] != '#')
                             {
-                                pX = i;
+                                pX = i+1;
                                 break;
                             }
                     }
@@ -112,7 +113,7 @@ namespace AoC2022
                var step = Steps.Dequeue();
 
 
-                Console.WriteLine($"======== Step: {(step >= 0 ? step : step == -1 ? "CCW" : "CW")} ========");
+                //Console.WriteLine($"======== Step: {(step >= 0 ? step : step == -1 ? "CCW" : "CW")} ========");
 
                 if (step < 0)
                 {
@@ -132,15 +133,26 @@ namespace AoC2022
                         var tx = pX;
                         var ty = pY;
                         //jesli tak, cofnij sie do poczatku
-                        //jesli wyladujesz na scianie, zakoncz bez przesuwania
+                        while(Data[tx, ty] != '@')
+                        {
+                            tx -= dx;
+                            ty -= dy;
+                        }
+                        if(Data[tx + dx, ty + dy] != '#')
+                        {
+                            pX = tx + dx;
+                            pY = ty + dy;
+                        }
+                        break;
                     }
 
-                    //sprawdz czy nastepny ruch nie w sciane
-                    //jesli tak, zakoncz
-                    //jesli nie, przesun
+                    if (Data[pX + dx, pY + dy] == '#')
+                        break;
+                    pX += dx;
+                    pY += dy;
                 }
 
-                Print();
+               // Print();
             }
             public int GetScore()
                 => (1000 * pY) + (4 * pX) + (dir == Dir.Right ? 0 : dir == Dir.Down ? 1 : dir == Dir.Left ? 2 : 3);
