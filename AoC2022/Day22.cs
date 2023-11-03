@@ -17,12 +17,15 @@ namespace AoC2022
             builder.New("example1", "./Inputs/Day22/example1.txt")
                 .Part1(6032);
             builder.New("output", "./Inputs/Day22/output.txt")
-                .Part1(0); //116100 too high;
+                .Part1(0); //116100 too high; 130324 too high
             //    .Part2(0); //75290 Too High
         }
 
         public override int Part1(IComparableInput<int> input)
         {
+            Console.WriteLine((5 + 6) % 10);
+            Console.WriteLine((5 - 6) % 10);
+
             var map = new Map(input);
 
             while (map.CanProsess())
@@ -40,7 +43,7 @@ namespace AoC2022
             public readonly int Height = 0;
             public readonly int Width = 0;
             public int pX = 0;
-            public int pY = 1;
+            public int pY = 0;
             private readonly char[,] Data;
             private readonly Queue<int> Steps = new Queue<int>();
             private Dir dir = Dir.Right;
@@ -49,34 +52,32 @@ namespace AoC2022
                 var t = input.ReadLines();
                 t.Wait();
                 var lines = t.Result.ToArray();
-                var maxWidth = lines.Select(l => l.Length).Max() + 2;
+                Width = lines.Select(l => l.Length).Max();
+                Height = lines.Length - 2;
 
-                Data = new char[maxWidth, lines.Length];
+                Data = new char[Width, Height];
 
-                for(var y= 0; y < lines.Length; y++)
-                    for (var x = 0; x < maxWidth; x++)
-                        Data[x, y] = '@';
+                for(var y= 0; y < Height; y++)
+                    for (var x = 0; x < Width; x++)
+                        Data[x, y] = ' ';
 
+                Height = 0;
                 foreach (var line in lines) {
                     if (string.IsNullOrEmpty(line))
                         break;
-                    if (Height == 0)
-                    {
-                        for (var i = 0; i < line.Length; i++)
-                            if (line[i] != ' ' && line[i] != '#')
-                            {
-                                pX = i+1;
-                                break;
-                            }
-                    }
+                   
                     for (var x = 0; x < line.Length; x++)
-                        if (line[x] != ' ')
-                            Data[x+1, Height+1] = line[x];
+                            Data[x, Height] = line[x];
 
                     Height++;
-                    if (Width < line.Length)
-                        Width = line.Length;
                 }
+
+                for(var i=0; i<Width; i++)
+                    if(Data[i, 0] == '.')
+                    {
+                        pX = i;
+                        break;
+                    }
 
                 int steps = 0;
                 foreach (var ch in t.Result.Last().ToCharArray())
@@ -97,11 +98,14 @@ namespace AoC2022
 
             public void Print()
             {
-                for (var y = 0; y < Height+2; y++)
+                for (var y = 0; y < Height; y++)
                 {
                     var sb = new StringBuilder();
-                    for (var x = 0; x < Width+2; x++)
-                        sb.Append(Data[x, y]);
+                    for (var x = 0; x < Width; x++)
+                        if(x == pX && y == pY)
+                            sb.Append("@");
+                        else
+                            sb.Append(Data[x, y]);
                     Console.WriteLine(sb.ToString());
                 }
             }
@@ -113,7 +117,7 @@ namespace AoC2022
                var step = Steps.Dequeue();
 
 
-                //Console.WriteLine($"======== Step: {(step >= 0 ? step : step == -1 ? "CCW" : "CW")} ========");
+                Console.WriteLine($"======== Step: {(step >= 0 ? step : step == -1 ? "CCW" : "CW")} ========");
 
                 if (step < 0)
                 {
@@ -122,40 +126,34 @@ namespace AoC2022
                     return;
                 }
                 var dx = dir == Dir.Right ? 1 : dir == Dir.Left ? -1 : 0;
-                var dy = dir == Dir.Down ? 1 : dir == Dir.Up ? -1 : 0; ;
+                var dy = dir == Dir.Down ? 1 : dir == Dir.Up ? -1 : 0;
 
                 //o ile są kroki do zrobienia
                 while (step-- > 0)
                 {
-                    //sprawdx czy nastepny krok nie jest w koncu lini
-                    if (Data[pX + dx, pY + dy] == '@')
+                    var nX = (pX + dx) % Width;
+                    var nY = (pY + dy) % Height;
+                    if (nX < 0) nX += Width;
+                    if (nY < 0) nY += Height;
+
+                    while (Data[nX, nY] == ' ')
                     {
-                        var tx = pX;
-                        var ty = pY;
-                        //jesli tak, cofnij sie do poczatku
-                        while(Data[tx, ty] != '@')
-                        {
-                            tx -= dx;
-                            ty -= dy;
-                        }
-                        if(Data[tx + dx, ty + dy] != '#')
-                        {
-                            pX = tx + dx;
-                            pY = ty + dy;
-                        }
-                        break;
+                        nX = (nX + dx) % Width;
+                        nY = (nY + dy) % Height;
+                        if (nX < 0) nX += Width;
+                        if (nY < 0) nY += Height;
                     }
 
-                    if (Data[pX + dx, pY + dy] == '#')
+                    if (Data[nX, nY] == '#')
                         break;
-                    pX += dx;
-                    pY += dy;
+                    pX = nX;
+                    pY = nY;
                 }
 
-               // Print();
+               Print();
             }
             public int GetScore()
-                => (1000 * pY) + (4 * pX) + (dir == Dir.Right ? 0 : dir == Dir.Down ? 1 : dir == Dir.Left ? 2 : 3);
+                => (1000 * (pY+1)) + (4 * (pX+1)) + (dir == Dir.Right ? 0 : dir == Dir.Down ? 1 : dir == Dir.Left ? 2 : 3);
         }
 
         private enum Dir{
