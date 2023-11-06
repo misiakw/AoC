@@ -3,6 +3,7 @@ using AoC.Base.TestInputs;
 using AoC.Common;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -17,15 +18,11 @@ namespace AoC2022
             builder.New("example1", "./Inputs/Day22/example1.txt")
                 .Part1(6032);
             builder.New("output", "./Inputs/Day22/output.txt")
-                .Part1(0); //116100 too high; 130324 too high
-            //    .Part2(0); //75290 Too High
+                .Part1(75254);
         }
 
         public override int Part1(IComparableInput<int> input)
         {
-            Console.WriteLine((5 + 6) % 10);
-            Console.WriteLine((5 - 6) % 10);
-
             var map = new Map(input);
 
             while (map.CanProsess())
@@ -96,33 +93,16 @@ namespace AoC2022
                     Steps.Enqueue(steps);
             }
 
-            public void Print()
-            {
-                for (var y = 0; y < Height; y++)
-                {
-                    var sb = new StringBuilder();
-                    for (var x = 0; x < Width; x++)
-                        if(x == pX && y == pY)
-                            sb.Append("@");
-                        else
-                            sb.Append(Data[x, y]);
-                    Console.WriteLine(sb.ToString());
-                }
-            }
-
             public bool CanProsess() => Steps.Any();
 
             public void Process()
             {
-               var step = Steps.Dequeue();
-
-
-                Console.WriteLine($"======== Step: {(step >= 0 ? step : step == -1 ? "CCW" : "CW")} ========");
+                var step = Steps.Dequeue();
 
                 if (step < 0)
                 {
                     var dirInt = (int)dir + (step == -1 ? -1 : 1);
-                    dir = (Dir)(dirInt < 0 ? (4 - dirInt) : dirInt % 4);
+                    dir = (Dir)(dirInt < 0 ? (4 + dirInt) : dirInt % 4);
                     return;
                 }
                 var dx = dir == Dir.Right ? 1 : dir == Dir.Left ? -1 : 0;
@@ -140,8 +120,8 @@ namespace AoC2022
                     {
                         nX = (nX + dx) % Width;
                         nY = (nY + dy) % Height;
-                        if (nX < 0) nX += Width;
-                        if (nY < 0) nY += Height;
+                        if (nX < 0) nX = Width-1;
+                        if (nY < 0) nY = Height-1;
                     }
 
                     if (Data[nX, nY] == '#')
@@ -149,8 +129,6 @@ namespace AoC2022
                     pX = nX;
                     pY = nY;
                 }
-
-               Print();
             }
             public int GetScore()
                 => (1000 * (pY+1)) + (4 * (pX+1)) + (dir == Dir.Right ? 0 : dir == Dir.Down ? 1 : dir == Dir.Left ? 2 : 3);
