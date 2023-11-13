@@ -17,5 +17,9 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Inputs\Day22\test.txt" />
+  </ItemGroup>
+
 
 </Project>

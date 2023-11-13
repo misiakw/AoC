@@ -1,277 +1,144 @@
 ﻿using AoC.Base;
+using AoC.Base.TestInputs;
 using AoC.Common;
-using ImageMagick;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace AoC2022
 {
-    public class Day22 : LegacyDayBase
+    public class Day22 : AbstractDay<int, IComparableInput<int>>
     {
-        public Day22() : base(22)
+        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
         {
-            Input("example1")
-            //.RunPart(1, 6032)
-            .Input("output")
-                .RunPart(1); //75290 Too High
+            //builder.New("test", "./Inputs/Day22/test.txt")
+            //    .Part1(6032);
+            builder.New("example1", "./Inputs/Day22/example1.txt")
+                .Part1(6032);
+            builder.New("output", "./Inputs/Day22/output.txt")
+                .Part1(75254);
         }
 
-        public override object Part1(LegacyInput input)
+        public override int Part1(IComparableInput<int> input)
         {
-            var trip = new Journey(input);
-            trip.Proceed();
+            var map = new Map(input);
 
-            var rowPart = (trip.Location.Y + 1) * 1000;
-            var colPart = (trip.Location.X + 1) * 4;
-            var dirPart = trip.Dir == 'R' ? 0
-                : trip.Dir == 'D' ? 1
-                : trip.Dir == 'L' ? 2 : 3;
-            return rowPart + colPart + dirPart;
+            while (map.CanProsess())
+                map.Process();
+            
+            return map.GetScore();
         }
 
-        public override object Part2(LegacyInput input)
+        public override int Part2(IComparableInput<int> input)
         {
             throw new NotImplementedException();
         }
 
-        private class Journey
-        {
-            private Array2D<char> map = new Array2D<char>(' ');
-            private IList<Step> steps = new List<Step>();
-            public char Dir { get; private set; } = 'R';
-            public Point Location;
-            private ImagePrinter printer;
-            private string name;
+        private class Map {
+            public readonly int Height = 0;
+            public readonly int Width = 0;
+            public int pX = 0;
+            public int pY = 0;
+            private readonly char[,] Data;
+            private readonly Queue<int> Steps = new Queue<int>();
+            private Dir dir = Dir.Right;
 
-            public Journey(LegacyInput input)
-            {
-                printer = new ImagePrinter(input.InputDir);
-                name = input.Name;
-                var y = 0;
-                var lines = input.Raw.Split("\n").ToArray();
-                foreach (var line in lines.Take(input.Lines.Count() - 2))
-                {
-                    var x = 0;
-                    foreach (var ch in line.TrimEnd())
-                    {
-                        if (ch != ' ')
-                            map[x, y] = ch;
-                        x++;
-                    }
-                    y++;
+            public Map(IComparableInput<int> input) {
+                var t = input.ReadLines();
+                t.Wait();
+                var lines = t.Result.ToArray();
+                Width = lines.Select(l => l.Length).Max();
+                Height = lines.Length - 2;
+
+                Data = new char[Width, Height];
+
+                for(var y= 0; y < Height; y++)
+                    for (var x = 0; x < Width; x++)
+                        Data[x, y] = ' ';
+
+                Height = 0;
+                foreach (var line in lines) {
+                    if (string.IsNullOrEmpty(line))
+                        break;
+                   
+                    for (var x = 0; x < line.Length; x++)
+                            Data[x, Height] = line[x];
+
+                    Height++;
                 }
 
-                var tmp = string.Empty;
-                foreach (var ch in input.Lines.Last().Trim())
+                for(var i=0; i<Width; i++)
+                    if(Data[i, 0] == '.')
+                    {
+                        pX = i;
+                        break;
+                    }
+
+                int steps = 0;
+                foreach (var ch in t.Result.Last().ToCharArray())
                 {
                     if (ch == 'L' || ch == 'R')
                     {
-                        steps.Add(new Step
-                        {
-                            Distance = int.Parse(tmp),
-                            Rotate = ch
-                        });
-                        tmp = string.Empty;
+                        if (steps > 0)
+                            Steps.Enqueue(steps);
+                        steps = 0;
+                        Steps.Enqueue(ch == 'L' ? -1 : -2);
                     }
                     else
-                        tmp += ch;
+                        steps = steps * 10 + (int)(ch - '0');
                 }
-                var X = 0L;
-                for (; X < lines.First().Length; X++)
-                    if (map[X, 0] == '.')
+                if (steps > 0)
+                    Steps.Enqueue(steps);
+            }
+
+            public bool CanProsess() => Steps.Any();
+
+            public void Process()
+            {
+                var step = Steps.Dequeue();
+
+                if (step < 0)
+                {
+                    var dirInt = (int)dir + (step == -1 ? -1 : 1);
+                    dir = (Dir)(dirInt < 0 ? (4 + dirInt) : dirInt % 4);
+                    return;
+                }
+                var dx = dir == Dir.Right ? 1 : dir == Dir.Left ? -1 : 0;
+                var dy = dir == Dir.Down ? 1 : dir == Dir.Up ? -1 : 0;
+
+                //o ile są kroki do zrobienia
+                while (step-- > 0)
+                {
+                    var nX = (pX + dx) % Width;
+                    var nY = (pY + dy) % Height;
+                    if (nX < 0) nX += Width;
+                    if (nY < 0) nY += Height;
+
+                    while (Data[nX, nY] == ' ')
+                    {
+                        nX = (nX + dx) % Width;
+                        nY = (nY + dy) % Height;
+                        if (nX < 0) nX = Width-1;
+                        if (nY < 0) nY = Height-1;
+                    }
+
+                    if (Data[nX, nY] == '#')
                         break;
-                map[X, 0] = 'S';
-                Location = new Point(X, 0);
-            }
-
-            private MagickImage initImg;
-
-            public void Proceed()
-            {
-                var i = 1;
-                foreach (var step in steps)
-                {
-                    var dif = GetDif(Dir);
-                    Move(step.Distance, dif);
-                    Dir = Rotate(step.Rotate);
-                    Draw($"{i++}-{step.Distance}{step.Rotate}-{Dir}");
-                }
-
-                Draw($"end");
-            }
-
-            private void Draw(string name)
-            {
-                printer.DrawImage((int)map.Width * 6, (int)map.Height * 6, $"{this.name}-{name}",
-                img =>
-                {
-                    img.Settings.StrokeColor = MagickColors.Red;
-                    img.Settings.StrokeWidth = 1;
-                    img.Settings.FillColor = MagickColors.White;
-
-                    var border = new DrawableBorderColor(MagickColors.Black);
-                    var drawables = new List<IDrawable>();
-                    for (var y = 0; y <= map.Height; y++)
-                    {
-                        for (var x = 0; x <= map.Width; x++)
-                        {
-                            var ch = map[x, y];
-                            if (map[x, y] == ' ') continue;
-                            var rect = new DrawableRectangle(x * 6, y * 6, x * 6 + 5, y * 6 + 5);
-                            var fill = ch == '#'
-                                ? MagickColors.Gray
-                                : MagickColors.LightGreen;
-                            if (x == Location.X && y == Location.Y)
-                                fill = MagickColors.Blue;
-                            drawables.AddRange(new IDrawable[3]
-                            { new DrawableStrokeColor(fill), new DrawableFillColor(fill), rect});
-
-                            switch (ch)
-                            {
-                                case 'R':
-                                    drawables.AddRange(new IDrawable[4]
-                                        { new DrawableStrokeColor(MagickColors.Red),
-                                         new DrawableFillColor(MagickColors.Red),
-                                        new DrawableLine(x*6, y*6, x*6+5, y*6+3),
-                                        new DrawableLine(x*6+5, y*6+3, x*6, y*6+5) }
-                                    );
-                                    break;
-                                case 'L':
-                                    drawables.AddRange(new IDrawable[4]
-                                        { new DrawableStrokeColor(MagickColors.Red),
-                                         new DrawableFillColor(MagickColors.Red),
-                                        new DrawableLine(x*6+5, y*6, x*6, y*6+3),
-                                        new DrawableLine(x*6, y*6+3, x*6+5, y*6+5) }
-                                    );
-                                    break;
-                                case 'D':
-                                    drawables.AddRange(new IDrawable[4]
-                                        { new DrawableStrokeColor(MagickColors.Red),
-                                         new DrawableFillColor(MagickColors.Red),
-                                        new DrawableLine(x*6, y*6, x*6+3, y*6+5),
-                                        new DrawableLine(x*6+3, y*6+5, x*6+5, y*6) }
-                                    );
-                                    break;
-                                case 'U':
-                                    drawables.AddRange(new IDrawable[4]
-                                        { new DrawableStrokeColor(MagickColors.Red),
-                                         new DrawableFillColor(MagickColors.Red),
-                                        new DrawableLine(x*6, y*6+5, x*6+3, y*6),
-                                        new DrawableLine(x*6+3, y*6, x*6+5, y*6+5) }
-                                    );
-                                    break;
-                            }
-                        }
-                    }
-                    img.Draw(drawables);
-                });
-            }
-
-            private Tuple<long, long> GetDif(char dir)
-            {
-                switch (dir)
-                {
-                    case 'R':
-                        return Tuple.Create(1L, 0L);
-                    case 'L':
-                        return Tuple.Create(-1L, 0L);
-                    case 'U':
-                        return Tuple.Create(0L, -1L);
-                    default:
-                        return Tuple.Create(0L, 1L);
+                    pX = nX;
+                    pY = nY;
                 }
             }
-            private void Move(long dist, Tuple<long, long> dir)
-            {
-                var ToMove = dist;
-                var x = Location.X;
-                var y = Location.Y;
-                while (ToMove > 0)
-                {
-                    var nX = x + dir.Item1;
-                    var nY = y + dir.Item2;
-                    if (map[nX, nY] == ' ')
-                    {
-                        var newPos = Wrap(x, y);
-                        if (newPos == null)
-                        {
-                            Location = new Point(x, y);
-                            return;
-                        }
-                        nX = newPos.Item1;
-                        nY = newPos.Item2;
-                    }
-                    else if (map[nX, nY] == '#')
-                    {
-                        map[x, y] = Dir;
-                        Location = new Point(x, y);
-                        return;
-                    }
-                    x = nX;
-                    y = nY;
-                    map[nX, nY] = Dir;
-                    ToMove--;
-                }
-                Location = new Point(x, y);
-            }
-            private Tuple<long, long>? Wrap(long x, long y)
-            {
-                var nx = x;
-                var ny = y;
-                if (Dir == 'U' || Dir == 'D')
-                {
-                    //wrap Y
-                    var dif = Dir == 'U' ? 1 : -1;
-                    while (map[x, y + dif] != ' ')
-                        y += dif;
-                    ny = y;
-                }
-                else
-                {
-                    //wrap X
-                    var dif = Dir == 'L' ? 1 : -1;
-                    while (map[x + dif, y] != ' ')
-                        x += dif;
-                    nx = x;
-                }
-                return map[nx, ny] == '#' ? null : Tuple.Create(nx, ny);
-            }
-
-            private char Rotate(char dir)
-            {
-                switch (this.Dir)
-                {
-                    case 'U':
-                        return dir == 'R' ? 'R' : 'L';
-                    case 'R':
-                        return dir == 'R' ? 'D' : 'U';
-                    case 'D':
-                        return dir == 'R' ? 'L' : 'R';
-                    default:
-                        return dir == 'R' ? 'U' : 'D';
-
-                }
-            }
+            public int GetScore()
+                => (1000 * (pY+1)) + (4 * (pX+1)) + (dir == Dir.Right ? 0 : dir == Dir.Down ? 1 : dir == Dir.Left ? 2 : 3);
         }
 
-        private struct Step
-        {
-            public int Distance;
-            public char Rotate;
-        }
-
-        private Tuple<Array2D<char>, List<string>> ReadInput(LegacyInput input)
-        {
-            var map = new Array2D<char>(' ');
-
-
-
-            var steps = new List<string>();
-
-
-
-            return Tuple.Create(map, steps);
+        private enum Dir{
+            Right = 0,
+            Down = 1,
+            Left = 2,
+            Up = 3,
         }
     }
 }

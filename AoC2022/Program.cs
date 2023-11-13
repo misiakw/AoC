@@ -6,7 +6,7 @@ namespace AoC2022
     {
         static void Main(string[] args)
         {
-            new Day16().GetRuntime().Execute();
+            new Day22().GetRuntime().Execute();
         }
     }
 }

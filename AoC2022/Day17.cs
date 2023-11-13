@@ -8,23 +8,22 @@ using AoC.Base;
 
 namespace AoC2022
 {
-    public class Day17 : LegacyDayBase
+    public class Day17 // : LegacyDayBase
     {
-        public Day17() : base(17)
-        {
-            Input("example1")
-                .RunPart(1, 5)
-            .Input("output");
-        }
 
-        public override object Part1(LegacyInput input)
+        /*public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
         {
-            throw new NotImplementedException();
-        }
+            builder.New("example1", "./Inputs/Day17/example1.txt")
+                 .Part1(3068);
+            builder.New("output", "./Inputs/Day17/output.txt")
+                .Part1(3124);
+        }*/
 
-        public override object Part2(LegacyInput input)
+        private abstract class Block
         {
-            throw new NotImplementedException();
+            public int X;
+            public int Y;
+
         }
     }
 }
