@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AoC.Base\AoC.Base.csproj" />
+    <ProjectReference Include="..\AoC.Common\AoC.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Inputs\Day1\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Inputs\Day1\example1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Inputs\Day1\example2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Inputs\Day1\output.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
