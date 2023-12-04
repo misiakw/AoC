@@ -13,19 +13,58 @@ namespace AoC2023.Days
     {
         public override int Part1(IComparableInput<int> input)
         {
+            var inp = RedInput(input);
+            var symbols = inp.Item1;
+            var nums = inp.Item2;
+
+            var partNums = nums.Where(n => symbols.Any(s => n.IsAdjascent(s))).ToList();
+
+            return partNums.Sum(p => p.Val);
+        }
+
+        public override int Part2(IComparableInput<int> input)
+        {
+            var inp = RedInput(input);
+            var stars = inp.Item1.Where(s => s.Char == '*').ToList();
+            var nums = inp.Item2;
+
+            var result = 0;
+            foreach(var sym in stars)
+            {
+                var parts = nums.Where(n => n.IsAdjascent(sym)).ToList();
+                if (parts.Count == 2)
+                    result += parts[0].Val * parts[1].Val;
+            }
+
+            return result;
+        }
+
+        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
+        {
+            builder.New("example1", "./Inputs/Day3/example1.txt")
+                .Part1(4361)
+                .Part2(467835);
+            builder.New("output", "./Inputs/Day3/output.txt")
+                .Part1(527369)
+                .Part2(0);
+        }
+
+        private (IList<Symbol>, IList<Num>) RedInput(IComparableInput<int> input)
+        {
             var y = 0;
             var x = 0;
             var symbols = new List<Symbol>();
             var nums = new List<Num>();
-            foreach(var line in ReadLines(input))
+            foreach (var line in ReadLines(input))
             {
                 var numStr = string.Empty;
                 x = 0;
-                foreach(var ch in line)
+                foreach (var ch in line)
                 {
                     if (ch >= '0' && ch <= '9')
                         numStr += ch;
-                    else {
+                    else
+                    {
                         if (!string.IsNullOrEmpty(numStr))
                         {
                             nums.Add(new Num(x - 1, y, numStr));
@@ -38,30 +77,12 @@ namespace AoC2023.Days
                 }
                 if (!string.IsNullOrEmpty(numStr))
                 {
-                    nums.Add(new Num(x-1, y, numStr));
+                    nums.Add(new Num(x - 1, y, numStr));
                     numStr = string.Empty;
                 }
                 y++;
             }
-
-            var partNums = nums.Where(n => symbols.Any(s => n.IsAdjascent(s))).ToList();
-
-            return partNums.Sum(p => p.Val);
-        }
-
-        public override int Part2(IComparableInput<int> input)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
-        {
-            builder.New("example1", "./Inputs/Day3/example1.txt")
-               .Part1(4361);
-            // .Part2(30);
-            builder.New("output", "./Inputs/Day3/output.txt")
-                .Part1(527369); 
-                           //.Part2(0);
+            return (symbols, nums);
         }
 
         private class Symbol
