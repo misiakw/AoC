@@ -23,5 +23,12 @@ namespace AoC.Base
         public abstract Result Part1(Tests input);
 
         public abstract Result Part2(Tests input);
+
+        protected IList<string> ReadLines(Tests input)
+        {
+            var t = input.ReadLines();
+            t.Wait();
+            return t.Result.ToList();
+        }
     }
 }
