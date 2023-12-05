@@ -18,8 +18,8 @@ namespace AoC2023.Days
                 .Part1(35)
                 .Part2(46);
             builder.New("output", "./Inputs/Day5/output.txt")
-                .Part1(510109797);
-            //.Part2(0);
+                .Part1(510109797)
+                .Part2(9622622);
         }
 
         public override long Part1(IComparableInput<long> input)
@@ -115,6 +115,7 @@ namespace AoC2023.Days
                             : map.Item1.Max - currentStart;
 
                         results.Add(dest(seeds[x], new Range(startPoint, startPoint + length)));
+                        currentStart += length;
                     }
                     //verify if nonmapped part exist
                     if(currentStart < sourceRange.Max)
