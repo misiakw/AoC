@@ -11,6 +11,16 @@ namespace AoC2023.Days
 {
     public class Day3 : AbstractDay<int, IComparableInput<int>>
     {
+        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
+        {
+            builder.New("example1", "./Inputs/Day3/example1.txt")
+                .Part1(4361)
+                .Part2(467835);
+            builder.New("output", "./Inputs/Day3/output.txt")
+                .Part1(527369)
+                .Part2(73074886);
+        }
+
         public override int Part1(IComparableInput<int> input)
         {
             var inp = RedInput(input);
@@ -37,16 +47,6 @@ namespace AoC2023.Days
             }
 
             return result;
-        }
-
-        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
-        {
-            builder.New("example1", "./Inputs/Day3/example1.txt")
-                .Part1(4361)
-                .Part2(467835);
-            builder.New("output", "./Inputs/Day3/output.txt")
-                .Part1(527369)
-                .Part2(0);
         }
 
         private (IList<Symbol>, IList<Num>) RedInput(IComparableInput<int> input)

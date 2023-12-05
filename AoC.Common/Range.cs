@@ -7,6 +7,8 @@ namespace AoC.Common
         public long Min { get; protected set;}
         public long Max { get; protected set;}
 
+        public long Span => Max - Min;
+
         public Range(long a, long b){
             if (a<=b){
                 Min = a;
