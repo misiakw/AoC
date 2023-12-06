@@ -89,7 +89,19 @@ namespace AoC.Common
                     yield return a.ContainedBy(containedBy);
         }
 
-        //ToDo - CommonStripped - podajesz szeroki zakres oraz inne zakresy ktore z nim koliduja, a on dzieli je na najmniejsze unikalne male zakresy
+        private static IEnumerable<Range> GetUniqueRanges(IEnumerable<Range> startRanges)
+        {
+            var starts = startRanges.Select(r => r.Min);
+            var ends = startRanges.Select(r => r.Max);
+            var edges = starts.Concat(ends).ToArray();
+
+            for(var i=1; i<edges.Count(); i++)
+            {
+                var curr = new Range(edges[i - 1], edges[i]);
+                if (startRanges.Any(r => r.Overlap(curr)))
+                    yield return curr;
+            }
+        }
 
         public int CompareTo(Range? other) => Min.CompareTo(other?.Min ?? long.MinValue);
         public override string ToString() => $"Range[{Min}|{Max}]";
