@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using AoC.Base;
 using AoC.Base.TestInputs;
 using AoC.Common;
@@ -25,7 +24,7 @@ namespace AoC2023.Days
         {
             var races = ReadInput(input);
 
-            var result = 1l;
+            var result = 1L;
             foreach(var race in races)
                 result *= CalculateRace(race.Item1, race.Item2);
 
@@ -56,7 +55,7 @@ namespace AoC2023.Days
             return CalculateRace(time, distance);
         }
 
-        private long CalculateRace(long time, long distance)
+        private static long CalculateRace(long time, long distance)
         {
             for (var chargeTime = 0; chargeTime < time; chargeTime++)
                 if ((time - chargeTime) * chargeTime > distance)
