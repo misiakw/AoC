@@ -27,7 +27,7 @@ namespace AoC2023.Days
                 tmp.Add((new Hand(line[0]), long.Parse(line[1])));
 
             long score = 0;
-            long i = tmp.Count();
+            long i = tmp.Count;
             foreach (var hand in tmp.OrderByDescending(t => t.Item1))
                 score += i-- * hand.Item2;
 
@@ -41,7 +41,7 @@ namespace AoC2023.Days
                 tmp.Add((new Hand(line[0], true), long.Parse(line[1])));
 
             long score = 0;
-            long i = tmp.Count();
+            long i = tmp.Count;
             foreach (var hand in tmp.OrderByDescending(t => t.Item1))
                 score += i-- * hand.Item2;
 
