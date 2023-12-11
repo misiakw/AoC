@@ -15,18 +15,21 @@ namespace AoC2023.Days
         {
             builder.New("example1", "./Inputs/Day10/example1.txt")
                .Part1(4);
-            //   .Part2(2);
-            builder.New("example2", "./Inputs/Day10/example2.txt")
+            builder.New("example2", "./Inputs/Day10/example1-2.txt")
                .Part1(8);
-            //   .Part2(2);
+            builder.New("example2", "./Inputs/Day10/example2-1.txt")
+               .Part2(4);
+            builder.New("example2", "./Inputs/Day10/example2-2.txt")
+               .Part2(8);
             builder.New("output", "./Inputs/Day10/output.txt")
-                .Part1(7005);
-             //   .Part2(933);
+                .Part1(7005)
+                .Part2(417);
         }
+        private Day10Map map;
         public override long Part1(IComparableInput<long> input)
         {
             var lines = ReadLines(input);
-            var map = new Day10Map(lines);
+            map = new Day10Map(lines);
             //ReadMap
 
 
@@ -62,15 +65,33 @@ namespace AoC2023.Days
                 ctr++;
             } while (pos[0].Item1 != pos[1].Item1 || pos[0].Item2 != pos[1].Item2);
 
-
-
             return ctr;
         }
 
 
         public override long Part2(IComparableInput<long> input)
         {
-            throw new NotImplementedException();
+            if (map == null)
+                Part1(input);
+            var sX = 0;
+            var sY = map.Start.Y;
+            while (!map[sX, sY].isPipe)
+                sX++;
+
+            switch(map[sX, sY].directory)
+            {
+                case Dir.North | Dir.South:
+                case Dir.North | Dir.East:
+                    map.FloodFill(1, Dir.NorthEast, sX, sY);
+                    break;
+                case Dir.South | Dir.East:
+                    map.FloodFill(1, Dir.SouthEast, sX, sY);
+                    break;
+                default:
+                    throw new InvalidProgramException("oops cos nie zatrybilo w matematyce");
+            }
+
+            return map.FilledFullCount();
         }
 
         [Flags]
@@ -80,7 +101,11 @@ namespace AoC2023.Days
             North = 1,
             East = 2,
             South = 4,
-            West = 8
+            West = 8,
+            NorthEast = 3,
+            SouthEast = 6,
+            SouthWest = 12,
+            NorthWest = 9
         }
         
 
@@ -94,10 +119,55 @@ namespace AoC2023.Days
             }
         }
 
-        private struct MapPoint
+        private class MapPoint
         {
             public Dir directory;
             public bool isPipe;
+            public readonly IDictionary<Dir, byte> Colors = new Dictionary<Dir, byte>();
+
+            public void FillColor(byte color, Dir quadrant)
+            {
+                if (Colors.ContainsKey(quadrant))
+                    return;
+                if (!isPipe)
+                {
+                    Colors.Add(Dir.NorthEast, color);
+                    Colors.Add(Dir.SouthEast, color);
+                    Colors.Add(Dir.SouthWest, color);
+                    Colors.Add(Dir.NorthWest, color);
+                    return;
+                }
+
+                Colors.Add(quadrant, color);
+                switch (quadrant)
+                {
+                    case Dir.NorthEast:
+                        if (!directory.HasFlag(Dir.East))
+                            FillColor(color, Dir.SouthEast);
+                        if (!directory.HasFlag(Dir.North))
+                            FillColor(color, Dir.NorthWest);
+                            break;
+                    case Dir.SouthEast:
+                        if (!directory.HasFlag(Dir.East))
+                            FillColor(color, Dir.NorthEast);
+                        if (!directory.HasFlag(Dir.South))
+                            FillColor(color, Dir.SouthWest);
+                        break;
+                    case Dir.SouthWest:
+                        if (!directory.HasFlag(Dir.West))
+                            FillColor(color, Dir.NorthWest);
+                        if (!directory.HasFlag(Dir.South))
+                            FillColor(color, Dir.SouthEast);
+                        break;
+                    case Dir.NorthWest:
+                        if (!directory.HasFlag(Dir.West))
+                            FillColor(color, Dir.SouthWest);
+                        if (!directory.HasFlag(Dir.North))
+                            FillColor(color, Dir.NorthEast);
+                        break;
+
+                }
+            }
         }
 
         private class Day10Map
@@ -161,6 +231,52 @@ namespace AoC2023.Days
                 var tmp = this[x, y];
                 tmp.isPipe = isPipe;
                 this[x, y] = tmp;
+            }
+
+            private bool HasField(long X, long Y)
+                => (X >= 0 || X < Width) && (Y >= 0 || Y < Height);
+
+            public void FloodFill(byte color, Dir quadrant, long X, long Y)
+            {
+                if (!HasField(X, Y))
+                    return;
+                var tile = this[X, Y];
+
+                if (tile.Colors.ContainsKey(quadrant))
+                    return;
+
+                tile.FillColor(color, quadrant);
+
+                if (tile.Colors.ContainsKey(Dir.NorthEast))
+                {
+                    FloodFill(color, Dir.NorthWest, X + 1, Y);
+                    FloodFill(color, Dir.SouthEast, X, Y - 1);
+                }
+                if (tile.Colors.ContainsKey(Dir.SouthEast))
+                {
+                    FloodFill(color, Dir.SouthWest, X + 1, Y);
+                    FloodFill(color, Dir.NorthEast, X, Y + 1);
+                }
+                if (tile.Colors.ContainsKey(Dir.SouthWest))
+                {
+                    FloodFill(color, Dir.SouthEast, X - 1, Y);
+                    FloodFill(color, Dir.NorthWest, X, Y + 1);
+                }
+                if (tile.Colors.ContainsKey(Dir.NorthWest))
+                {
+                    FloodFill(color, Dir.NorthEast, X - 1, Y);
+                    FloodFill(color, Dir.SouthWest, X, Y - 1);
+                }
+            }
+
+            public long FilledFullCount()
+            {
+                var ctr = 0;
+                for (var y = 0; y < Height; y++)
+                    for (var x = 0; x < Width; x++)
+                        if (this[x, y].Colors.Count() == 4)
+                            ctr++;
+                return ctr;
             }
         }
     }
