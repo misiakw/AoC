@@ -51,10 +51,10 @@ namespace AoC2023.Days
         private class Hand : IComparable<Hand>
         {
             public readonly char[] Cards;
-            private Dictionary<char, int> CardCounts = new Dictionary<char, int>();
+            private readonly Dictionary<char, int> CardCounts = new();
             private readonly int jockers = 0;
             public readonly int Score = 0;
-            private bool isPart2;
+            private readonly bool isPart2;
 
             public Hand(string cards, bool isPart2 = false)
             {
@@ -71,7 +71,7 @@ namespace AoC2023.Days
                         CardCounts[c] += 1;
                     }
 
-                    Score = Score << 4;
+                    Score <<= 4;
                     Score += CardToScore(c);
                 }
                 if (Five)

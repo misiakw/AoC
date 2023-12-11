@@ -8,7 +8,7 @@ namespace AoC.Common
 {
     public class RollArray<T>
     {
-        private Queue<T> inner;
+        private readonly Queue<T> inner;
         public RollArray(IList<T> input)
         {
             inner = new Queue<T>(input);

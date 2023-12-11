@@ -18,7 +18,7 @@ namespace AoC2023.Days
                .Part2(2);
             builder.New("output", "./Inputs/Day9/output.txt")
                 .Part1(1666172641)
-                .Part2(0);
+                .Part2(933);
         }
 
         public override long Part1(IComparableInput<long> input)
@@ -32,8 +32,8 @@ namespace AoC2023.Days
         public override long Part2(IComparableInput<long> input)
         {
             var result = 0;
-            foreach(var line in ReadLines(input))
-            result += ExtrapolateBackwards(line.Split(" ").Select(int.Parse).ToList());
+            foreach (var line in ReadLines(input))
+                result += ExtrapolateBackwards(line.Split(" ").Select(int.Parse).ToList());
             return result;
         }
 
@@ -58,7 +58,7 @@ namespace AoC2023.Days
                 newStates.Add(curr - prev);
                 prev = curr;
             }
-            var first = newStates.First();
+            var first = states.First();
             return first - ExtrapolateBackwards(newStates);
         }
     }

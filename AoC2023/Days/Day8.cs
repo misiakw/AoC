@@ -71,7 +71,7 @@ namespace AoC2023.Days
             while (states.Any(s => s.Item1 < 0 || s.Item2 < 0))
             {
                 var turn = turns.Pick();
-                for (var i = 0; i < nows.Count(); i++)
+                for (var i = 0; i < nows.Length; i++)
                 {
                     nows[i] = turn == 'L'
                         ? steps[nows[i]].Item1

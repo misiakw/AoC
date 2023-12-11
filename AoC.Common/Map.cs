@@ -13,7 +13,7 @@ namespace AoC.Common
         protected long _maxY = long.MinValue;
         private readonly T? defaultValue;
 
-        public Map(T? def = default(T)){
+        public Map(T? def = default){
             defaultValue = def;
         }
 
