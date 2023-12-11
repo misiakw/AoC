@@ -25,29 +25,18 @@ namespace AoC2023.Days
         }
         public override long Part1(IComparableInput<long> input)
         {
-            var start = (0, 0);
             var lines = ReadLines(input);
-            var map = new Dir[lines[0].Length, lines.Count];
+            var map = new Day10Map(lines);
             //ReadMap
-            for (var y = 0; y < lines.Count; y++)
-                for (var x = 0; x < lines[y].Length; x++)
-                {
-                    map[x, y] = lines[y][x] switch
-                    {
-                        '|' => Dir.North | Dir.South,
-                        '-' => Dir.East | Dir.West,
-                        'L' => Dir.North | Dir.East,
-                        'J' => Dir.North | Dir.West,
-                        '7' => Dir.South | Dir.West,
-                        'F' => Dir.South | Dir.East,
-                        _ => Dir.None
-                    };
-                    if (lines[y][x] == 'S')
-                        start = (x, y);
-                }
 
-            var pos = PrepareStart(map, start, lines[0].Length, lines.Count);
-            map[start.Item1, start.Item2] = pos[0].Item3 | pos[1].Item3;
+
+            var pos = new (long, long, Dir)[2];
+            foreach (var x in new List<Dir> { Dir.North, Dir.South, Dir.East, Dir.West })
+                if(map[map.Start.X, map.Start.Y].directory.HasFlag(x))
+                    if (pos[0].Item3 == Dir.None)
+                        pos[0] = (map.Start.X, map.Start.Y, x);
+                    else
+                        pos[1] = (map.Start.X, map.Start.Y, x);
             var ctr = 0;
             do
             {
@@ -60,7 +49,7 @@ namespace AoC2023.Days
                         Dir.East => (pos[i].Item1 + 1, pos[i].Item2),
                         Dir.West => (pos[i].Item1 - 1, pos[i].Item2)
                     };
-                    var newDir = map[newPos.Item1, newPos.Item2] & pos[i].Item3 switch
+                    var newDir = map[newPos.Item1, newPos.Item2].directory & pos[i].Item3 switch
                     {
                         Dir.North => ~Dir.South,
                         Dir.South => ~Dir.North,
@@ -68,12 +57,16 @@ namespace AoC2023.Days
                         Dir.West => ~Dir.East
                     };
                     pos[i] = (newPos.Item1, newPos.Item2, newDir);
+                    map.SetPipeStatus(newPos.Item1, newPos.Item2, true);
                 }
                 ctr++;
             } while (pos[0].Item1 != pos[1].Item1 || pos[0].Item2 != pos[1].Item2);
 
+
+
             return ctr;
         }
+
 
         public override long Part2(IComparableInput<long> input)
         {
@@ -89,32 +82,86 @@ namespace AoC2023.Days
             South = 4,
             West = 8
         }
-        private (int, int, Dir)[] PrepareStart(Dir[,]map, (int, int) start, int width, int heigth)
+        
+
+        private void PrintMap((Dir, bool)[,] map, int width, int heigth)
         {
-            var result = new (int, int, Dir)[2];
+            for(var y=0; y<heigth; y++)
+            {
+                for (var x = 0; x < width; x++)
+                    Console.Write(map[x, y].Item2 ? "#" : '.');
+                Console.WriteLine();
+            }
+        }
 
-            if (start.Item1 - 1 >= 0 && map[start.Item1 - 1, start.Item2].HasFlag(Dir.East))
-                if (result[0].Item3 == Dir.None)
-                    result[0] = (start.Item1, start.Item2, Dir.West);
-                else
-                    result[1] = (start.Item1, start.Item2, Dir.West);
-            if (start.Item1 + 1 < width && map[start.Item1 + 1, start.Item2].HasFlag(Dir.West))
-                if (result[0].Item3 == Dir.None)
-                    result[0] = (start.Item1, start.Item2, Dir.East);
-                else
-                    result[1] = (start.Item1, start.Item2, Dir.East);
+        private struct MapPoint
+        {
+            public Dir directory;
+            public bool isPipe;
+        }
 
-            if (start.Item2 - 1 >= 0 && map[start.Item1, start.Item2 - 1].HasFlag(Dir.South))
-                if (result[0].Item3 == Dir.None)
-                    result[0] = (start.Item1, start.Item2, Dir.North);
-                else
-                    result[1] = (start.Item1, start.Item2, Dir.North);
-            if (start.Item2 + 1 < heigth && map[start.Item1, start.Item2 + 1].HasFlag(Dir.North))
-                if (result[0].Item3 == Dir.None)
-                    result[0] = (start.Item1, start.Item2, Dir.South);
-                else
-                    result[1] = (start.Item1, start.Item2, Dir.South);
-            return result;
+        private class Day10Map
+        {
+
+            public readonly long Width;
+            public readonly long Height;
+            private readonly MapPoint[,] Data;
+            public readonly Point Start;
+
+            public Day10Map(IList<string> lines)
+            {
+                Width = lines[0].Length;
+                Height = lines.Count;
+                Data = new MapPoint[Width, Height];
+
+                for (var y = 0; y < Height; y++)
+                    for (var x = 0; x < Width; x++)
+                    {
+                        Data[x, y] = new MapPoint
+                        {
+                            directory = lines[y][x] switch
+                            {
+                                '|' => Dir.North | Dir.South,
+                                '-' => Dir.East | Dir.West,
+                                'L' => Dir.North | Dir.East,
+                                'J' => Dir.North | Dir.West,
+                                '7' => Dir.South | Dir.West,
+                                'F' => Dir.South | Dir.East,
+                                _ => Dir.None
+                            },
+                            isPipe = false
+                        };
+                        if (lines[y][x] == 'S')
+                            Start = new Point(x, y);
+                    }
+                PrepareStart();
+            }
+
+            public MapPoint this[long x, long y]{
+                get => this.Data[x, y];
+                set => this.Data[x, y] = value;
+            }
+
+            private void PrepareStart()
+            {
+                Data[Start.X, Start.Y].isPipe = true;
+                if (Start.X - 1 >= 0 && Data[Start.X - 1, Start.Y].directory.HasFlag(Dir.East))
+                    Data[Start.X, Start.Y].directory |=  Dir.West;
+                if (Start.X + 1 < Width && Data[Start.X + 1, Start.Y].directory.HasFlag(Dir.West))
+                    Data[Start.X, Start.Y].directory |= Dir.East;
+
+                if (Start.Y - 1 >= 0 && Data[Start.X, Start.Y - 1].directory.HasFlag(Dir.South))
+                    Data[Start.X, Start.Y].directory |= Dir.North;
+                if (Start.Y + 1 < Height && Data[Start.X, Start.Y + 1].directory.HasFlag(Dir.North))
+                    Data[Start.X, Start.Y].directory |= Dir.South;
+            }
+
+            public void SetPipeStatus(long x, long y, bool isPipe)
+            {
+                var tmp = this[x, y];
+                tmp.isPipe = isPipe;
+                this[x, y] = tmp;
+            }
         }
     }
 }
