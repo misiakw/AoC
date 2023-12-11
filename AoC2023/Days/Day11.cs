@@ -15,56 +15,56 @@ namespace AoC2023.Days
         {
             builder.New("example1", "./Inputs/Day11/example1.txt")
                .Part1(374)
-               .Part2(1030);
+               .Part2(82000210);
             builder.New("output", "./Inputs/Day11/output.txt")
-                .Part1(10292708);
-            //   .Part2(933);
+                .Part1(10292708)
+                .Part2(790194712336);
         }
         public override long Part1(IComparableInput<long> input)
         {
             var stars = ReadInput(input);
 
-            stars = ExpandStars(stars, 1);
-            var starDist = new Dictionary<int, (int, int)>();
-
-            var i = 1;
-            var sum = 0;
+            stars = ExpandStars(stars, 2);
+            var sum = 0L;
             foreach (var star in stars)
-                foreach (var star2 in stars.Where(s => s != star))
+                foreach (var star2 in stars.Where(s => s.Item3 > star.Item3))
                     sum += Math.Abs(star2.Item1 - star.Item1) + Math.Abs(star2.Item2 - star.Item2);
 
-            return sum / 2;
+            return sum;
         }
 
         public override long Part2(IComparableInput<long> input)
         {
             var stars = ReadInput(input);
 
-            stars = ExpandStars(stars, 10);
-            var starDist = new Dictionary<int, (int, int)>();
+            stars = ExpandStars(stars, 1000000);
 
+            var sum = 0L;
             var i = 1;
-            var sum = 0;
-            foreach (var star in stars)
-                foreach (var star2 in stars.Where(s => s != star))
-                    sum += Math.Abs(star2.Item1 - star.Item1) + Math.Abs(star2.Item2 - star.Item2);
+            foreach (var star in stars.OrderBy(s => s.Item3))
+                foreach (var star2 in stars.Where(s => s.Item3 > star.Item3).OrderBy(s => s.Item3))
+                {
+                    var inc = Math.Abs(star2.Item1 - star.Item1) + Math.Abs(star2.Item2 - star.Item2);
+                    sum += inc;
+                }
 
-            return sum / 2;
+            return sum;
         }
 
-        private IEnumerable<(int, int)> ReadInput(IComparableInput<long> input)
+        private IEnumerable<(int, int, int)> ReadInput(IComparableInput<long> input)
         {
             var lines = ReadLines(input);
-            var y = 0;
+            var i = 0;
+            var y = 1;
             foreach (var line in lines) {
-                for (var x = 0; x < line.Length; x++)
-                    if(line[x] == '#')
-                        yield return (x, y);
+                for (var x = 1; x <= line.Length; x++)
+                    if(line[x-1] == '#')
+                        yield return (x, y, i++);
                 y++;
             }
         }
 
-        private void PrintStars(IEnumerable<(int, int)> stars)
+        private void PrintStars(IEnumerable<(int, int, int)> stars)
         {
             var width = stars.Max(p => p.Item1);
             var height = stars.Max(p => p.Item2);
@@ -77,28 +77,29 @@ namespace AoC2023.Days
             }
         }
 
-        private IEnumerable<(int, int)> ExpandStars(IEnumerable<(int, int)> stars, int increase)
+        private IEnumerable<(int, int, int)> ExpandStars(IEnumerable<(int, int, int)> stars, int newSize)
         {
-            for (var x = 0; x < stars.Max(p => p.Item1); x++)
+            newSize = newSize - 1;
+            for (var x = 1; x < stars.Max(p => p.Item1); x++)
             {
                 if (stars.All(s => s.Item1 != x))
                 {
                     var newStars = stars.Where(s => s.Item1 < x).ToList();
                     foreach (var star in stars.Where(s => s.Item1 > x))
-                        newStars.Add((star.Item1 + increase, star.Item2));
-                    x+= increase;
+                        newStars.Add((star.Item1 + newSize, star.Item2, star.Item3));
+                    x+= newSize;
                     stars = newStars;
                 }
             }
 
-            for (var y = 0; y < stars.Max(p => p.Item2); y++)
+            for (var y = 1; y < stars.Max(p => p.Item2); y++)
             {
                 if (stars.All(s => s.Item2 != y))
                 {
                     var newStars = stars.Where(s => s.Item2 < y).ToList();
                     foreach (var star in stars.Where(s => s.Item2 > y))
-                        newStars.Add((star.Item1, star.Item2+ increase));
-                    y+= increase;
+                        newStars.Add((star.Item1, star.Item2+ newSize, star.Item3));
+                    y+= newSize;
                     stars = newStars;
                 }
             }
