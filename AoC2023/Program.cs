@@ -7,7 +7,7 @@ namespace AoC2022
     {
         static void Main(string[] args)
         {
-            new Day9().GetRuntime().Execute();
+            new Day10().GetRuntime().Execute();
         }
     }
 }
