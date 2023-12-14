@@ -14,8 +14,8 @@ namespace AoC2023.Days
         public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
         {
             builder.New("example1", "./Inputs/Day13/example1.txt")
-               .Part1(405);
-            //.Part2(82000210);
+               .Part1(405)
+               .Part2(-1);
             builder.New("output", "./Inputs/Day13/output.txt")
                 .Part1(27300);
             //.Part2(790194712336);
@@ -66,29 +66,44 @@ namespace AoC2023.Days
 
             public int GetScore(int smugesToFix)
             {
+                var horizontal = SearchForMirrorRows(smugesToFix);// -
                 var vertical = SearchForMirrorCollumns(smugesToFix); // |
-                var horizontal = SearchForMirrorRows(smugesToFix); // -
 
                 return (vertical > 0 ? vertical : 0) + 100 * (horizontal > 0 ? horizontal : 0);
             }
 
-            private int SearchForMirrorCollumns(int smugesToFix) => SearchForMirror(Height, Width, (x, i) => Map[x, i], smugesToFix);
-            private int SearchForMirrorRows(int smugesToFix) => SearchForMirror(Width, Height, (y, i) => Map[i, y], smugesToFix);
-            private int SearchForMirror(int eqLimit, int searchLimit, Func<int, int, char> dataFunc, int smugesToFix)
+            private int SearchForMirrorCollumns(int smugesToFix) => SearchForMirror(true, smugesToFix);
+            private int SearchForMirrorRows(int smugesToFix) => SearchForMirror(false,  smugesToFix);
+            private int SearchForMirror(bool isCollumn, int smugesToFix)
             {
-                for (var i = 0; i < searchLimit - 1; i++) {
-                        var isMirrored = true;
-                        for (var j = 0; i - j >= 0 && i + j + 1 < searchLimit; j++)
+                var eqLimit = isCollumn ? Height : Width;
+                var searchLimit = isCollumn ? Width : Height;
+                var dataFunc = isCollumn
+                    ? new Func<int, int, char>((x, i) => Map[x, i])
+                    : new Func<int, int, char>((y, i) => Map[i, y]);
+                var fixFunc = isCollumn
+                    ? new Action<int, int, int>((trgt, src, i) => Map[trgt, i] = Map[src, i])
+                    : new Action<int, int, int>((trgt, src, i) => Map[i, trgt] = Map[i, src]);
+
+                for (var i = 0; i < searchLimit - 1; i++)
+                {
+                    var isMirrored = true;
+                    for (var j = 0; i - j >= 0 && i + j + 1 < searchLimit; j++)
+                    {
+                        var smuges = SmugeCount(i - j, i + j + 1, dataFunc, eqLimit);
+                        if (smuges <= smugesToFix)
                         {
-                            var smuges = SmugeCount(i - j, i + j + 1, dataFunc, eqLimit);
-                            if (smuges != 0)
-                            {
-                                isMirrored = false;
-                                break;
-                            }
+                            FixSmuge(i - j, i + j + 1, dataFunc, eqLimit, fixFunc);
+                            smugesToFix -= smuges;
                         }
-                        if (isMirrored)
-                            return i + 1;
+                        if (smuges > smugesToFix)
+                        {
+                            isMirrored = false;
+                            break;
+                        }
+                    }
+                    if (isMirrored)
+                        return i + 1;
                 }
 
                 return -1;
@@ -101,6 +116,15 @@ namespace AoC2023.Days
                     if (data(a, i) != data(b, i))
                         ctr++;
                 return ctr; ;
+            }
+
+            private void FixSmuge(int trgt, int src, Func<int, int, char> data, int limit, Action<int, int, int> change)
+            {
+                for(var i=0; i<limit; i++)
+                {
+                    if (data(trgt, i) != data(src, i))
+                        change(trgt, src, i);
+                }
             }
         }
     }
