@@ -29,5 +29,18 @@ namespace AoC.Common.Maps
         public long Width { get; protected set; }
 
         public long Height { get; protected set; }
+
+        public string Draw(Func<T?, string> drawing, string split = "")
+        {
+            var sb = new StringBuilder();
+            for (var y = 0; y < Height; y++)
+            {
+                IList<string> tmp = new List<string>();
+                for (var x = 0; x < Width; x++)
+                    tmp.Add(drawing(this[x, y]));
+                sb.AppendLine(string.Join(split, tmp));
+            }
+            return sb.ToString();
+        }
     }
 }

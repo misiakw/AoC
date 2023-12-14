@@ -5,4 +5,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AoC.Common\AoC.Common.csproj" />
+  </ItemGroup>
+
 </Project>
