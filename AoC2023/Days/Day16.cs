@@ -19,7 +19,7 @@ namespace AoC2023.Days
                 .Part2(51);
             builder.New("output", "./Inputs/Day16/output.txt")
                 .Part1(7415)
-                .Part2(0);
+                .Part2(7943);
         }
         public override long Part1(IComparableInput<long> input)
         {
