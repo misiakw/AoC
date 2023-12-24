@@ -24,6 +24,7 @@ namespace AoC2023.Days
         protected StaticMap<byte> map;
         protected StaticMap<int> heatLossMap;
         protected string shortestPath;
+        int minPath = int.MaxValue;
 
         public override long Part1(IComparableInput<long> input)
         {
@@ -34,6 +35,42 @@ namespace AoC2023.Days
                 for(var x=0; x<map.Width; x++){
                     map[x, y] = (byte)(lines[y][x] - '0');
                 }
+
+            for (var y = 0; y < map.Height; y++)
+                for (var x = 0; x < map.Width; x++)
+                {
+                    map[x, y] = (byte)(lines[y][x] - '0');
+                }
+
+            int nX = 0;
+            int nY = 0;
+            int dX = 1;
+            int dY = 0;
+            minPath = 0;
+            while (nX < map.Width && nY < map.Height)
+            {
+                if (dX == 1 || nX + 1 == map.Width)
+                {
+                    dX = 0;
+                    dY = 1;
+                }
+                else
+                {
+                    dX = 1;
+                    dY = 0;
+                }
+                if (nY + 1 == map.Height)
+                {
+                    if (nX + 1 == map.Width)
+                        break;
+                    dX = 1;
+                    dY = 0;
+                }
+                nX += dX;
+                nY += dY;
+                shortestPath += $"{nX},{nY},#|";
+                minPath += map[nX, nY];
+            }
 
             CalculateHeatLoss(1, 0, Dir.Right, 0, 0, "|");
             CalculateHeatLoss(0, 1, Dir.Down, 0, 0, "|");
@@ -53,12 +90,15 @@ namespace AoC2023.Days
             if(x < 0 || y < 0 || x==map.Width || y == map.Height || currentStreight>=maxStreight)
                 return;
             loss += map[x, y];
-            if(path.Contains($"|{x},{y}|"))
+            if(loss >= minPath || loss >= heatLossMap[x, y])
                 return;
             if(loss < heatLossMap[x, y]){
                 heatLossMap[x, y] = loss;
-                if(x == map.Width-1 && y == map.Height-1)
+                if (x == map.Width - 1 && y == map.Height - 1)
+                {
                     shortestPath = path;
+                    minPath = loss;
+                }
             }
             if(x == map.Width-1 && y == map.Height-1)
                 return;
@@ -69,7 +109,7 @@ namespace AoC2023.Days
                 Dir.Right => '>',
                 Dir.Left => '<'
             };
-            path += $"{x},{y}|";
+            path += $"{x},{y},{ch}|";
 
             foreach(var next in new Dir[4]{Dir.Up, Dir.Right, Dir.Down, Dir.Left}){
                 if(next == Dir.Up && dir != Dir.Down)
@@ -113,7 +153,7 @@ namespace AoC2023.Days
                 for(var x=0; x<map.Width; x++)
                     chars[x, y] = (char)(map[x, y]+'0');
             foreach(var pos in shortestPath.Split('|').Where(s => !string.IsNullOrEmpty(s)).Select(s => s.Split(','))){
-                chars[int.Parse(pos[0]), int.Parse(pos[1])] = '#';
+                chars[int.Parse(pos[0]), int.Parse(pos[1])] = pos[2][0];
             }
 
 
