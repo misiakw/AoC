@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using AoC.Base;
 using AoC.Base.TestInputs;
-using AoC.Common;
-using AoC.Common.Maps;
 
 namespace AoC2023.Days
 {
