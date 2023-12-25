@@ -37,6 +37,10 @@ namespace AoC.Common.Maps
             }
         }
 
+        public Range rangeX => new Range(_minX, _maxX);
+
+        public Range rangeY => new Range(_minY, _maxY);
+
         public class MapItem<K>
         {
             public K Data;

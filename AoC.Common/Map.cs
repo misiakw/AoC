@@ -11,6 +11,8 @@ namespace AoC.Common
         T? this[long x, long y] { get; set; }
         long Width { get; }
         long Height { get; }
+        Range rangeX { get; }
+        Range rangeY { get; }
         string Draw(Func<T?, string> drawing, string split = "");
     }
     public class Map<T>: InifiniteMap<T>, IMap<T>{

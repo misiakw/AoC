@@ -30,6 +30,10 @@ namespace AoC.Common.Maps
 
         public long Height { get; protected set; }
 
+        public Range rangeX => new Range(0, Width);
+
+        public Range rangeY => new Range(0, Height);
+
         public string Draw(Func<T?, string> drawing, string split = "")
         {
             var sb = new StringBuilder();
