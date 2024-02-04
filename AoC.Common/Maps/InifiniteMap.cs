@@ -37,6 +37,14 @@ namespace AoC.Common.Maps
             }
         }
 
+
+        public IEnumerable<T> Where(Func<T, bool>selector){
+            for(var x = _minX; x<=_maxX; x++)
+                for(var y = _minY; y<=_maxY; y++)
+                    if(selector(this[x,y]))
+                        yield return this[x, y];
+        }
+
         public Range rangeX => new Range(_minX, _maxX);
 
         public Range rangeY => new Range(_minY, _maxY);

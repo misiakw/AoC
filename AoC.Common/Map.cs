@@ -14,6 +14,7 @@ namespace AoC.Common
         Range rangeX { get; }
         Range rangeY { get; }
         string Draw(Func<T?, string> drawing, string split = "");
+        //IEnumerable<T> Where(Func<T, bool>selector);
     }
     public class Map<T>: InifiniteMap<T>, IMap<T>{
 
