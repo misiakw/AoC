@@ -17,8 +17,8 @@ namespace AoC2023.Days
                 .Part1(62)
                 .Part2(952408144115);
             builder.New("output", "./Inputs/Day18/output.txt")
-                .Part1(39194);
-                //.Part2(0);
+                .Part1(39194)
+                .Part2(0);
         }
 
         private IEnumerable<InpStruct> readInput1(IComparableInput<long> input){
@@ -49,109 +49,56 @@ namespace AoC2023.Days
 
         public override long Part1(IComparableInput<long> input)
         {
-            var map = MapBuilder<bool>.GetEmpty(new MapBuilderParams<bool>{
-                DefaultValue = false,
-                IsInfinite = true
-            });
-            var x = 0l;
-            var y = 0l;
+            var coords = Read(readInput1, input).ToArray();
             var ctr = 0l;
-
-            foreach(var order in readInput1(input)){
+            foreach(var order in readInput1(input))
                 ctr += order.len;
-                switch(order.dir){
-                    case 'U':
-                        for(var i=0; i<order.len; i++)
-                            map[x, y--] = true;
-                        break;
-                    case 'D':
-                        for(var i=0; i<order.len; i++)
-                            map[x, y++] = true;
-                        break;
-                    case 'L':
-                        for(var i=0; i<order.len; i++)
-                            map[x--, y] = true;
-                        break;
-                    case 'R':
-                        for(var i=0; i<order.len; i++)
-                            map[x++, y] = true;
-                        break;
-                }
+
+            var pow = 0l;
+            for(var i=0; i < coords.Length-2; i++){
+                pow += coords[i].Item1 * coords[i+1].Item2;
+                pow -= coords[i].Item2 * coords[i+1].Item1;
             }
 
-            var sX = map.rangeX.Min+1;
-            var sY = map.rangeY.Min-1;
-            while(!map[sX, sY])
-                sY++;
-            while(map[sX, sY])
-                sY++;
-
-            floodFill(map, sX, sY, ref ctr);
-            return ctr;
+            return (Math.Abs(pow)+ctr)/2+1;
         }
 
         public override long Part2(IComparableInput<long> input)
         {
-            var map = MapBuilder<bool>.GetEmpty(new MapBuilderParams<bool>{
-                DefaultValue = false,
-                IsInfinite = true
-            });
-            var x = 0l;
-            var y = 0l;
+            var coords = Read(readInput2, input).ToArray();
             var ctr = 0l;
-
-            foreach(var order in readInput2(input)){
+            foreach(var order in readInput2(input))
                 ctr += order.len;
-                switch(order.dir){
-                    case 'U':
-                        for(var i=0; i<order.len; i++)
-                            map[x, y--] = true;
-                        break;
-                    case 'D':
-                        for(var i=0; i<order.len; i++)
-                            map[x, y++] = true;
-                        break;
-                    case 'L':
-                        for(var i=0; i<order.len; i++)
-                            map[x--, y] = true;
-                        break;
-                    case 'R':
-                        for(var i=0; i<order.len; i++)
-                            map[x++, y] = true;
-                        break;
-                }
+
+            var pow = 0l;
+            for(var i=0; i < coords.Length-2; i++){
+                pow += coords[i].Item1 * coords[i+1].Item2;
+                pow -= coords[i].Item2 * coords[i+1].Item1;
             }
 
-            /*var sX = map.rangeX.Min+1;
-            var sY = map.rangeY.Min-1;
-            while(!map[sX, sY])
-                sY++;
-            while(map[sX, sY])
-                sY++;
-
-            floodFill(map, sX, sY, ref ctr);*/
-            return ctr;
+            return (Math.Abs(pow)+ctr)/2+1;
         }
 
-        private void floodFill(IMap<bool> map, long x, long y, ref long ctr){
-            if(map[x, y]) return;
-            map[x, y] = true;
-            ctr++;
-            floodFill(map, x-1, y, ref ctr);
-            floodFill(map, x+1, y, ref ctr);
-            floodFill(map, x, y-1, ref ctr);
-            floodFill(map, x, y+1, ref ctr);
-        }
-
-        private bool isInside(IMap<int> map, long x, long y){
-            if(x < map.rangeX.Min || x > map.rangeX.Max) return false;
-            if(y < map.rangeY.Min || y > map.rangeY.Max) return false;
-            var dif = new int[2]{0, 1};
-            foreach(var dx in dif)
-                foreach(var dy in dif)
-                    if(!(dx == dy) && map[x+dx, y+dy] == 0 && !isInside(map, x+dx, y+dy))
-                        return false;
-            return true;
+        private IEnumerable<(long, long)> Read(Func<IComparableInput<long>, IEnumerable<InpStruct>> readFunc, IComparableInput<long> input){
+            var x=0l; var y=0l;
+            yield return (x, y);
+            foreach(var order in readFunc(input)){
+                switch(order.dir){
+                    case 'U':
+                        y -= order.len;
+                        break;
+                    case 'D':
+                        y += order.len;
+                        break;
+                    case 'L':
+                        x-= order.len;
+                        break;
+                    case 'R':
+                        x+= order.len;
+                        break;
+                }
+                yield return (x, y);
+            }
         }
 
         private struct InpStruct{
