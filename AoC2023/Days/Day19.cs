@@ -13,15 +13,16 @@ namespace AoC2023.Days
         public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
         {
             builder.New("example1", "./Inputs/Day19/example1.txt")
-                .Part1(19114);
-                //.Part2(167409079868000);
-            builder.New("output", "./Inputs/Day19/output.txt");
-                //.Part1(376008);
+                .Part1(19114)
+                .Part2(167409079868000);
+            builder.New("output", "./Inputs/Day19/output.txt")
+                .Part1(376008);
                 //.Part2(0);
         }
 
         public override long Part1(IComparableInput<long> input)
         {
+            Rule.Rules = new Dictionary<string, Rule>();
             var lines = ReadLines(input);
             var i = 0;
             while (!string.IsNullOrEmpty(lines[i]))
@@ -32,13 +33,12 @@ namespace AoC2023.Days
             }
             i++;
 
-            var paths = Rule.Rules["in"].AcceptPaths(FourRange.Full);
-            var ctr = 0;
+            var ctr = 0l;
             for(; i<lines.Count; i++)
             {
                 var part = new Part(lines[i]);
-                if(paths.Any(p => p.Contains(part)))
-                    ctr++;
+                if (Rule.Rules["in"].Process(part))
+                    ctr += part.Score;
             }
 
             return ctr;
@@ -46,31 +46,67 @@ namespace AoC2023.Days
 
         public override long Part2(IComparableInput<long> input)
         {
-            return 0;
+            var ranges = Rule.Rules["in"].AcceptRanges(FourRange.Part2Full);
+            var span = 0l;
+            foreach(var range in ranges)
+            {
+                span += range.Size;
+                Console.WriteLine($"size: {range.Size} ||| {range}");
+            }
+            return span;
         }
 
-        private class Rule{
+        private class Rule
+        {
             public string Name;
-            public (string, string)[] Conditions;
-            public static long Accepted = 0;
+            public (FourRange, string, string)[] Conditions;
             public static IDictionary<string, Rule> Rules = new Dictionary<string, Rule>();
 
             public Rule(string name, string pattern){
                 this.Name = name;
-                Conditions = pattern.Split(",")
+                var newCond = new List<(FourRange, string, string)>();
+                var currRange = FourRange.Full;
+                var OldConditions = pattern.Split(",")
                     .Select(c => c.Split(":"))
                     .Select(c => c.Length == 1
                         ? (null, c[0])
                         : (c[0], c[1]))
                     .ToArray();
+
+                foreach (var tup in OldConditions)
+                    if(tup.Item1 != null)
+                    {
+                        var split = currRange.Split(tup.Item1);
+                        newCond.Add((split.Item1, tup.Item2, tup.Item1));
+                        currRange = split.Item2;
+                    }
+                    else
+                        newCond.Add((currRange, tup.Item2, tup.Item1));
+
+                Conditions = newCond.ToArray();
                 Rules.Add(this.Name, this);
             }
-            public FourRange[] AcceptPaths(FourRange range){
+
+            public bool Process(Part part)
+            {
+               foreach(var cond in Conditions)
+                {
+                    if (cond.Item1.Contains(part))
+                        if (cond.Item2 == "A") return true;
+                        else if (cond.Item2 == "R") return false;
+                        else return Rules[cond.Item2].Process(part);
+                }
+                throw new Exception("should not get here...");
+                return false;
+            }
+
+
+            public FourRange[] AcceptRanges(FourRange range){
                 var result = new List<FourRange>();
                 foreach(var cond in Conditions){
                     FourRange current;
-                    if(cond.Item1 != null){
-                        var split = range.Split(cond.Item1);
+                    if(cond.Item3 != null){
+                        var split = range.Split(cond.Item3);
                         current = split.Item1;
                         range = split.Item2;
                     }else
@@ -81,7 +117,7 @@ namespace AoC2023.Days
                     else if(cond.Item2 == "R")
                         continue;
                     else{
-                        foreach(var path in Rules[cond.Item2].AcceptPaths(current))
+                        foreach(var path in Rules[cond.Item2].AcceptRanges(current))
                             result.Add(path);
                     }
                 }
@@ -115,14 +151,9 @@ namespace AoC2023.Days
             }
 
             public bool Contains(Part p){
-                if(p.X < Edges['x'].Item1 || p.X > Edges['x'].Item2)
-                    return false;
-                if(p.M < Edges['m'].Item1 || p.X > Edges['m'].Item2)
-                    return false;
-                if(p.A < Edges['a'].Item1 || p.X > Edges['a'].Item2)
-                    return false;
-                if(p.S < Edges['s'].Item1 || p.X > Edges['s'].Item2)
-                    return false;
+                foreach(var k in p.Xmas.Keys)
+                    if (p.Xmas[k] < Edges[k].Item1 || p.Xmas[k] > Edges[k].Item2)
+                        return false;
                 return true;
             }
 
@@ -143,136 +174,47 @@ namespace AoC2023.Days
                 }
             };
 
+            public long Size
+            {
+                get
+                {
+                    var result = 1l;
+                    foreach(var scope in Edges.Values)
+                        result *= (scope.Item2 - scope.Item1);
+                    return result;
+                }
+            }
 
             public override string ToString()
                 => string.Join(",",Edges.Select(kv => $"{kv.Key}({kv.Value.Item1},{kv.Value.Item2})")
                     .ToList());
         }
 
-        /*private abstract class AbstractRule
-        {
-            public abstract string Pattern { get; }
-            public readonly string Name;
-            public abstract void Process(Part part);
-            public AbstractRule(string name)
-            {
-                this.Name = name;
-            }
-            public override string ToString() => string.IsNullOrEmpty(Name) ? Pattern : Name;
-        }
-        private class RuleIf: AbstractRule
-        {
-            public override string Pattern => string.IsNullOrEmpty(Name)
-                ? conditionPattern + ":" +
-                (this.True != null ? this.True.Pattern : "[EMPTY]") + "," +
-                (this.False != null ? this.False.Pattern : "[EMPTY]")
-                : Name;
-            protected string conditionPattern;
-            protected AbstractRule True;
-            protected AbstractRule False;
-            protected Func<Part, long> GetValue;
-            protected Func<long, long, bool> Condition;
-            protected long Limit;
-
-            public RuleIf(string name) : base(name) { }
-            public RuleIf(string name, string pattern, IDictionary<string, AbstractRule> ruleDict): base(name)
-            {
-                FillRule(pattern, ruleDict);
-            }
-            public void FillRule(string pattern, IDictionary<string, AbstractRule> ruleDict)
-            {
-                var parts = pattern.Split(":", 2);
-                this.Limit = long.Parse(parts[0].Substring(2));
-                conditionPattern = parts[0];
-                GetValue = pattern[0] switch
-                {
-                    'x' => new Func<Part, long>(p => p.X),
-                    'm' => new Func<Part, long>(p => p.M),
-                    'a' => new Func<Part, long>(p => p.A),
-                    's' => new Func<Part, long>(p => p.S)
-                };
-                Condition = pattern[1] switch
-                {
-                    '>' => new Func<long, long, bool>((a, b) => a > b),
-                    '<' => new Func<long, long, bool>((a, b) => a < b),
-                };
-
-                var merged = string.Empty;
-                var toProcess = parts[1];
-                for(var i =0; i < toProcess.Length; i++)
-                {
-                    if (toProcess[i] == ',')
-                    {//finished true rule
-                        if (!ruleDict.ContainsKey(merged))
-                            ruleDict.Add(merged, new RuleIf(merged));
-                        this.True = ruleDict[merged];
-                        toProcess = toProcess.Substring(merged.Length+1);
-                        i = -1;
-                        merged = string.Empty;
-                    }
-                    else if (toProcess[i] == ':')
-                    {
-                        var newIf = new RuleIf("", toProcess, ruleDict);
-                        if (this.True == null)
-                            this.True = newIf;
-                        else
-                            this.False = newIf;
-                        toProcess = toProcess.Substring(newIf.Pattern.Length);
-                        i = -1;
-                        merged = string.Empty;
-                        //we have ifRule as param
-                    }
-                    else
-                        merged += toProcess[i];
-                }
-                if (!string.IsNullOrEmpty(merged)) {
-                    if (!ruleDict.ContainsKey(merged))
-                        ruleDict.Add(merged, new RuleIf(merged));
-                    this.False = ruleDict[merged];
-                    merged = string.Empty;
-                }
-            }
-
-            public override void Process(Part part)
-            {
-                if(this.Condition(this.GetValue(part), Limit))
-                    this.True.Process(part);
-               else
-                    this.False.Process(part);
-            }
-        }
-        private class RuleCount: AbstractRule
-        {
-            public RuleCount(string name) : base(name) { }
-            public long Ctr = 0;
-            public IList<Part> Collection = new List<Part>();
-            public override string Pattern => Name;
-
-            public override void Process(Part part)
-            {
-                Ctr++;
-                Collection.Add(part);
-            }
-        }*/
-
         private struct Part
         {
-            public long X, M, A, S;
+            public IDictionary<char, long> Xmas;
+            public long Score => Xmas.Values.Sum();
             public Part(long x, long m, long a, long s)
             {
-                X = x;
-                M = m;
-                A = a;
-                S = s;
+                Xmas = new Dictionary<char, long>()
+                {
+                    {'x', x },
+                    {'m', m },
+                    {'a', a },
+                    {'s', s },
+                };
             }
             public Part(string input)
             {
                 var reg = new Regex(@"{x=(\d*),m=(\d*),a=(\d*),s=(\d*)}");
                 var matches = reg.Matches(input);
-                X = long.Parse(matches[0].Groups[1].Value);
-                M = long.Parse(matches[0].Groups[2].Value);
-                A = long.Parse(matches[0].Groups[3].Value);
-                S = long.Parse(matches[0].Groups[4].Value);
+                Xmas = new Dictionary<char, long>()
+                {
+                    {'x', long.Parse(matches[0].Groups[1].Value) },
+                    {'m', long.Parse(matches[0].Groups[2].Value) },
+                    {'a', long.Parse(matches[0].Groups[3].Value) },
+                    {'s', long.Parse(matches[0].Groups[4].Value) },
+                };
             }
         }
     }
