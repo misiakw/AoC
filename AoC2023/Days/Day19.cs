@@ -16,8 +16,8 @@ namespace AoC2023.Days
                 .Part1(19114)
                 .Part2(167409079868000);
             builder.New("output", "./Inputs/Day19/output.txt")
-                .Part1(376008);
-                //.Part2(0);
+                .Part1(376008)
+                .Part2(124078207789312);
         }
 
         public override long Part1(IComparableInput<long> input)
@@ -47,11 +47,11 @@ namespace AoC2023.Days
         public override long Part2(IComparableInput<long> input)
         {
             var ranges = Rule.Rules["in"].AcceptRanges(FourRange.Part2Full);
+
             var span = 0l;
             foreach(var range in ranges)
             {
                 span += range.Size;
-                Console.WriteLine($"size: {range.Size} ||| {range}");
             }
             return span;
         }
@@ -132,22 +132,45 @@ namespace AoC2023.Days
                 var isLower = pattern[1] == '<';
                 var num = long.Parse(pattern.Substring(2));
 
-                var onTrue = new FourRange(){
-                    Edges = Edges.Where(kv => kv.Key != ch).ToDictionary(kv => kv.Key, kv => kv.Value)
-                };
-                var onFalse = new FourRange(){
-                    Edges = Edges.Where(kv => kv.Key != ch).ToDictionary(kv => kv.Key, kv => kv.Value)
-                };
+                var onTrue = new FourRange();
+                var onFalse = new FourRange();
 
-                if(isLower){
-                    onTrue.Edges.Add(ch, (Edges[ch].Item1, num-1));
-                    onFalse.Edges.Add(ch, (num, Edges[ch].Item2));
-                }else{
-                    onTrue.Edges.Add(ch, (num+1, Edges[ch].Item2));
-                    onFalse.Edges.Add(ch, (Edges[ch].Item1, num));
+                foreach (var kv in Edges)
+                {
+                    if(kv.Key != ch)
+                    {
+                        onTrue.Edges.Add(kv.Key, Edges[kv.Key]);
+                        onFalse.Edges.Add(kv.Key, Edges[kv.Key]);
+                    }
+                    else
+                    {
+                        if (isLower)
+                        {
+                            onTrue.Edges.Add(ch, (Edges[ch].Item1, num - 1));
+                            onFalse.Edges.Add(ch, (num, Edges[ch].Item2));
+                        }
+                        else
+                        {
+                            onTrue.Edges.Add(ch, (num + 1, Edges[ch].Item2));
+                            onFalse.Edges.Add(ch, (Edges[ch].Item1, num));
+                        }
+                    }
                 }
 
                 return (onTrue, onFalse);
+            }
+
+            public bool Overlap(FourRange other)
+            {
+                foreach (var k in Edges.Keys)
+                {
+                    var left = Edges[k].Item1 < other.Edges[k].Item1
+                        ? Edges[k] : other.Edges[k];
+                    var right = left == Edges[k] ? other.Edges[k] : Edges[k];
+                    if (left.Item2 >= right.Item1)
+                        return false;
+                }
+                return true;
             }
 
             public bool Contains(Part p){
@@ -159,10 +182,10 @@ namespace AoC2023.Days
 
             public static FourRange Part2Full = new FourRange(){
                 Edges = new Dictionary<char, (long, long)>(){
-                    {'x', (-4000, 4000)},
-                    {'m', (-4000, 4000)},
-                    {'a', (-4000, 4000)},
-                    {'s', (-4000, 4000)}
+                    {'x', (1, 4000)},
+                    {'m', (1, 4000)},
+                    {'a', (1, 4000)},
+                    {'s', (1, 4000)}
                 }
             }; 
             public static FourRange Full = new FourRange(){
@@ -180,7 +203,7 @@ namespace AoC2023.Days
                 {
                     var result = 1l;
                     foreach(var scope in Edges.Values)
-                        result *= (scope.Item2 - scope.Item1);
+                        result *= (scope.Item2 - scope.Item1)+1;
                     return result;
                 }
             }
