@@ -1,4 +1,5 @@
-﻿using AoC.Base;
+﻿using System;
+using AoC.Base;
 using AoC2023.Days;
 
 namespace AoC2022
@@ -7,7 +8,7 @@ namespace AoC2022
     {
         static void Main(string[] args)
         {
-            new Day18().GetRuntime().Execute();
+            new Day19().GetRuntime().Execute();
         }
     }
 }

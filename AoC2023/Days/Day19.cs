@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AoC.Base;
@@ -12,42 +13,35 @@ namespace AoC2023.Days
         public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
         {
             builder.New("example1", "./Inputs/Day19/example1.txt")
-                .Part1(19114)
-                .Part2(167409079868000);
-            builder.New("output", "./Inputs/Day19/output.txt")
-                .Part1(376008);
+                .Part1(19114);
+                //.Part2(167409079868000);
+            builder.New("output", "./Inputs/Day19/output.txt");
+                //.Part1(376008);
                 //.Part2(0);
         }
 
         public override long Part1(IComparableInput<long> input)
         {
-            var dict = new Dictionary<string, AbstractRule>
-            {
-                {"A", new RuleCount("A") }, {"R", new RuleCount("R")}
-            };
-
             var lines = ReadLines(input);
             var i = 0;
             while (!string.IsNullOrEmpty(lines[i]))
             {
                 var parts = lines[i].Split("{");
-                if(!dict.ContainsKey(parts[0]))
-                    dict.Add(parts[0], new RuleIf(parts[0], parts[1].Substring(0, parts[1].Length-1), dict));
-                else if (dict[parts[0]] is RuleIf){
-                    var ruleif = dict[parts[0]] as RuleIf;
-                    ruleif.FillRule(parts[1].Substring(0, parts[1].Length - 1), dict);
-                }
+                new Rule(parts[0], new string(parts[1].SkipLast(1).ToArray()));
                 i++;
             }
             i++;
-            var start = dict["in"];
+
+            var paths = Rule.Rules["in"].AcceptPaths(FourRange.Full);
+            var ctr = 0;
             for(; i<lines.Count; i++)
             {
                 var part = new Part(lines[i]);
-                start.Process(part);
+                if(paths.Any(p => p.Contains(part)))
+                    ctr++;
             }
 
-            return ((RuleCount)dict["A"]).Collection.Sum(p => p.X + p.M + p.A + p.S);
+            return ctr;
         }
 
         public override long Part2(IComparableInput<long> input)
@@ -55,7 +49,107 @@ namespace AoC2023.Days
             return 0;
         }
 
-        private abstract class AbstractRule
+        private class Rule{
+            public string Name;
+            public (string, string)[] Conditions;
+            public static long Accepted = 0;
+            public static IDictionary<string, Rule> Rules = new Dictionary<string, Rule>();
+
+            public Rule(string name, string pattern){
+                this.Name = name;
+                Conditions = pattern.Split(",")
+                    .Select(c => c.Split(":"))
+                    .Select(c => c.Length == 1
+                        ? (null, c[0])
+                        : (c[0], c[1]))
+                    .ToArray();
+                Rules.Add(this.Name, this);
+            }
+            public FourRange[] AcceptPaths(FourRange range){
+                var result = new List<FourRange>();
+                foreach(var cond in Conditions){
+                    FourRange current;
+                    if(cond.Item1 != null){
+                        var split = range.Split(cond.Item1);
+                        current = split.Item1;
+                        range = split.Item2;
+                    }else
+                        current = range;
+
+                    if(cond.Item2 == "A")
+                        result.Add(current);
+                    else if(cond.Item2 == "R")
+                        continue;
+                    else{
+                        foreach(var path in Rules[cond.Item2].AcceptPaths(current))
+                            result.Add(path);
+                    }
+                }
+                return result.ToArray();
+            }
+        }
+
+        private class FourRange{
+            public IDictionary<char, (long, long)> Edges = new Dictionary<char, (long, long)>();
+            public (FourRange, FourRange) Split(string pattern){
+                var ch = pattern[0];
+                var isLower = pattern[1] == '<';
+                var num = long.Parse(pattern.Substring(2));
+
+                var onTrue = new FourRange(){
+                    Edges = Edges.Where(kv => kv.Key != ch).ToDictionary(kv => kv.Key, kv => kv.Value)
+                };
+                var onFalse = new FourRange(){
+                    Edges = Edges.Where(kv => kv.Key != ch).ToDictionary(kv => kv.Key, kv => kv.Value)
+                };
+
+                if(isLower){
+                    onTrue.Edges.Add(ch, (Edges[ch].Item1, num-1));
+                    onFalse.Edges.Add(ch, (num, Edges[ch].Item2));
+                }else{
+                    onTrue.Edges.Add(ch, (num+1, Edges[ch].Item2));
+                    onFalse.Edges.Add(ch, (Edges[ch].Item1, num));
+                }
+
+                return (onTrue, onFalse);
+            }
+
+            public bool Contains(Part p){
+                if(p.X < Edges['x'].Item1 || p.X > Edges['x'].Item2)
+                    return false;
+                if(p.M < Edges['m'].Item1 || p.X > Edges['m'].Item2)
+                    return false;
+                if(p.A < Edges['a'].Item1 || p.X > Edges['a'].Item2)
+                    return false;
+                if(p.S < Edges['s'].Item1 || p.X > Edges['s'].Item2)
+                    return false;
+                return true;
+            }
+
+            public static FourRange Part2Full = new FourRange(){
+                Edges = new Dictionary<char, (long, long)>(){
+                    {'x', (-4000, 4000)},
+                    {'m', (-4000, 4000)},
+                    {'a', (-4000, 4000)},
+                    {'s', (-4000, 4000)}
+                }
+            }; 
+            public static FourRange Full = new FourRange(){
+                Edges = new Dictionary<char, (long, long)>(){
+                    {'x', (long.MinValue, long.MaxValue)},
+                    {'m', (long.MinValue, long.MaxValue)},
+                    {'a', (long.MinValue, long.MaxValue)},
+                    {'s', (long.MinValue, long.MaxValue)}
+                }
+            };
+
+
+            public override string ToString()
+                => string.Join(",",Edges.Select(kv => $"{kv.Key}({kv.Value.Item1},{kv.Value.Item2})")
+                    .ToList());
+        }
+
+        /*private abstract class AbstractRule
         {
             public abstract string Pattern { get; }
             public readonly string Name;
@@ -159,7 +253,7 @@ namespace AoC2023.Days
                 Ctr++;
                 Collection.Add(part);
             }
-        }
+        }*/
 
         private struct Part
         {
