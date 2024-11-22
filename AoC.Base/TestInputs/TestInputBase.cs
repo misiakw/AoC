@@ -18,8 +18,7 @@ namespace AoC.Base.TestInputs
         public bool RunPart2 = false;
         public bool SkipBoth = false;
         protected Result[] _results = new Result[2];
-
-        public TestInputBase(string filePath, string name)
+        protected TestInputBase(string filePath, string name)
         {
             _filePath = filePath;
             Name = name;

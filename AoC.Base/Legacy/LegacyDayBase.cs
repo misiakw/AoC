@@ -1,4 +1,5 @@
 ﻿using AoC.Base.TestInputs;
+using AoCBase2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using TestType = AoC.Base.LegacyInput.TestType;
 
 namespace AoC.Base
 {
-    public abstract partial class LegacyDayBase: IDay<object, LegacyInput>, IRuntime
+    public abstract partial class LegacyDayBase
     {
         private readonly int dayNum;
         protected IList<LegacyInput> tests = new List<LegacyInput>();
@@ -99,9 +100,10 @@ namespace AoC.Base
             }
         }
 
-        public LegacyInput[] GetTests() => tests.ToArray();
-
-        public IRuntime GetRuntime() => this;
+        public DayState<AbstractDay<object, LegacyInput>> GetDayState()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public abstract class LegacyDay<T> : LegacyDayBase

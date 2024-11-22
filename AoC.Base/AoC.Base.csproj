@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AoC.Common\AoC.Common.csproj" />
+    <ProjectReference Include="..\AoCBase2\AoCBase2.csproj" />
   </ItemGroup>
 
 </Project>
