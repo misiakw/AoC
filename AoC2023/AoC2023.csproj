@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AoC.Base\AoC.Base.csproj" />
     <ProjectReference Include="..\AoC.Common\AoC.Common.csproj" />
+    <ProjectReference Include="..\AoCBase2\AoCBase2.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,8 +16,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Inputs\*\*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Inputs\Day1\example1.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Inputs\Day1\example2.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Inputs\Day1\output.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

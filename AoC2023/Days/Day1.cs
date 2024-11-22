@@ -1,31 +1,31 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AoC.Base;
+using System.Threading.Tasks;
 using AoC.Base.TestInputs;
 using AoC.Common;
+using AoCBase2;
+using AoCBase2.InputClasses;
 
 
 namespace AoC2023.Days
 {
-    public class Day1 : AbstractDay<int, IComparableInput<int>>
+    public class Day1: LinesInput
     {
-        public override int Part1(IComparableInput<int> input)
-        {
-            var t = input.ReadLines();
-            t.Wait();
-            var lines = t.Result.ToArray();
+        private IAsyncEnumerable<string> input { get; set; }
 
+        public string Part1(IAsyncEnumerable<string> lines)
+        {
             var sum = 0;
-            foreach (var line in lines)
+            foreach (var line in lines.ToEnumerable())
             {
                 var tmp = (line.First(c => c >= '0' && c <= '9') - '0') * 10;
                 tmp += (line.Last(c => c >= '0' && c <= '9') - '0');
                 sum += tmp;
             }
-            return sum;
+            return sum.ToString();
         }
 
-        public override int Part2(IComparableInput<int> input)
+        public async Task<string> Part2Async(IAsyncEnumerable<string> lines)
         {
             var replacer = new RollReplacer(new List<(string, string)>
             {
@@ -33,12 +33,8 @@ namespace AoC2023.Days
                 ("five", "5"), ("six", "6"), ("seven", "7"), ("eight", "8"), ("nine", "9")
             });
 
-            var t = input.ReadLines();
-            t.Wait();
-            var lines = t.Result.ToArray();
-
             var sum = 0;
-            foreach (var line in lines)
+            await foreach (var line in lines)
             {
                 var left = -1;
                 var right = -1;
@@ -65,18 +61,26 @@ namespace AoC2023.Days
 
                 sum += left + right;
             }
-            return sum;
+            return sum.ToString();
+        }
+        public static void ProceedAoC()
+        {
+            AocRuntime.Day(1, Day1.Setup)
+                .Callback(1, d => d.Part1(d.input))
+                .Callback(2, d => d.Part2Async(d.input))
+                .Test("example1", "./Inputs/Day1/example1.txt").Part(1).Correct(142)
+                .Test("example2", "./Inputs/Day1/example2.txt").Part(2).Correct(281)
+                .Test("output", "./Inputs/Day1/output.txt")
+                    .Part(1).Correct(55834)
+                    .Part(2).Correct(53221)
+                .Run();
         }
 
-        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
+        public static Day1 Setup(string name, string inputPath)
         {
-            builder.New("example1", "./Inputs/Day1/example1.txt")
-               .Part1(142);
-            builder.New("example2", "./Inputs/Day1/example2.txt")
-               .Part2(281);
-            builder.New("output", "./Inputs/Day1/output.txt")
-                .Part1(55834)
-                .Part2(53221);
+            var day = new Day1();
+            day.input = day.GetLines(inputPath);
+            return day;
         }
     }
 }

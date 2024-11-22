@@ -10,7 +10,6 @@ namespace AoC2023.Days
 {
     public class Day2 : AbstractDay<int, IComparableInput<int>>
     {
-
         public override int Part1(IComparableInput<int> input)
         {
             var games = ReadInput(input)

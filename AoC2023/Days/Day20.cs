@@ -16,18 +16,41 @@ namespace AoC2023.Days
             builder.New("example1", "./Inputs/Day20/example1.txt")
                .Part1(21);
             //.Part2(82000210);
-            builder.New("output", "./Inputs/Day20/output.txt")
-                .Part1(6935);
-                //.Part2(790194712336);
+            //builder.New("output", "./Inputs/Day20/output.txt")
+            //    .Part1(6935);
+            //    .Part2(790194712336);
         }
         public override long Part1(IComparableInput<long> input)
         {
+            var broadcasts = GetBroadcastTargets(input);
             return 0;
         }
 
         public override long Part2(IComparableInput<long> input)
         {
             return 0;
+        }
+
+        private IList<IModule> GetBroadcastTargets(IComparableInput<long> input)
+        {
+            var result = new List<IModule>();
+            var modules = new Dictionary<string, IModule>();
+            string[] broadcasts;
+            foreach(var line in ReadLines(input))
+            {
+                var tiles = line.Split("->").Select(s => s.Trim()).ToArray();
+                if (tiles[0] == "broadcaster")
+                    broadcasts = tiles[1].Split(",").Select(s => s.Trim()).ToArray();
+                else
+                    modules.Add(tiles[0].Substring(1), tiles[0][0] switch
+                    {
+                        '%'=> new FlipFlop(line),
+                        '&'=> new ConjunctionModule(line),
+                        _ => (IModule) null
+                    });
+                var a = 5;
+            }
+            return result;
         }
 
         private interface IModule{
