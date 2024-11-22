@@ -9,11 +9,14 @@ namespace AoC2022
     class Program
     {
 
-        static void Main(string[] args) 
+        static void Main(string[] args)
         {
+            new Day3().GetRuntime().Execute();
+
             //Day1.ProceedAoC();
-                
-            new Day15().GetRuntime().Execute();
+            //Day2.ProceedAoC();
+            //Day3.ProceedAoC();
+
         }
     }
 }

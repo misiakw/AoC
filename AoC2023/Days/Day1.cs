@@ -11,8 +11,6 @@ namespace AoC2023.Days
 {
     public class Day1: LinesInput
     {
-        private IAsyncEnumerable<string> input { get; set; }
-
         public string Part1(IAsyncEnumerable<string> lines)
         {
             var sum = 0;
@@ -65,7 +63,7 @@ namespace AoC2023.Days
         }
         public static void ProceedAoC()
         {
-            AocRuntime.Day(1, Day1.Setup)
+            AocRuntime.Day(1, Setup<Day1>)
                 .Callback(1, d => d.Part1(d.input))
                 .Callback(2, d => d.Part2Async(d.input))
                 .Test("example1", "./Inputs/Day1/example1.txt").Part(1).Correct(142)
@@ -74,13 +72,6 @@ namespace AoC2023.Days
                     .Part(1).Correct(55834)
                     .Part(2).Correct(53221)
                 .Run();
-        }
-
-        public static Day1 Setup(string name, string inputPath)
-        {
-            var day = new Day1();
-            day.input = day.GetLines(inputPath);
-            return day;
         }
     }
 }

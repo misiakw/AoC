@@ -1,53 +1,50 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-
+using AoCBase2;
+using AoCBase2.InputClasses;
 
 namespace AoC2023.Days
 {
-    public class Day2 : AbstractDay<int, IComparableInput<int>>
+    public class Day2 : LinesInput
     {
-        public override int Part1(IComparableInput<int> input)
+        public string Part1(IAsyncEnumerable<string> lines)
         {
-            var games = ReadInput(input)
+            var games = ReadInput(lines)
                 .Where(g => g.balls.All(b => b.r <= 12 && b.g <= 13 && b.b <= 14))
                 .ToList();
 
-            return games.Sum(g=> g.num);
+            return games.Sum(g=> g.num).ToString();
         }
 
-        public override int Part2(IComparableInput<int> input)
+        public string Part2(IAsyncEnumerable<string> lines)
         {
-            var games = ReadInput(input)
+            var games = ReadInput(lines)
                 .Select(g => 
                     g.balls.Max(b => b.r)
                     *g.balls.Max(b => b.g)
                     *g.balls.Max(b => b.b))
                 .ToList();
-            return games.Sum();
+            return games.Sum().ToString();
         }
-
-        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
+        public static void ProceedAoC()
         {
-            builder.New("example1", "./Inputs/Day2/example1.txt")
-               .Part1(8)
-               .Part2(2286);
-            builder.New("output", "./Inputs/Day2/output.txt")
-                .Part1(1853)
-                .Part2(72706);
+            AocRuntime.Day(2, Setup<Day2>)
+                .Callback(1, d => d.Part1(d.input))
+                .Callback(2, d => d.Part2(d.input))
+                .Test("example1", "./Inputs/Day2/example1.txt")
+                    .Part(1).Correct(8)
+                    .Part(2).Correct(2286)
+                .Test("output", "./Inputs/Day2/output.txt")
+                    .Part(1).Correct(1853)
+                    .Part(2).Correct(72706)
+                .Run();
         }
 
-        private IEnumerable<Game> ReadInput(IComparableInput<int> input){
-            var t = input.ReadLines();
-            t.Wait();
-            var lines = t.Result.ToArray();
-
+        private IEnumerable<Game> ReadInput(IAsyncEnumerable<string> input){
             var result = 0;
 
-            foreach (var line in lines){
+            foreach (var line in input.ToEnumerable().ToArray())
+            {
                 //Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
                 var tmp = line.Split(":");
                 var game = new Game(tmp[0].Split(" ").Skip(1).Select(int.Parse).First());
