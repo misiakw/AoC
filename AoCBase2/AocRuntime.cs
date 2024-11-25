@@ -205,6 +205,11 @@ namespace AoCBase2
             }
         }
         private static string PathToRelative(this string path)
+            => Path.AltDirectorySeparatorChar == '/'
+                ? path
+                : path.MSPathToRelative();
+
+        private static string MSPathToRelative(this string path)
             => Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", path);
     }
 }
