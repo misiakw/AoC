@@ -11,7 +11,7 @@ namespace AoC.Common
         {
             InputDir = inputDir;
         }
-        public void DrawImage(int width, int height, string Name, Action<MagickImage> drawFunc)
+        public void DrawImage(uint width, uint height, string Name, Action<MagickImage> drawFunc)
         {
 
             var fileName = Path.Combine(InputDir, "Img", $"{Name}.png");
