@@ -1,29 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day7 : AbstractDay<long, IComparableInput<long>>
+    public class Day7 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day7/example1.txt")
-                .Part1(6440)
-                .Part2(5905);
-            builder.New("output", "./Inputs/Day7/output.txt")
-                .Part1(250602641)
-                .Part2(251037509);
+            dayState.Test("example1", "./Inputs/Day7/example1.txt")
+                    .Part(1).Correct(6440)
+                    .Part(2).Correct(5905)
+                .Test("output", "./Inputs/Day7/output.txt")
+                    .Part(1).Correct(250602641)
+                    .Part(2).Correct(251037509);
         }
 
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             var tmp = new List<(Hand, long)>();
-            foreach (var line in ReadLines(input).Select(s => s.Split(" ")))
+            foreach (var line in input.GetLines().Select(s => s.Split(" ")))
                 tmp.Add((new Hand(line[0]), long.Parse(line[1])));
 
             long score = 0;
@@ -31,13 +29,13 @@ namespace AoC2023.Days
             foreach (var hand in tmp.OrderByDescending(t => t.Item1))
                 score += i-- * hand.Item2;
 
-            return score;
+            return score.ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
             var tmp = new List<(Hand, long)>();
-            foreach (var line in ReadLines(input).Select(s => s.Split(" ")))
+            foreach (var line in input.GetLines().Select(s => s.Split(" ")))
                 tmp.Add((new Hand(line[0], true), long.Parse(line[1])));
 
             long score = 0;
@@ -45,7 +43,7 @@ namespace AoC2023.Days
             foreach (var hand in tmp.OrderByDescending(t => t.Item1))
                 score += i-- * hand.Item2;
 
-            return score;
+            return score.ToString();
         }
 
         private class Hand : IComparable<Hand>

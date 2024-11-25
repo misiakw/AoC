@@ -1,32 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
+using AoC.LegacyBase;
 using AoC.Common;
-
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day8 : AbstractDay<long, IComparableInput<long>>
+    public class Day8 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day8/example1.txt")
-                .Part1(2);
-            builder.New("example2", "./Inputs/Day8/example2.txt")
-                .Part1(6);
-            builder.New("example part 2", "./Inputs/Day8/example1part2.txt")
-                .Part2(6);
-            builder.New("output", "./Inputs/Day8/output.txt")
-                .Part1(22199)
-                .Part2(13334102464297);
+            dayState.Test("example1", "./Inputs/Day8/example1.txt")
+                    .Part(1).Correct(2)
+                .Test("example2", "./Inputs/Day8/example2.txt")
+                    .Part(1).Correct(6)
+                .Test("example part 2", "./Inputs/Day8/example1part2.txt")
+                    .Part(2).Correct(6)
+                .Test("output", "./Inputs/Day8/output.txt")
+                    .Part(1).Correct(22199)
+                    .Part(2).Correct(13334102464297);
         }
 
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
-            var lines = ReadLines(input).ToArray();
+            var lines = input.GetLines().ToArray();
             var turns = new RollArray<char>(lines[0].ToArray());
 
             var steps = new Dictionary<string, (string, string)>();
@@ -47,12 +45,12 @@ namespace AoC2023.Days
                 ctr++;
             }
 
-            return ctr;
+            return ctr.ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
-            var lines = ReadLines(input).ToArray();
+            var lines = input.GetLines().ToArray();
             var turns = new RollArray<char>(lines[0].ToArray());
 
             var steps = new Dictionary<string, (string, string)>();
@@ -91,7 +89,7 @@ namespace AoC2023.Days
             while (rest.Any(r => (max.Item2 - r.Item1) % r.Item3 != 0))
                 max.Item2 += max.Item3;
 
-            return max.Item2;
+            return max.Item2.ToString();
         }   
     }
 }

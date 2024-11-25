@@ -1,26 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day6 : AbstractDay<long, IComparableInput<long>>
+    public class Day6 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day6/example1.txt")
-                .Part1(288)
-                .Part2(71503);
-            builder.New("output", "./Inputs/Day6/output.txt")
-                .Part1(281600)
-                .Part2(33875953);
+            dayState.Test("example1", "./Inputs/Day6/example1.txt")
+                    .Part(1).Correct(288)
+                    .Part(2).Correct(71503)
+                .Test("output", "./Inputs/Day6/output.txt")
+                    .Part(1).Correct(281600)
+                    .Part(2).Correct(33875953);
         }
 
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             var races = ReadInput(input);
 
@@ -28,12 +25,12 @@ namespace AoC2023.Days
             foreach(var race in races)
                 result *= CalculateRace(race.Item1, race.Item2);
 
-            return result;
+            return result.ToString();
         }
 
-        private IEnumerable<(long, long)> ReadInput(IComparableInput<long> input)
+        private IEnumerable<(long, long)> ReadInput(TestState input)
         {
-            var lines = ReadLines(input);
+            var lines = input.GetLines().ToList();
             var times = lines[0].Split(" ")
                 .Where(s => !string.IsNullOrEmpty(s))
                 .Skip(1).Select(long.Parse).ToList();
@@ -45,14 +42,14 @@ namespace AoC2023.Days
                 yield return (times[i], distances[i]);
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
             var races = ReadInput(input);
 
             var time = long.Parse(string.Join("", races.Select(r => r.Item1)));
             var distance = long.Parse(string.Join("", races.Select(r => r.Item2)));
 
-            return CalculateRace(time, distance);
+            return CalculateRace(time, distance).ToString();
         }
 
         private static long CalculateRace(long time, long distance)

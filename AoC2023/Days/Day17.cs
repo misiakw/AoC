@@ -1,34 +1,31 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
+using AoC.LegacyBase;
 using AoC.Common.Maps;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day17 : AbstractDay<long, IComparableInput<long>>
+    public class Day17 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day17/example1.txt")
-                .Part1(102);
-                //.Part2(51);
-            builder.New("output", "./Inputs/Day17/output.txt");
-                //.Part1(); //1027 too low
-                //.Part2();
+            dayState.Test("example1", "./Inputs/Day17/example1.txt")
+                    .Part(1).Correct(102)
+                //.Part(2).Correct(51);
+                .Test("output", "./Inputs/Day17/output.txt");
+                //.Part(1); //1027 too low
+                //.Part(2);
         }
-        
+
         protected StaticMap<byte> map;
         protected StaticMap<int> heatLossMap;
         protected string shortestPath;
         int minPath = int.MaxValue;
 
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
-            var lines = ReadLines(input);
+            var lines = input.GetLines().ToArray();
             map = new StaticMap<byte>(lines[0].Length, lines.Count());
             heatLossMap = new StaticMap<int>(map.Width, map.Height, int.MaxValue);
             for(var y=0; y<map.Height; y++)
@@ -77,10 +74,10 @@ namespace AoC2023.Days
 
 
             PrintMap();
-            return heatLossMap[map.Width-1, map.Height-1];
+            return heatLossMap[map.Width-1, map.Height-1].ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
             throw new NotImplementedException();
         }

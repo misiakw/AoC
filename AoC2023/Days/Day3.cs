@@ -1,27 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
+using AoCBase2;
 
 
 namespace AoC2023.Days
 {
-    public class Day3 : AbstractDay<int, IComparableInput<int>>
+    public class Day3
     {
-        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
+        public static void ProceedAoC()
         {
-            builder.New("example1", "./Inputs/Day3/example1.txt")
-                .Part1(4361)
-                .Part2(467835);
-            builder.New("output", "./Inputs/Day3/output.txt")
-                .Part1(527369)
-                .Part2(73074886);
+            AocRuntime.Day<Day3>(3)
+                .Callback(1, (d, t) => d.Part1(t.GetLinesAsync()))
+                .Callback(2, (d, t) => d.Part2(t.GetLinesAsync()))
+                .Test("example1", "./Inputs/Day3/example1.txt")
+                    .Part(1).Correct(4361)
+                    .Part(2).Correct(467835)
+                .Test("output", "./Inputs/Day3/output.txt")
+                    .Part(1).Correct(527369)
+                    .Part(2).Correct(73074886)
+                .Run();
         }
 
-        public override int Part1(IComparableInput<int> input)
+            public string Part1(IAsyncEnumerable<string> input)
         {
             var inp = RedInput(input);
             var symbols = inp.Item1;
@@ -29,10 +29,10 @@ namespace AoC2023.Days
 
             var partNums = nums.Where(n => symbols.Any(s => n.IsAdjascent(s))).ToList();
 
-            return partNums.Sum(p => p.Val);
+            return partNums.Sum(p => p.Val).ToString();
         }
 
-        public override int Part2(IComparableInput<int> input)
+        public string Part2(IAsyncEnumerable<string> input)
         {
             var inp = RedInput(input);
             var stars = inp.Item1.Where(s => s.Char == '*').ToList();
@@ -46,16 +46,16 @@ namespace AoC2023.Days
                     result += parts[0].Val * parts[1].Val;
             }
 
-            return result;
+            return result.ToString();
         }
 
-        private (IList<Symbol>, IList<Num>) RedInput(IComparableInput<int> input)
+        private (IList<Symbol>, IList<Num>) RedInput(IAsyncEnumerable<string> input)
         {
             var y = 0;
             var x = 0;
             var symbols = new List<Symbol>();
             var nums = new List<Num>();
-            foreach (var line in ReadLines(input))
+            foreach (var line in input.ToEnumerable())//ReadLines(input))
             {
                 var numStr = string.Empty;
                 x = 0;

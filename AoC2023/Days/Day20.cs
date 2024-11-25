@@ -1,42 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day20 : AbstractDay<long, IComparableInput<long>>
+    public class Day20 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day20/example1.txt")
-               .Part1(21);
-            //.Part2(82000210);
+            dayState.Test("example1", "./Inputs/Day20/example1.txt")
+               .Part(1).Correct(21);
+            //.Part(2).Correct(82000210);
             //builder.New("output", "./Inputs/Day20/output.txt")
-            //    .Part1(6935);
-            //    .Part2(790194712336);
+            //    .Part(1).Correct(6935);
+            //    .Part(2).Correct(790194712336);
         }
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             var broadcasts = GetBroadcastTargets(input);
-            return 0;
+            return 0.ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
-            return 0;
+            return 0.ToString();
         }
 
-        private IList<IModule> GetBroadcastTargets(IComparableInput<long> input)
+        private IList<IModule> GetBroadcastTargets(TestState input)
         {
             var result = new List<IModule>();
             var modules = new Dictionary<string, IModule>();
             string[] broadcasts;
-            foreach(var line in ReadLines(input))
+            foreach(var line in input.GetLines())
             {
                 var tiles = line.Split("->").Select(s => s.Trim()).ToArray();
                 if (tiles[0] == "broadcaster")

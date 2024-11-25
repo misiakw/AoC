@@ -1,29 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day19 : AbstractDay<long, IComparableInput<long>>
+    public class Day19 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day19/example1.txt")
-                .Part1(19114)
-                .Part2(167409079868000);
-            builder.New("output", "./Inputs/Day19/output.txt")
-                .Part1(376008)
-                .Part2(124078207789312);
+            dayState.Test("example1", "./Inputs/Day19/example1.txt")
+                    .Part(1).Correct(19114)
+                    .Part(2).Correct(167409079868000)
+                .Test("output", "./Inputs/Day19/output.txt")
+                    .Part(1).Correct(376008)
+                    .Part(2).Correct(124078207789312);
         }
 
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             Rule.Rules = new Dictionary<string, Rule>();
-            var lines = ReadLines(input);
+            var lines = input.GetLines().ToArray();
             var i = 0;
             while (!string.IsNullOrEmpty(lines[i]))
             {
@@ -34,17 +33,17 @@ namespace AoC2023.Days
             i++;
 
             var ctr = 0l;
-            for(; i<lines.Count; i++)
+            for(; i<lines.Count(); i++)
             {
                 var part = new Part(lines[i]);
                 if (Rule.Rules["in"].Process(part))
                     ctr += part.Score;
             }
 
-            return ctr;
+            return ctr.ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
             var ranges = Rule.Rules["in"].AcceptRanges(FourRange.Part2Full);
 
@@ -53,7 +52,7 @@ namespace AoC2023.Days
             {
                 span += range.Size;
             }
-            return span;
+            return span.ToString();
         }
 
         private class Rule

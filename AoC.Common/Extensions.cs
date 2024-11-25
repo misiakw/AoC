@@ -7,6 +7,12 @@ namespace AoC.Common
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Gets list of colors to paint/ fill.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="amount">amount of colors needed</param>
+        /// <returns></returns>
         public static IList<Color> GetColors(this Color c, int amount)
         {
             var colorList = new List<Color>();

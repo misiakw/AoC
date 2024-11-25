@@ -1,29 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day12 : AbstractDay<long, IComparableInput<long>>
+    public class Day12 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day12/example1.txt")
-               .Part1(21);
-            //.Part2(82000210);
-            builder.New("output", "./Inputs/Day12/output.txt")
-                .Part1(6935);
-                //.Part2(790194712336);
+            dayState.Test("example1", "./Inputs/Day12/example1.txt")
+                    .Part(1).Correct(21)
+            //.Part(2).Correct(82000210);
+                .Test("output", "./Inputs/Day12/output.txt")
+                    .Part(1).Correct(6935);
+            //.Part(2).Correct(790194712336);
         }
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             var result = 0;
-            foreach(var line in ReadLines(input))
+            foreach(var line in input.GetLines())
             {
                 var parts = line.Split(" ");
                 foreach (var perm in PermuteOptions(parts[0]))
@@ -33,10 +30,10 @@ namespace AoC2023.Days
                         result++;
                 }
             }
-            return result;
+            return result.ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState test)
         {
             throw new NotImplementedException();
         }

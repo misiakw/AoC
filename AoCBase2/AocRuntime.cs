@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,9 +20,11 @@ namespace AoCBase2
                 result = new DayState<T>(filename, dayNum);
             }
             result.setupFunc = setupFunc;
-
             return result;
         }
+        public static DayState<T> Day<T>(int dayNum) where T: new()
+            => Day<T>(dayNum, (name, input) => new T());
+
         public static void Run<T>(this DayState<T> state) => Run<T>(state, null, null);
         public static void Run<T>(this DayState<T> state, byte part) => Run<T>(state, part, null);
         public static void Run<T>(this DayState<T> state, string testName) => Run<T>(state, null, testName);
@@ -52,8 +53,8 @@ namespace AoCBase2
                     }
 
                     var task = state.callback[t].needSetup
-                        ? state.callback[t].callback.Invoke(state.setupFunc.Invoke(test.name, test.testFile.PathToRelative()))
-                        : state.callback[t].callback.Invoke(day);
+                        ? state.callback[t].callback.Invoke(state.setupFunc.Invoke(test.name, test.testFile.PathToRelative()), test)
+                        : state.callback[t].callback.Invoke(day, test);
                     task.Wait();
                     result[t] = task.Result;
                     if(test.result[t].ProcessResult(result[t])) //result stored data
@@ -108,7 +109,7 @@ namespace AoCBase2
             state.selectedTest.selectedResult.isDebug = true;
             return state;
         }
-        public static DayState<T> Callback<T>(this DayState<T> state, byte part, Func<T, Task<string>> callback, bool needSetup = false)
+        public static DayState<T> Callback<T>(this DayState<T> state, byte part, Func<T, TestState, Task<string>> callback, bool needSetup = false)
         {
             EnsureProperTaskPart(part);
             state.callback[part - 1] = new Callback<T>()
@@ -118,9 +119,9 @@ namespace AoCBase2
             };
             return state;
         }
-        public static DayState<T> Callback<T>(this DayState<T> state, byte part, Func<T, string> callback, bool needSetup = false)
-            => state.Callback(part, new Func<T, Task<string>>(x => {
-                var t = new Task<string>(() => callback(x));
+        public static DayState<T> Callback<T>(this DayState<T> state, byte part, Func<T, TestState, string> callback, bool needSetup = false)
+            => state.Callback(part, new Func<T, TestState, Task<string>>((x, test) => {
+                var t = new Task<string>(() => callback(x, test));
                 t.Start();
                 return t; 
             }), needSetup);

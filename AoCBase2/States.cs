@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace AoCBase2
 {
     internal class Callback<T>
     {
-        internal Func<T, Task<string>> callback;
+
+        internal Func<T, TestState, Task<string>> callback;
         internal bool needSetup = false;
     }
     public class DayState<T>

@@ -1,30 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
+using AoC.LegacyBase;
+using AoCBase2;
 using Range = AoC.Common.Range;
 
 
 namespace AoC2023.Days
 {
-    public class Day5 : AbstractDay<long, IComparableInput<long>>
+    public class Day5 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day5/example1.txt")
-                .Part1(35)
-                .Part2(46);
-            builder.New("output", "./Inputs/Day5/output.txt")
-                .Part1(510109797)
-                .Part2(9622622);
+            dayState.Test("example1", "./Inputs/Day5/example1.txt")
+                    .Part(1).Correct(35)
+                    .Part(2).Correct(46)
+                .Test("output", "./Inputs/Day5/output.txt")
+                    .Part(1).Correct(510109797)
+                    .Part(2).Correct(9622622);
         }
 
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
-            var lines = ReadLines(input);
+            var lines = input.GetLines().ToArray();
             var seeds = lines[0].Split(" ").Skip(1).Select(x => new Seed(long.Parse(x), 1)).ToArray();
 
             var i = 2;
@@ -49,7 +47,7 @@ namespace AoC2023.Days
             //HumidityToLocation
             seeds = LoadAndMap(seeds, ref i, lines, s => s.Humid, (s, v) => { s.Location = v; return s; });
 
-            return seeds.Min(s => s.Location.Min);
+            return seeds.Min(s => s.Location.Min).ToString();
         }
 
         private Mapper GetMapper(IList<string> lines, ref int pos)
@@ -125,9 +123,9 @@ namespace AoC2023.Days
             return results.ToArray();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
-            var lines = ReadLines(input);
+            var lines = input.GetLines().ToList();
             var nums = lines[0].Split(" ").Skip(1).Select(long.Parse).ToArray();
             var seedList = new List<Seed>();
             for (int x = 0; x < nums.Length; x += 2)
@@ -156,7 +154,7 @@ namespace AoC2023.Days
             //HumidityToLocation
             seeds = LoadAndMap(seeds, ref i, lines, s => s.Humid, (s, v) => { s.Location = v; return s; });
 
-            return seeds.Any() ? seeds.Min(s => s.Location.Min): -1;
+            return (seeds.Any() ? seeds.Min(s => s.Location.Min): -1).ToString();
         }
 
         private struct Seed

@@ -1,40 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day9 : AbstractDay<long, IComparableInput<long>>
+    public class Day9 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day9/example1.txt")
-               .Part1(114)
-               .Part2(2);
-            builder.New("output", "./Inputs/Day9/output.txt")
-                .Part1(1666172641)
-                .Part2(933);
+            dayState.Test("example1", "./Inputs/Day9/example1.txt")
+                    .Part(1).Correct(114)
+                    .Part(2).Correct(2)
+                .Test("output", "./Inputs/Day9/output.txt")
+                    .Part(1).Correct(1666172641)
+                    .Part(2).Correct(933);
         }
 
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             var result = 0;
-            foreach(var line in ReadLines(input))
+            foreach(var line in input.GetLines())
             result += Extrapolate(line.Split(" ").Select(int.Parse).ToList());
-            return result;
+            return result.ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
             var result = 0;
-            foreach (var line in ReadLines(input))
+            foreach (var line in input.GetLines())
                 result += ExtrapolateBackwards(line.Split(" ").Select(int.Parse).ToList());
-            return result;
+            return result.ToString();
         }
 
         private int Extrapolate(IList<int> states){

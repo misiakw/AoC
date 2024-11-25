@@ -1,28 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day11 : AbstractDay<long, IComparableInput<long>>
+    public class Day11 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day11/example1.txt")
-               .Part1(374)
-               .Part2(82000210);
-            builder.New("output", "./Inputs/Day11/output.txt")
-                .Part1(10292708)
-                .Part2(790194712336);
+            dayState.Test("example1", "./Inputs/Day11/example1.txt")
+                    .Part(1).Correct(374)
+                    .Part(2).Correct(82000210)
+                .Test("output", "./Inputs/Day11/output.txt")
+                    .Part(1).Correct(10292708)
+                    .Part(2).Correct(790194712336);
         }
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
-            var stars = ReadInput(input);
+            var stars = ReadInput(input.GetLines());
 
             stars = ExpandStars(stars, 2);
             var sum = 0L;
@@ -30,12 +27,12 @@ namespace AoC2023.Days
                 foreach (var star2 in stars.Where(s => s.Item3 > star.Item3))
                     sum += Math.Abs(star2.Item1 - star.Item1) + Math.Abs(star2.Item2 - star.Item2);
 
-            return sum;
+            return sum.ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
-            var stars = ReadInput(input);
+            var stars = ReadInput(input.GetLines());
 
             stars = ExpandStars(stars, 1000000);
 
@@ -48,12 +45,12 @@ namespace AoC2023.Days
                     sum += inc;
                 }
 
-            return sum;
+            return sum.ToString();
         }
 
-        private IEnumerable<(int, int, int)> ReadInput(IComparableInput<long> input)
+        private IEnumerable<(int, int, int)> ReadInput(IEnumerable<string> input)
         {
-            var lines = ReadLines(input);
+            var lines = input.ToList();
             var i = 0;
             var y = 1;
             foreach (var line in lines) {

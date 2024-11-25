@@ -1,34 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
+using AoC.LegacyBase;
 using AoC.Common;
-
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day10 : AbstractDay<long, IComparableInput<long>>
+    public class Day10 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day10/example1.txt")
-               .Part1(4);
-            builder.New("example2", "./Inputs/Day10/example1-2.txt")
-               .Part1(8);
-            builder.New("example2", "./Inputs/Day10/example2-1.txt")
-               .Part2(4);
-            builder.New("example2", "./Inputs/Day10/example2-2.txt")
-               .Part2(8);
-            builder.New("output", "./Inputs/Day10/output.txt")
-                .Part1(7005)
-                .Part2(417);
+            dayState.Test("example1", "./Inputs/Day10/example1.txt")
+                    .Part(1).Correct(4)
+                .Test("example2", "./Inputs/Day10/example1-2.txt")
+                    .Part(1).Correct(8)
+                .Test("example2", "./Inputs/Day10/example2-1.txt")
+                    .Part(2).Correct(4)
+                .Test("example2", "./Inputs/Day10/example2-2.txt")
+                    .Part(2).Correct(8)
+                .Test("output", "./Inputs/Day10/output.txt")
+                    .Part(1).Correct(7005)
+                .Part(2).Correct(417);
         }
         private Day10Map map;
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
-            var lines = ReadLines(input);
+            var lines = input.GetLinesAsync().ToEnumerable().ToList();
             map = new Day10Map(lines);
             //ReadMap
 
@@ -65,11 +63,11 @@ namespace AoC2023.Days
                 ctr++;
             } while (pos[0].Item1 != pos[1].Item1 || pos[0].Item2 != pos[1].Item2);
 
-            return ctr;
+            return ctr.ToString();
         }
 
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
             if (map == null)
                 Part1(input);
@@ -91,7 +89,7 @@ namespace AoC2023.Days
                     throw new InvalidProgramException("oops cos nie zatrybilo w matematyce");
             }
 
-            return map.FilledFullCount();
+            return map.FilledFullCount().ToString();
         }
 
         [Flags]

@@ -1,33 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-using AoC.Common.Maps;
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day15 : AbstractDay<long, IComparableInput<long>>
+    public class Day15 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day15/example1.txt")
-               .Part1(1320)
-               .Part2(145);
-            builder.New("output", "./Inputs/Day15/output.txt")
-                .Part1(516804)
-                .Part2(231844);
+            dayState.Test("example1", "./Inputs/Day15/example1.txt")
+                    .Part(1).Correct(1320)
+                    .Part(2).Correct(145)
+                .Test("output", "./Inputs/Day15/output.txt")
+                    .Part(1).Correct(516804)
+                    .Part(2).Correct(231844);
         }
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             var steps = ReadSteps(input);
-            return steps.Sum(s => GetHash(s.Cmd));
+            return steps.Sum(s => GetHash(s.Cmd)).ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
             var steps = ReadSteps(input);
             var boxes = new Dictionary<int, IList<CmdStruct>>();
@@ -61,7 +56,7 @@ namespace AoC2023.Days
                 for (var j = 0; j < boxes[i].Count; j++)
                     score += (i + 1) * (j + 1) * boxes[i][j].Vaue;
 
-            return score;
+            return score.ToString();
         }
 
         private int GetHash(string input)
@@ -76,8 +71,8 @@ namespace AoC2023.Days
             return result;
         }
 
-        private IList<CmdStruct> ReadSteps(IComparableInput<long> input)
-            => ReadLines(input)[0].Split(',').Select(s =>new CmdStruct(s.Trim())).ToList();
+        private IList<CmdStruct> ReadSteps(TestState input)
+            => input.GetLines().ToArray()[0].Split(',').Select(s =>new CmdStruct(s.Trim())).ToList();
 
         private class CmdStruct
         {

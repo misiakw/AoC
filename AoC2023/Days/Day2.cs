@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using AoCBase2;
-using AoCBase2.InputClasses;
 
 namespace AoC2023.Days
 {
-    public class Day2 : LinesInput
+    public class Day2
     {
         public string Part1(IAsyncEnumerable<string> lines)
         {
@@ -28,9 +27,9 @@ namespace AoC2023.Days
         }
         public static void ProceedAoC()
         {
-            AocRuntime.Day(2, Setup<Day2>)
-                .Callback(1, d => d.Part1(d.input))
-                .Callback(2, d => d.Part2(d.input))
+            AocRuntime.Day<Day2>(2)
+                .Callback(1, (d, t) => d.Part1(t.GetLinesAsync()))
+                .Callback(2, (d, t) => d.Part2(t.GetLinesAsync()))
                 .Test("example1", "./Inputs/Day2/example1.txt")
                     .Part(1).Correct(8)
                     .Part(2).Correct(2286)

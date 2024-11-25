@@ -1,17 +1,14 @@
-﻿using System;
-using System.IO;
-using AoC.Base;
-using AoC2023.Days;
-using AoCBase2;
+﻿using AoC2023.Days;
 
 namespace AoC2022
 {
     class Program
     {
-
+        
         static void Main(string[] args)
         {
-            new Day3().GetRuntime().Execute();
+            new Day11().ProceedAoC();
+            new Day15().ProceedAoC();
 
             //Day1.ProceedAoC();
             //Day2.ProceedAoC();

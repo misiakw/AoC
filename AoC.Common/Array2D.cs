@@ -6,6 +6,10 @@ using System.Text;
 
 namespace AoC.Common
 {
+    /// <summary>
+    /// Rozszerzalna tabela @d
+    /// </summary>
+    /// <typeparam name="T">typ przechowywanej wartości</typeparam>
     public class Array2D<T>
     {
         public Array2D(T? def = default(T)){

@@ -2,40 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-using AoC.Common.Maps;
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day13 : AbstractDay<long, IComparableInput<long>>
+    public class Day13 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day13/example1.txt")
-               .Part1(405)
-               .Part2(400);
-            builder.New("output", "./Inputs/Day13/output.txt")
-                .Part1(27300);
-            //.Part2(790194712336);
+            dayState.Test("example1", "./Inputs/Day13/example1.txt")
+                    .Part(1).Correct(405)
+                    .Part(2).Correct(400)
+                .Test("output", "./Inputs/Day13/output.txt")
+                    .Part(1).Correct(27300);
+            //.Part(2).Correct(790194712336);
         }
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             var arrays = GetCharArrays(input, 0);
-            return arrays.Sum(arr => arr.GetScore());
+            return arrays.Sum(arr => arr.GetScore()).ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string  Part2(TestState input)
         {
             var arrays = GetCharArrays(input, 1);
-            return arrays.Sum(arr => arr.GetScore());
+            return arrays.Sum(arr => arr.GetScore()).ToString();
         }
 
-        private IEnumerable<CharArray> GetCharArrays(IComparableInput<long> input, int smugesToFix)
+        private IEnumerable<CharArray> GetCharArrays(TestState input, int smugesToFix)
         {
-            var lines = ReadLines(input);
+            var lines = input.GetLines();
             var map = new List<string>();
             foreach (var line in lines)
             {

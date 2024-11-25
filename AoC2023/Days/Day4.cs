@@ -1,33 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
-
+using AoC.LegacyBase;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day4 : AbstractDay<int, IComparableInput<int>>
+    public class Day4 : LegacyAbstractDay
     {
-        public override int Part1(IComparableInput<int> input)
+        public override string Part1(TestState input)
         {
             var score = 0;
-            foreach (var line in ReadLines(input))
+            foreach (var line in input.GetLines())
             {
                 var card = new Card(line);
                 if (card.Score > 0)
                     score += Convert.ToInt32(Math.Pow(2d, card.Score - 1));
             }
-            return score;
+            return score.ToString();
         }
 
-        public override int Part2(IComparableInput<int> input)
+        public override string Part2(TestState input)
         {
             var cards = new Dictionary<int, Card>();
             var amounts = new Dictionary<int, int>();
-            foreach (var line in ReadLines(input))
+            foreach (var line in input.GetLines())
             {
                 var card = new Card(line);
                 cards.Add(card.Num, card);
@@ -42,17 +39,17 @@ namespace AoC2023.Days
                     amounts[i] += amount;
             }
 
-            return amounts.Sum(kv => kv.Value);
+            return amounts.Sum(kv => kv.Value).ToString();
         }
 
-        public override void PrepateTests(InputBuilder<int, IComparableInput<int>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day4/example1.txt")
-                .Part1(13)
-                .Part2(30);
-            builder.New("output", "./Inputs/Day4/output.txt")
-                .Part1(15205)
-                .Part2(6189740);
+            dayState.Test("example1", "./Inputs/Day4/example1.txt")
+                    .Part(1).Correct(13)
+                    .Part(2).Correct(30)
+                .Test("output", "./Inputs/Day4/output.txt")
+                    .Part(1).Correct(15205)
+                    .Part(2).Correct(6189740);
         }
 
         private class Card

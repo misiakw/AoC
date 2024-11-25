@@ -1,34 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
+using AoC.LegacyBase;
 using AoC.Common;
-using AoC.Common.Maps;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day14 : AbstractDay<long, MapInput<long>>
+    public class Day14 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, MapInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("./Inputs/Day14/example1.txt", "example1")
-                .Part1(136)
-                .Part2(64);
-            builder.New("./Inputs/Day14/output.txt", "output")
-                .Part1(107951)
-                .Part2(95736);
+            dayState.Test("./Inputs/Day14/example1.txt", "example1")
+                    .Part(1).Correct(136)
+                    .Part(2).Correct(64)
+                .Test("./Inputs/Day14/output.txt", "output")
+                    .Part(1).Correct(107951)
+                    .Part(2).Correct(95736);
         }
 
-        public override long Part1(MapInput<long> input)
+        public override string Part1(TestState input)
         {
             var platform = new Platform(input.GetMap());
             platform.ShiftNorth();
-            return platform.BeamWeights;
+            return platform.BeamWeights.ToString();
         }
 
-        public override long Part2(MapInput<long> input)
+        public override string Part2(TestState input)
         {
             var platform = new Platform(input.GetMap());
 
@@ -64,7 +62,7 @@ namespace AoC2023.Days
                 }
             }
 
-            return platform.BeamWeights;
+            return platform.BeamWeights.ToString();
         }
 
         private class Platform

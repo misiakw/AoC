@@ -1,34 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using AoC.Base;
-using AoC.Base.TestInputs;
-using AoC.Common;
+using AoC.LegacyBase;
 using AoC.Common.Maps;
+using AoCBase2;
 
 namespace AoC2023.Days
 {
-    public class Day16 : AbstractDay<long, IComparableInput<long>>
+    public class Day16 : LegacyAbstractDay
     {
-        public override void PrepateTests(InputBuilder<long, IComparableInput<long>> builder)
+        public override void PrepateTests(DayState<LegacyAbstractDay> dayState)
         {
-            builder.New("example1", "./Inputs/Day16/example1.txt")
-               .Part1(46)
-                .Part2(51);
-            builder.New("output", "./Inputs/Day16/output.txt")
-                .Part1(7415)
-                .Part2(7943);
+            dayState.Test("example1", "./Inputs/Day16/example1.txt")
+                    .Part(1).Correct(46)
+                    .Part(2).Correct(51)
+                .Test("output", "./Inputs/Day16/output.txt")
+                    .Part(1).Correct(7415)
+                    .Part(2).Correct(7943);
         }
-        public override long Part1(IComparableInput<long> input)
+        public override string Part1(TestState input)
         {
             var map = ReadMap(input);
 
-            return Energize(map[0, 0], Dir.Right, map);
+            return Energize(map[0, 0], Dir.Right, map).ToString();
         }
 
-        public override long Part2(IComparableInput<long> input)
+        public override string Part2(TestState input)
         {
             var map = ReadMap(input);
             var lits = new List<int>();
@@ -44,12 +40,12 @@ namespace AoC2023.Days
                 lits.Add(Energize(map[map.Width-1, row], Dir.Left, map));
             }
 
-            return lits.Max();
+            return lits.Max().ToString();
         }
 
-        private StaticMap<BlockBase> ReadMap(IComparableInput<long> input)
+        private StaticMap<BlockBase> ReadMap(TestState input)
         {
-            var lines = ReadLines(input);
+            var lines = input.GetLines().ToList();
             var map = new StaticMap<BlockBase>(lines[0].Length, lines.Count);
 
             for (var y = 0; y < lines.Count; y++)
