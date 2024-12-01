@@ -138,7 +138,7 @@ namespace AoCBase2
                 
                 Console.ForegroundColor = (result == dto.correct)
                     ? ConsoleColor.Green : ConsoleColor.Red;
-                Console.Write(result.PadRight(15));
+                Console.Write((result ?? "").PadRight(15));
                 Console.ResetColor();
                 Console.Write(" | ");
 
@@ -147,7 +147,7 @@ namespace AoCBase2
             if (dto.incorrect.Contains(result))
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write(result.PadRight(15));
+                Console.Write((result ?? "").PadRight(15));
                 Console.ResetColor();
                 Console.Write(" | ");
                 return false;
@@ -185,13 +185,13 @@ namespace AoCBase2
 
         private static bool? readYesNo()
         {
-            char choice = Console.ReadKey().KeyChar;
+            char choice = (char)Console.Read();
             while (choice != 'y' && choice != 'n' && choice != 's')
             {
                 Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
                 Console.Write(" ");
                 Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
-                choice = Console.ReadKey().KeyChar;
+                choice = (char)Console.Read();;
             }
             return choice == 's' ? null : choice == 'y';
         }

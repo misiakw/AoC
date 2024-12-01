@@ -1,0 +1,41 @@
+{
+  "dayNum": 1,
+  "tests": [
+    {
+      "name": "example1",
+      "testFile": "./Inputs/Day1/example1.txt",
+      "result": [
+        {
+          "run": true,
+          "correct": "11",
+          "incorrect": [],
+          "isDebug": false
+        },
+        {
+          "run": true,
+          "correct": "31",
+          "incorrect": [],
+          "isDebug": false
+        }
+      ]
+    },
+    {
+      "name": "output",
+      "testFile": "./Inputs/Day1/output.txt",
+      "result": [
+        {
+          "run": true,
+          "correct": "1873376",
+          "incorrect": [],
+          "isDebug": false
+        },
+        {
+          "run": true,
+          "correct": "18997088",
+          "incorrect": [],
+          "isDebug": false
+        }
+      ]
+    }
+  ]
+}
