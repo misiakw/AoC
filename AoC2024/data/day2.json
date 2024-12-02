@@ -2,7 +2,7 @@
   "dayNum": 2,
   "tests": [
     {
-      "name": "example1",
+      "name": "example",
       "testFile": "Inputs/Day2/example1.txt",
       "result": [
         {
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "name": "output",
+      "name": "input",
       "testFile": "Inputs/Day2/output.txt",
       "result": [
         {

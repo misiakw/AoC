@@ -37,62 +37,44 @@ namespace AoCBase2
                 ? state.dto.tests
                 : state.dto.tests.Where(t => t.name == testName);
 
-            var results = new List<(string, (string, bool?, string), (string, bool?, string))>();
             var watch = new Stopwatch();
+            var tab = new PrintTable(new List<string>() { "name", "Part 1", "duration", "Part 2", "duration" });
 
             foreach (var test in testsToRun.Where(t => t.run))
             {
-                (string, (string, bool ?, string), (string, bool?, string)) result = (test.name, ("n/a", null, null), ("n/a", null, null));
                 T day = state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution());
-                string[] outputs = { null, null };
-                bool?[] corrects = {null, null };
-                string[] durations = { null, null };
-                for(int t=0; t< outputs.Length; t++)
+                var row = tab.Row().Cell(test.name);
+                for(int t=0; t< 2; t++)
                 {
-                    var shouldRun = test.result[t] != null && test.result[t].run;
                     if ((state.callback[t] == null) //no callback
                         || (part.HasValue && part.Value != t) //skipped pasrt as param
                         || (test.result[t] != null && !test.result[t].run)) //skipped test execution
+                    {
+                        row.Cell("n/a").Cell("");
                         continue;
+                    }
                     watch.Start();
                     var task = state.callback[t].needSetup
                         ? state.callback[t].callback.Invoke(state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution()), test)
                         : state.callback[t].callback.Invoke(day, test);
                     task.Wait();
-                    outputs[t] = task.Result;
+                    var output = task.Result;
                     watch.Stop();
 
                     if (task.IsFaulted)
                         throw task.Exception;
 
-                    durations[t] = watch.ToString();
                     if (test.result[t] == null)
                         test.result[t] = new TestResult();
-                    corrects[t] = test.result[t].ProcessResult(outputs[t], $"{test.name} Part{(t + 1)}");
+                    var correct = test.result[t].ProcessResult(output, $"{test.name} Part{(t + 1)}");
+                    row.Cell(output, correct.HasValue ? correct.Value ? ConsoleColor.Green : ConsoleColor.Red : ConsoleColor.White)
+                        .Cell(watch.ToString());
                     if (state.isDirty)
                         state.Save();
                 }
 
-                results.Add((test.name, (outputs[0] ?? "n/a", corrects[0], durations[0]), (outputs[1] ?? "n/a", corrects[1], durations[1])));
             }
-
-            //display outputs
-            Console.WriteLine("\n"+"name".PadRight(15) + " | " + "answer part 1".PadRight(15) + " | "+"durarion".PadRight(16)+" | " + "answer part 2".PadRight(15) + " | "+"durarion".PadRight(16));
-            Console.WriteLine("".PadRight(16, '-') + "+" + "".PadRight(17, '-') + "+" + "".PadRight(18, '-') + "+" + "".PadRight(17, '-') + "+" + "".PadRight(18, '-'));
-            foreach (var result  in results)
-            {
-                Console.Write(result.Item1.PadRight(15) + " | ");
-                if (result.Item2.Item2.HasValue)
-                    Console.ForegroundColor = result.Item2.Item2.Value ? ConsoleColor.Green : ConsoleColor.Red;
-                Console.Write((result.Item2.Item1).PadRight(15));
-                Console.ResetColor();
-                Console.Write(" | "+ result.Item2.Item3.PadRight(16) + " | ");
-                if (result.Item3.Item2.HasValue)
-                    Console.ForegroundColor = result.Item3.Item2.Value ? ConsoleColor.Green : ConsoleColor.Red;
-                Console.Write((result.Item3.Item1).PadRight(15));
-                Console.ResetColor();
-                Console.WriteLine(" | " + result.Item3.Item3.PadRight(16));
-            } 
+            tab.PrintConsole();
         }
 
         public static DayState<T> Test<T>(this DayState<T> state, string name, string filePath)
