@@ -6,12 +6,10 @@
       "testFile": "Inputs/Day1/example1.txt",
       "result": [
         {
-          "run": false,
           "correct": "11",
           "incorrect": []
         },
         {
-          "run": false,
           "correct": "31",
           "incorrect": []
         }
@@ -22,12 +20,10 @@
       "testFile": "Inputs/Day1/output.txt",
       "result": [
         {
-          "run": false,
           "correct": "1873376",
           "incorrect": []
         },
         {
-          "run": false,
           "correct": "18997088",
           "incorrect": []
         }

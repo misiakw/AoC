@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,25 +37,35 @@ namespace AoCBase2
                 ? state.dto.tests
                 : state.dto.tests.Where(t => t.name == testName);
 
-            var results = new List<(string, (string, bool?), (string, bool?))>();
+            var results = new List<(string, (string, bool?, string), (string, bool?, string))>();
+            var watch = new Stopwatch();
 
-            foreach (var test in testsToRun)
+            foreach (var test in testsToRun.Where(t => t.run))
             {
-                var result = (test.name, ("n/a", (bool?)null), ("n/a", (bool?)null));
+                (string, (string, bool ?, string), (string, bool?, string)) result = (test.name, ("n/a", null, null), ("n/a", null, null));
                 T day = state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution());
                 string[] outputs = { null, null };
                 bool?[] corrects = {null, null };
+                string[] durations = { null, null };
                 for(int t=0; t< outputs.Length; t++)
                 {
+                    var shouldRun = test.result[t] != null && test.result[t].run;
                     if ((state.callback[t] == null) //no callback
                         || (part.HasValue && part.Value != t) //skipped pasrt as param
                         || (test.result[t] != null && !test.result[t].run)) //skipped test execution
                         continue;
+                    watch.Start();
                     var task = state.callback[t].needSetup
                         ? state.callback[t].callback.Invoke(state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution()), test)
                         : state.callback[t].callback.Invoke(day, test);
                     task.Wait();
                     outputs[t] = task.Result;
+                    watch.Stop();
+
+                    if (task.IsFaulted)
+                        throw task.Exception;
+
+                    durations[t] = watch.ToString();
                     if (test.result[t] == null)
                         test.result[t] = new TestResult();
                     corrects[t] = test.result[t].ProcessResult(outputs[t], $"{test.name} Part{(t + 1)}");
@@ -62,12 +73,12 @@ namespace AoCBase2
                         state.Save();
                 }
 
-                results.Add((test.name, (outputs[0] ?? "n/a", corrects[0]), (outputs[1] ?? "n/a", corrects[1])));
+                results.Add((test.name, (outputs[0] ?? "n/a", corrects[0], durations[0]), (outputs[1] ?? "n/a", corrects[1], durations[1])));
             }
 
             //display outputs
-            Console.WriteLine("\n"+"name".PadRight(15) + " | " + "answer part 1".PadRight(15) + " | " + "answer part 2");
-            Console.WriteLine("".PadRight(16, '-') + "+" + "".PadRight(17, '-') + "+" + "".PadRight(17, '-'));
+            Console.WriteLine("\n"+"name".PadRight(15) + " | " + "answer part 1".PadRight(15) + " | "+"durarion".PadRight(16)+" | " + "answer part 2".PadRight(15) + " | "+"durarion".PadRight(16));
+            Console.WriteLine("".PadRight(16, '-') + "+" + "".PadRight(17, '-') + "+" + "".PadRight(18, '-') + "+" + "".PadRight(17, '-') + "+" + "".PadRight(18, '-'));
             foreach (var result  in results)
             {
                 Console.Write(result.Item1.PadRight(15) + " | ");
@@ -75,12 +86,12 @@ namespace AoCBase2
                     Console.ForegroundColor = result.Item2.Item2.Value ? ConsoleColor.Green : ConsoleColor.Red;
                 Console.Write((result.Item2.Item1).PadRight(15));
                 Console.ResetColor();
-                Console.Write(" | ");
+                Console.Write(" | "+ result.Item2.Item3.PadRight(16) + " | ");
                 if (result.Item3.Item2.HasValue)
-                    Console.ForegroundColor = result.Item2.Item2.Value ? ConsoleColor.Green : ConsoleColor.Red;
+                    Console.ForegroundColor = result.Item3.Item2.Value ? ConsoleColor.Green : ConsoleColor.Red;
                 Console.Write((result.Item3.Item1).PadRight(15));
                 Console.ResetColor();
-                Console.WriteLine(" |");
+                Console.WriteLine(" | " + result.Item3.Item3.PadRight(16));
             } 
         }
 
@@ -97,7 +108,10 @@ namespace AoCBase2
                 };
                 state.dto.tests.Add(selectedTest);
             }
+            if (state.selectedTest != null)
+                state.selectedTest.selectedResult = null;
             state.selectedTest = selectedTest;
+            state.selectedTest.selectedResult = null;
             return state;
         }
         public static DayState<T> Part<T>(this DayState<T> state, byte part)
@@ -107,7 +121,6 @@ namespace AoCBase2
             if (state.selectedTest.result[part - 1] == null)
                 state.selectedTest.result[part - 1] = new TestResult();
             state.selectedTest.selectedResult = state.selectedTest.result[part - 1];
-            state.selectedTest.selectedResult.run = true;
             return state;
         }
         public static DayState<T> Correct<T>(this DayState<T> state, string result)
@@ -122,11 +135,13 @@ namespace AoCBase2
             return state;
         }
         public static DayState<T> Correct<T>(this DayState<T> state, long result) => state.Correct(result.ToString());
-        public static DayState<T> Debug<T>(this DayState<T> state)
+        public static DayState<T> Skip<T>(this DayState<T> state)
         {
             if (state.selectedTest == null) throw new InvalidDataException("Test not selected");
-            if (state.selectedTest.selectedResult == null) throw new InvalidDataException("Result not selected");
-            state.selectedTest.selectedResult.isDebug = true;
+            if (state.selectedTest.selectedResult == null) 
+                state.selectedTest.run = false;
+            else
+                state.selectedTest.selectedResult.run = false;
             return state;
         }
         public static DayState<T> Callback<T>(this DayState<T> state, byte part, Func<T, TestState, Task<string>> callback, bool needSetup = false)
@@ -176,6 +191,7 @@ namespace AoCBase2
                 dto.incorrect.Add(result.ToString());
             return correct.Value;
         }
+
 
         private static bool? readYesNo()
         {

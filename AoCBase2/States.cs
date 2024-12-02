@@ -65,6 +65,7 @@ namespace AoCBase2
 
     public class TestState : TestStateDTO
     {
+        internal bool run { get; set; } = true;
         internal bool isDirtyInternal = false;
         internal bool isDirty => isDirtyInternal || result.Any(r => r?.isDirty ?? false);
         internal TestResult selectedResult;
@@ -81,12 +82,10 @@ namespace AoCBase2
     {
         internal bool isDirty = false;
         internal bool run { get; set; } = true;
-        internal bool isDebug { get; set; } = false;
     }
 
     public class TestResultDTO
     {
-        public bool run { get; set; } = false;
         public string correct { get; set; } = null;
         public IList<string> incorrect { get; set; } = new List<string>();
     }
