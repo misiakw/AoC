@@ -3,37 +3,33 @@
   "tests": [
     {
       "name": "example1",
-      "testFile": "./Inputs/Day2/example1.txt",
+      "testFile": "Inputs/Day2/example1.txt",
       "result": [
         {
-          "run": true,
+          "run": false,
           "correct": "2",
-          "incorrect": [],
-          "isDebug": false
+          "incorrect": []
         },
         {
-          "run": true,
-          "correct": "4",
-          "incorrect": [],
-          "isDebug": false
+          "run": false,
+          "correct": "6",
+          "incorrect": []
         }
       ]
     },
     {
       "name": "output",
-      "testFile": "./Inputs/Day2/output.txt",
+      "testFile": "Inputs/Day2/output.txt",
       "result": [
         {
-          "run": true,
+          "run": false,
           "correct": "483",
-          "incorrect": [],
-          "isDebug": false
+          "incorrect": []
         },
         {
-          "run": true,
-          "correct": null,
-          "incorrect": [],
-          "isDebug": false
+          "run": false,
+          "correct": "528",
+          "incorrect": []
         }
       ]
     }

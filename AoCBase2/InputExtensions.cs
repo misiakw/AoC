@@ -10,7 +10,7 @@ namespace AoCBase2
     {
         public async static IAsyncEnumerable<string> GetLinesAsync(this TestState test)
         {
-            using (StreamReader sr = File.OpenText(test.testFile))
+            using (StreamReader sr = File.OpenText(test.testFile.PathToRelativeToSolution()))
                 while (!sr.EndOfStream)
                     yield return await sr.ReadLineAsync();
         }

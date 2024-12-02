@@ -15,10 +15,10 @@ namespace AoC2024.Days
             AocRuntime.Day<Day1>(1)
                 .Callback(1, (d, t) => d.Part1(t.GetLinesAsync()))
                 .Callback(2, (d, t) => d.Part2())
-                .Test("example1", "./Inputs/Day1/example1.txt")
-                    .Part(1)//.Correct(11)
+                .Test("example1", "Inputs/Day1/example1.txt")
+                    .Part(1).Correct(11)
                     .Part(2)//.Correct(31)
-                .Test("output", "./Inputs/Day1/output.txt")
+                .Test("output", "Inputs/Day1/output.txt")
                     .Part(1)//.Correct(1873376)
                     .Part(2)//.Correct(18997088)
                 .Run();

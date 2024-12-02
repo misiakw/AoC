@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO;using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -14,6 +14,7 @@ namespace AoCBase2
     }
     public class DayState<T>
     {
+        internal bool isDirty => dto.tests.Any(t => t.isDirty);
         internal TestState selectedTest;
         internal string stateFile;
         internal DayStateDTO dto;
@@ -24,13 +25,19 @@ namespace AoCBase2
         internal DayState(string path, int dayNum)
         {
             stateFile = path;
-            dto = new DayStateDTO() { dayNum = dayNum};
+            dto = new DayStateDTO() { dayNum = dayNum };
             Save();
         }
         internal void Save()
         {
             var contents = JsonSerializer.Serialize(this.dto, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllLines(stateFile, new List<string>() { contents });
+            foreach (var test in dto.tests)
+            {
+                test.isDirtyInternal = false;
+                foreach (var result in test.result.Where(r => r != null))
+                    result.isDirty = false;
+            }
         }
         internal static DayState<T> GetState(int dayNum)
         {
@@ -56,16 +63,25 @@ namespace AoCBase2
         public IList<TestState> tests { get; set; } = new List<TestState>();
     }
 
-    public class TestState: TestStateDTO
+    public class TestState : TestStateDTO
     {
-        internal TestResultDTO selectedResult;
+        internal bool isDirtyInternal = false;
+        internal bool isDirty => isDirtyInternal || result.Any(r => r?.isDirty ?? false);
+        internal TestResult selectedResult;
     }
     public class TestStateDTO
     {
         public string name { get; set; } = string.Empty;
         public string testFile { get; set; } = string.Empty;
-        public TestResultDTO[] result { get; set; } = new TestResultDTO[2];
+        public TestResult[] result { get; set; } = new TestResult[2];
 
+    }
+
+    public class TestResult : TestResultDTO
+    {
+        internal bool isDirty = false;
+        internal bool run { get; set; } = true;
+        internal bool isDebug { get; set; } = false;
     }
 
     public class TestResultDTO
@@ -73,6 +89,5 @@ namespace AoCBase2
         public bool run { get; set; } = false;
         public string correct { get; set; } = null;
         public IList<string> incorrect { get; set; } = new List<string>();
-        public bool isDebug { get; set; } = false;
     }
-}
+        }
