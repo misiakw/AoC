@@ -51,18 +51,20 @@ namespace AoCBase2
             _selectedCell = 0;
             return this;
         }
-        public PrintTable Cell(string text, ConsoleColor color = ConsoleColor.White)
+        public PrintTable Cell(string text, ConsoleColor color = ConsoleColor.White) 
+            => Cell(text, _selectedCell++, color);
+        public PrintTable Cell(string text, int collumn, ConsoleColor color = ConsoleColor.White)
         {
-            _selectedRow[_selectedCell] = new CellClass()
+            _selectedRow[collumn] = new CellClass()
             {
                 value = text,
                 color = color
             };
-            if (_colls[_selectedCell].Length < text.Length)
-                _colls[_selectedCell].Length = text.Length;
-            _selectedCell++;
+            if (_colls[collumn].Length < text.Length)
+                _colls[collumn].Length = text.Length;
             return this;
         }
+
 
         internal class CellClass
         {

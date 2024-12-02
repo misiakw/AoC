@@ -50,7 +50,7 @@ namespace AoCBase2
                         || (part.HasValue && part.Value != t) //skipped pasrt as param
                         || (test.result[t] != null && !test.result[t].run)) //skipped test execution
                     {
-                        row.Cell("n/a").Cell("");
+                        row.Cell("").Cell("");
                         continue;
                     }
                     watch.Start();
