@@ -32,7 +32,6 @@ public class Day3:IDay
 
     public async Task<string> Part2(IAsyncEnumerable<string> input)
     {
-        //(mul\((\d*),(\d*)\))|(
         var regex = new Regex(@"(mul\((\d*).(\d*)\)|(do\(\))|(don't\(\)))");
 
         var sum = 0;
