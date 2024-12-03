@@ -1,0 +1,49 @@
+{
+  "dayNum": 3,
+  "tests": [
+    {
+      "name": "example",
+      "testFile": "Inputs/Day3/example.txt",
+      "result": [
+        {
+          "correct": "161",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": [
+            "161"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "example2",
+      "testFile": "Inputs/Day3/example2.txt",
+      "result": [
+        {
+          "correct": null,
+          "incorrect": []
+        },
+        {
+          "correct": "48",
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day3/output.txt",
+      "result": [
+        {
+          "correct": "174336360",
+          "incorrect": []
+        },
+        {
+          "correct": "88802350",
+          "incorrect": []
+        }
+      ]
+    }
+  ]
+}

@@ -66,7 +66,7 @@ namespace AoCBase2
 
                     if (test.result[t] == null)
                         test.result[t] = new TestResult();
-                    var correct = test.result[t].ProcessResult(output, $"{test.name} Part{(t + 1)}");
+                    var correct = test.result[t].ProcessResult(output, $"file '{test.name}' Part{(t + 1)}");
                     row.Cell(output, correct.HasValue ? correct.Value ? ConsoleColor.Green : ConsoleColor.Red : ConsoleColor.White)
                         .Cell(watch.ToString());
                     if (state.isDirty)

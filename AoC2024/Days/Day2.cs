@@ -27,7 +27,7 @@ namespace AoC2024.Days{
                 if(report[i-1].CompareTo(report[i]) != order || Math.Abs(report[i-1]-report[i]) > 3)
                     return false;
             }
-            return true;
+            return true; 
         }
 
         private int GetInvalidLevelCount(int[] report){
