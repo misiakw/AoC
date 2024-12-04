@@ -5,8 +5,14 @@
       "name": "clean",
       "testFile": "Inputs/Day4/clean.txt",
       "result": [
-        null,
-        null
+        {
+          "correct": "4",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
       ]
     },
     {
@@ -14,18 +20,27 @@
       "testFile": "Inputs/Day4/example.txt",
       "result": [
         {
-          "correct": null,
+          "correct": "18",
           "incorrect": []
         },
-        null
+        {
+          "correct": "9",
+          "incorrect": []
+        }
       ]
     },
     {
       "name": "input",
       "testFile": "Inputs/Day4/input.txt",
       "result": [
-        null,
-        null
+        {
+          "correct": "2358",
+          "incorrect": []
+        },
+        {
+          "correct": "1737",
+          "incorrect": []
+        }
       ]
     }
   ]

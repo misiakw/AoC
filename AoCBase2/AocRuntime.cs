@@ -27,27 +27,26 @@ namespace AoCBase2
         public static DayState<T> Day<T>(int dayNum) where T: new()
             => Day<T>(dayNum, (name, input) => new T());
 
-        public static void Run<T>(this DayState<T> state) => Run<T>(state, null, null);
-        public static void Run<T>(this DayState<T> state, byte part) => Run<T>(state, part, null);
-        public static void Run<T>(this DayState<T> state, string testName) => Run<T>(state, null, testName);
-        public static void Run<T>(this DayState<T> state, byte? part = null, string testName = null)
+        public static void Run<T>(this DayState<T> state)
         {
+            state.context = null;
             state.Save(); //persist config
-            var testsToRun = string.IsNullOrEmpty(testName)
-                ? state.dto.tests
-                : state.dto.tests.Where(t => t.name == testName);
 
             var watch = new Stopwatch();
             var tab = new PrintTable(new List<string>() { "name", "Part 1", "duration", "Part 2", "duration" });
 
-            foreach (var test in testsToRun.Where(t => t.run))
+            foreach (var test in state.Tests)
             {
+                var row = tab.Row(test.debug ? ConsoleColor.Magenta : ConsoleColor.White).Cell(test.name);
+                if (!test.run)
+                {
+                    row.Cell("").Cell("").Cell("").Cell("");
+                    continue;
+                }
                 T day = state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution());
-                var row = tab.Row().Cell(test.name);
                 for(int t=0; t< 2; t++)
                 {
-                    if ((state.callback[t] == null) //no callback
-                        || (part.HasValue && part.Value != t) //skipped pasrt as param
+                    if ((state.callback[t] == null || !state.callback[t].run) //skip callback
                         || (test.result[t] != null && !test.result[t].run)) //skipped test execution
                     {
                         row.Cell("").Cell("");
@@ -64,68 +63,97 @@ namespace AoCBase2
                     if (task.IsFaulted)
                         throw task.Exception;
 
-                    if (test.result[t] == null)
-                        test.result[t] = new TestResult();
-                    var correct = test.result[t].ProcessResult(output, $"file '{test.name}' Part{(t + 1)}");
-                    row.Cell(output, correct.HasValue ? correct.Value ? ConsoleColor.Green : ConsoleColor.Red : ConsoleColor.White)
+                    var testResult = test.result[t] != null
+                        ? test.result[t]
+                        : new TestResult() { test = test, isDirty = true };
+                    if (test.debug)
+                    {
+                        Console.WriteLine($"file '{test.name}' Part{(t + 1)} result: {output}");
+                        row.Cell(output).Cell(watch.ToString());
+                    }
+                    else
+                    {
+                        var correct = testResult.ProcessResult(output, $"file '{test.name}' Part{(t + 1)}");
+                        if (correct.HasValue && testResult.isDirty)
+                            test.result[t] = testResult;
+                        if (state.isDirty)
+                            state.Save();
+                        row.Cell(output, correct.HasValue ? correct.Value ? ConsoleColor.Green : ConsoleColor.Red : ConsoleColor.White)
                         .Cell(watch.ToString());
-                    if (state.isDirty)
-                        state.Save();
+                    }
                 }
-
             }
             tab.PrintConsole();
         }
 
-        public static DayState<T> Test<T>(this DayState<T> state, string name) =>
-            state.Test(name, $"Inputs/Day{state.dto.dayNum}/{name}.tx");
-        public static DayState<T> Test<T>(this DayState<T> state, string name, string filePath)
+        public static DayState<T> Test<T>(this DayState<T> state, string name, bool debug = false) =>
+            state.Test(name, $"Inputs/Day{state.dto.dayNum}/{name}.txt", debug);
+        public static DayState<T> Test<T>(this DayState<T> state, string name, string filePath, bool debug = false)
         {
             EnsureFileExist(filePath.PathToRelativeToSolution());
-            TestState selectedTest = state.dto.tests.FirstOrDefault(t => t.name == name);
+            TestState selectedTest = !debug            
+                ? state.dto.tests.FirstOrDefault(t => t.name == name)
+                : state.DebugTests.FirstOrDefault(t => t.name == name);
             if (selectedTest == null)
             {
                 selectedTest = new TestState()
                 {
                     name = name,
-                    testFile = filePath
+                    testFile = filePath,
+                    debug = debug
                 };
-                state.dto.tests.Add(selectedTest);
+                (debug? state.DebugTests: state.dto.tests).Add(selectedTest);
             }
-            if (state.selectedTest != null)
-                state.selectedTest.selectedResult = null;
-            state.selectedTest = selectedTest;
-            state.selectedTest.selectedResult = null;
+            else
+                selectedTest.debug = debug;
+            foreach(var result in selectedTest.result.Where(r => r != null))
+                result.test = selectedTest;
+            state.context = selectedTest;
             return state;
         }
         public static DayState<T> Part<T>(this DayState<T> state, byte part)
         {
             EnsureProperTaskPart(part);
-            if (state.selectedTest == null) throw new InvalidDataException("Test not selected");
-            if (state.selectedTest.result[part - 1] == null)
-                state.selectedTest.result[part - 1] = new TestResult();
-            state.selectedTest.selectedResult = state.selectedTest.result[part - 1];
+            var selectedTest = state.context as TestState;
+            if (selectedTest == null) throw new InvalidDataException("Test not selected");
+            state.context = selectedTest.result[part - 1];
             return state;
         }
         public static DayState<T> Correct<T>(this DayState<T> state, string result)
         {
-            if (state.selectedTest == null) throw new InvalidDataException("Test not selected");
-            if (state.selectedTest.selectedResult == null) throw new InvalidDataException("Result not selected");
-            if (state.selectedTest.selectedResult.correct != result)
+            var selectedResult = state.context as TestResult;
+            if(selectedResult == null) throw new InvalidDataException("Result not selected");
+            if (selectedResult.correct != result && result != null)
             {
-                state.selectedTest.selectedResult.correct = result;
-                state.selectedTest.selectedResult.incorrect.Clear();
+                selectedResult.correct = result;
+                selectedResult.incorrect.Clear();
             }
             return state;
         }
         public static DayState<T> Correct<T>(this DayState<T> state, long result) => state.Correct(result.ToString());
         public static DayState<T> Skip<T>(this DayState<T> state)
         {
-            if (state.selectedTest == null) throw new InvalidDataException("Test not selected");
-            if (state.selectedTest.selectedResult == null) 
-                state.selectedTest.run = false;
-            else
-                state.selectedTest.selectedResult.run = false;
+            if (state.context is TestResult result) result.run = false;
+            else if (state.context is TestState test) test.run = false;
+            else if(state.context is Callback<T> callback) callback.run = false;
+            else throw new InvalidDataException("Invalid Skip Context");
+            return state;
+        }
+        public static DayState<T> Drop<T>(this DayState<T> state)
+        {
+
+            if (state.context is TestResult result)
+            {
+                state.context = result.test;
+                for (var i = 0; i < 2; i++)
+                    if (result.test.result[i] == result) result.test.result[i] = null;
+            }
+            else if (state.context is TestState test)
+            {
+                state.context = null;
+                state.dto.tests.Remove(test);
+            }
+            else throw new InvalidDataException("Invalid Drop Context");
             return state;
         }
         public static DayState<T> Callback<T>(this DayState<T> state, byte part, Func<T, TestState, Task<string>> callback, bool needSetup = false)
@@ -136,6 +164,8 @@ namespace AoCBase2
                 callback = callback,
                 needSetup = needSetup
             };
+
+            state.context = state.callback[part - 1];
             return state;
         }
         public static DayState<T> Callback<T>(this DayState<T> state, byte part, Func<T, TestState, string> callback, bool needSetup = false)
@@ -153,7 +183,7 @@ namespace AoCBase2
 
         private static bool? ProcessResult(this TestResult dto, string result, string label)
         {
-            if (dto == null)
+            if (dto == null || result == null)
                 return null;
             if (dto?.correct != null)
                 return dto.correct == result;

@@ -8,18 +8,23 @@ namespace AoCBase2
 {
     internal class Callback<T>
     {
-
         internal Func<T, TestState, Task<string>> callback;
         internal bool needSetup = false;
+        internal bool run = true;
     }
     public class DayState<T>
     {
         internal bool isDirty => dto.tests.Any(t => t.isDirty);
-        internal TestState selectedTest;
         internal string stateFile;
         internal DayStateDTO dto;
         internal Callback<T>[] callback = new Callback<T>[2];
         internal Func<string, string, T> setupFunc = null;
+        internal object context = null;
+        public IList<TestState> DebugTests { get; set; } = new List<TestState>();
+        public IEnumerable<TestState> Tests
+        {
+            get =>  DebugTests.Concat(dto.tests);
+        }
 
         internal DayState() { }
         internal DayState(string path, int dayNum)
@@ -65,23 +70,22 @@ namespace AoCBase2
 
     public class TestState : TestStateDTO
     {
-        internal bool run { get; set; } = true;
+        internal bool debug = false;
+        internal bool run = true;
         internal bool isDirtyInternal = false;
         internal bool isDirty => isDirtyInternal || result.Any(r => r?.isDirty ?? false);
-        internal TestResult selectedResult;
     }
     public class TestStateDTO
     {
         public string name { get; set; } = string.Empty;
         public string testFile { get; set; } = string.Empty;
         public TestResult[] result { get; set; } = new TestResult[2];
-
     }
-
     public class TestResult : TestResultDTO
     {
         internal bool isDirty = false;
         internal bool run { get; set; } = true;
+        internal TestState test {  get; set; }
     }
 
     public class TestResultDTO
