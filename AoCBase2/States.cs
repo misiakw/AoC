@@ -84,7 +84,8 @@ namespace AoCBase2
     public class TestResult : TestResultDTO
     {
         internal bool isDirty = false;
-        internal bool run { get; set; } = true;
+        internal int repeats = 1;
+        internal bool run = true;
         internal TestState test {  get; set; }
     }
 

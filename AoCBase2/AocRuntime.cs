@@ -52,16 +52,26 @@ namespace AoCBase2
                         row.Cell("").Cell("");
                         continue;
                     }
-                    watch.Start();
-                    var task = state.callback[t].needSetup
-                        ? state.callback[t].callback.Invoke(state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution()), test)
-                        : state.callback[t].callback.Invoke(day, test);
-                    task.Wait();
-                    var output = task.Result;
-                    watch.Stop();
 
-                    if (task.IsFaulted)
-                        throw task.Exception;
+                    string output = string.Empty;
+                    long[] timings = new long[test.result[t].repeats];
+
+                    for (var i = 0; i < test.result[t].repeats; i++)
+                    {
+                        watch.Start();
+                        var task = state.callback[t].needSetup
+                            ? state.callback[t].callback.Invoke(state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution()), test)
+                            : state.callback[t].callback.Invoke(day, test);
+                        task.Wait();
+                        output = task.Result;
+                        watch.Stop();
+                        timings[i] = watch.ElapsedTicks;
+
+                        if (task.IsFaulted)
+                            throw task.Exception;
+                    }
+
+                    var timespan = new TimeSpan(timings.Sum()/timings.Length);
 
                     var testResult = test.result[t] != null
                         ? test.result[t]
@@ -69,7 +79,7 @@ namespace AoCBase2
                     if (test.debug)
                     {
                         Console.WriteLine($"file '{test.name}' Part{(t + 1)} result: {output}");
-                        row.Cell(output).Cell(watch.ToString());
+                        row.Cell(output).Cell(timespan.ToString());
                     }
                     else
                     {
@@ -79,7 +89,7 @@ namespace AoCBase2
                         if (state.isDirty)
                             state.Save();
                         row.Cell(output, correct.HasValue ? correct.Value ? ConsoleColor.Green : ConsoleColor.Red : ConsoleColor.White)
-                        .Cell(watch.ToString());
+                        .Cell(timings.Length > 1 ? $"avg {watch}": watch.ToString());
                     }
                 }
             }
@@ -137,6 +147,12 @@ namespace AoCBase2
             else if (state.context is TestState test) test.run = false;
             else if(state.context is Callback<T> callback) callback.run = false;
             else throw new InvalidDataException("Invalid Skip Context");
+            return state;
+        }
+        public static DayState<T> Performance<T>(this DayState<T> state, int repeats = 5)
+        {
+            if (state.context is TestResult result) result.repeats = repeats;
+            else throw new InvalidDataException("Invalid Performance Context");
             return state;
         }
         public static DayState<T> Drop<T>(this DayState<T> state)

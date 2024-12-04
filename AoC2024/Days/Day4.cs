@@ -14,6 +14,7 @@ public class Day4: IDay
             .Part(2).Skip()
         .Test("example")
         .Test("input")
+            .Part(1).Performance(10)
             //.Part(1).Correct(2358)
             //.Part(2).Correct(1737)
         .Run();
