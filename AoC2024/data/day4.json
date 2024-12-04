@@ -1,0 +1,32 @@
+{
+  "dayNum": 4,
+  "tests": [
+    {
+      "name": "clean",
+      "testFile": "Inputs/Day4/clean.txt",
+      "result": [
+        null,
+        null
+      ]
+    },
+    {
+      "name": "example",
+      "testFile": "Inputs/Day4/example.txt",
+      "result": [
+        {
+          "correct": null,
+          "incorrect": []
+        },
+        null
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day4/input.txt",
+      "result": [
+        null,
+        null
+      ]
+    }
+  ]
+}

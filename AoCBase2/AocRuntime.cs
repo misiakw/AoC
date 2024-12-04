@@ -77,6 +77,8 @@ namespace AoCBase2
             tab.PrintConsole();
         }
 
+        public static DayState<T> Test<T>(this DayState<T> state, string name) =>
+            state.Test(name, $"Inputs/Day{state.dto.dayNum}/{name}.tx");
         public static DayState<T> Test<T>(this DayState<T> state, string name, string filePath)
         {
             EnsureFileExist(filePath.PathToRelativeToSolution());
@@ -151,9 +153,11 @@ namespace AoCBase2
 
         private static bool? ProcessResult(this TestResult dto, string result, string label)
         {
+            if (dto == null)
+                return null;
             if (dto?.correct != null)
                 return dto.correct == result;
-            if (dto.incorrect.Contains(result.ToString()))
+            if (dto.incorrect != null && dto.incorrect.Contains(result.ToString()))
                 return false;
 
             Console.WriteLine($"{label} result: {result}");
