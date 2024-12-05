@@ -54,9 +54,9 @@ namespace AoCBase2
                     }
 
                     string output = string.Empty;
-                    long[] timings = new long[test.result[t].repeats];
+                    long[] timings = new long[test.result[t]?.repeats ?? 1];
 
-                    for (var i = 0; i < test.result[t].repeats; i++)
+                    for (var i = 0; i < timings.Length; i++)
                     {
                         watch.Start();
                         var task = state.callback[t].needSetup

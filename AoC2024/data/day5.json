@@ -1,0 +1,33 @@
+{
+  "dayNum": 5,
+  "tests": [
+    {
+      "name": "example",
+      "testFile": "Inputs/Day5/example.txt",
+      "result": [
+        {
+          "correct": "143",
+          "incorrect": []
+        },
+        {
+          "correct": "123",
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day5/input.txt",
+      "result": [
+        {
+          "correct": "7307",
+          "incorrect": []
+        },
+        {
+          "correct": "4713",
+          "incorrect": []
+        }
+      ]
+    }
+  ]
+}
