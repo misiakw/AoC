@@ -10,7 +10,7 @@ namespace AoC2024.Days
         {
             Empty = 0,
             Box = 1 << 0,
-            //LoopPoint = 1 << 1,
+            //PreBump = 1 << 1,
             Up = 1 <<2,
             Right = 1 << 3,
             Down = 1 << 4,
@@ -37,8 +37,8 @@ namespace AoC2024.Days
         .Callback(2, (d, t) => d.Part2()).Skip()
         .Test("example")
         .Test("input")
-            //.Part(1).Correct(4752)
-            //.Part(2).Correct(88802350)
+        //.Part(1).Correct(4752)
+        //.Part(2).Correct(88802350)
         .Run();
 
         private readonly StaticMap<Cell> map;
@@ -64,10 +64,36 @@ namespace AoC2024.Days
         }
 
         public string Part1()
+            => ProceedToOutput(guardPos, Field.Up)
+                .DistinctBy(x => $"{x.Item1}|{x.Item2}")
+                .Count().ToString();
+
+        public string Part2()
         {
-            var nx = guardPos.Item1;
-            var ny = guardPos.Item2;
-            do {
+            
+            Console.WriteLine(map.Draw(c => c.Field switch
+            {
+                Field.Box => "#",
+                Field.Empty => " ",
+                Field.Up => "|",
+                Field.Down => "|",
+                Field.Left => "-",
+                Field.Right => "-",
+                _ => "+"
+            }));
+            return null;
+        }
+
+        private IList<(long, long, Field)> ProceedToOutput((long, long) startingPoint, Field direction)
+        {
+            var steps = new List<(long, long, Field)>();
+
+            var myPos = (startingPoint.Item1, startingPoint.Item2);
+
+            var nx = startingPoint.Item1;
+            var ny = startingPoint.Item2;
+            do
+            {
                 if (map[nx, ny].Field.HasFlag(Field.Box))
                 {
                     nx -= movementDir.Item1;
@@ -81,27 +107,24 @@ namespace AoC2024.Days
                         _ => DIR.UP
                     };
                 }
-                map[nx, ny].Field |= FromMovement(movementDir);
+                var moveFlag = FromMovement(movementDir);
+                map[nx, ny].Field |= moveFlag;
+                steps.Add((myPos.Item1, myPos.Item2, moveFlag));
 
-                guardPos = (nx, ny);
-                nx = guardPos.Item1 + movementDir.Item1;
-                ny = guardPos.Item2 + movementDir.Item2;
-            } while (nx >= 0 && nx < map.Width
-                && ny >= 0 && ny < map.Height);
+                myPos = (nx, ny);
+                nx = myPos.Item1 + movementDir.Item1;
+                ny = myPos.Item2 + movementDir.Item2;
+                if(steps.Any(s => s.Item1 == nx && s.Item2 == ny && s.Item3 == moveFlag))
+                {
+                    Console.WriteLine("loop");
+                    return null;
+                }
+            } while (nx >= 0 && nx < map.Width && ny >= 0 && ny < map.Height);
 
-            return map.Count(c => c.Field >= Field.Up).ToString();
+            steps.Add((myPos.Item1, myPos.Item2, FromMovement(movementDir)));
+            return steps;
         }
 
-        public string Part2()
-        {
-            Console.WriteLine(map.Draw(c => c.Field switch
-            {
-                Field.Box => "#",
-                Field.Empty => " ",
-                _ => "+"
-            }));
-            return null;
-        }
 
         private Field FromMovement((short, short) movement) => movement switch
         {
@@ -110,5 +133,15 @@ namespace AoC2024.Days
             (0, 1) => Field.Down,
             (-1, 0) => Field.Left
         };
+
+        private bool NotTouchingBox(long x, long y)
+        {
+            if (x - 1 >= 0 && map[x - 1, y].Field.HasFlag(Field.Box)) return false;
+            if (y - 1 >= 0 && map[x, y - 1].Field.HasFlag(Field.Box)) return false;
+            if (x + 1 < map.Width && map[x + 1, y].Field.HasFlag(Field.Box)) return false;
+            if (y + 1 < map.Height && map[x, y + 1].Field.HasFlag(Field.Box)) return false;
+
+            return true;
+        }
     }
 }
