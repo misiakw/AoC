@@ -1,4 +1,6 @@
-﻿namespace AoC.Common.Maps
+﻿using AoC.Common.Maps.StaticMap;
+
+namespace AoC.Common.Maps
 {
     public static class MapBuilder<T>
     {

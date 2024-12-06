@@ -5,7 +5,7 @@ namespace AoC2024.Days;
 
 public class Day5 :IDay
 {
-    public static void RunAoC()=> AocRuntime.Day<Day5>(5, (n, f) => new Day5(f))
+    public static void RunAoC() => AocRuntime.Day<Day5>(5, (n, f) => new Day5(f))
         .Callback(1, (d, t) => d.Part1())
         .Callback(2, (d, t) => d.Part2())
         .Test("example")

@@ -6,14 +6,19 @@ using System.Text;
 
 namespace AoC.Common
 {
-    public interface IMap<T>
+    public interface IMap
     {
-        T? this[long x, long y] { get; set; }
+        object? this[long x, long y] { get; set; }
         long Width { get; }
         long Height { get; }
         Range rangeX { get; }
         Range rangeY { get; }
+    }
+    public interface IMap<T>: IMap
+    {
+        T? this[long x, long y] { get; set; }
         string Draw(Func<T?, string> drawing, string split = "");
+        //IEnumerable<T> Where(Func<T, bool>selector);
         //IEnumerable<T> Where(Func<T, bool>selector);
     }
     public class Map<T>: InifiniteMap<T>, IMap<T>{

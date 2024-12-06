@@ -4,4 +4,5 @@
 //Day2.RunAoC();
 //Day3.RunAoC();
 //Day4.RunAoC();
-Day5.RunAoC();
+//Day5.RunAoC();
+Day6.RunAoC();

@@ -42,9 +42,16 @@ namespace AoC.Common.Maps
                         yield return this[x, y];
         }
 
+        public string Draw(Func<T?, string> drawing, string split = "")
+        {
+            throw new NotImplementedException();
+        }
+
         public Range rangeX => new Range(_minX, _maxX);
 
         public Range rangeY => new Range(_minY, _maxY);
+
+        object? IMap.this[long x, long y] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public class MapItem<K>
         {
