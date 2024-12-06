@@ -34,9 +34,9 @@ namespace AoC2024.Days
 
         public static void RunAoC() => AocRuntime.Day<Day6>(6, (n, f) => new Day6(f))
         .Callback(1, (d, t) => d.Part1())
-        .Callback(2, (d, t) => d.Part2()).Skip()
+        .Callback(2, (d, t) => d.Part2())
         .Test("example")
-        .Test("input")
+        .Test("input").Skip()
         //.Part(1).Correct(4752)
         //.Part(2).Correct(88802350)
         .Run();
@@ -63,24 +63,34 @@ namespace AoC2024.Days
                         map[x,y] = new Cell(Field.Empty);
         }
 
+        private IList<(long, long, Field)> part1Steps;
         public string Part1()
-            => ProceedToOutput(guardPos, Field.Up)
-                .DistinctBy(x => $"{x.Item1}|{x.Item2}")
+        {
+            part1Steps = ProceedToOutput(guardPos, Field.Up);
+            return part1Steps.DistinctBy(x => $"{x.Item1}|{x.Item2}")
                 .Count().ToString();
+        }
 
         public string Part2()
         {
-            
-            Console.WriteLine(map.Draw(c => c.Field switch
+            foreach (var step in part1Steps)
             {
-                Field.Box => "#",
-                Field.Empty => " ",
-                Field.Up => "|",
-                Field.Down => "|",
-                Field.Left => "-",
-                Field.Right => "-",
-                _ => "+"
-            }));
+                var next = (step.Item1, step.Item2, step.Item3 switch
+                {
+                    Field.Up => Field.Right,
+                    Field.Right => Field.Down,
+                    Field.Down => Field.Left,
+                    Field.Left => Field.Up
+                });
+                Console.WriteLine(step.ToString()+" "+ next+" "+ProceedToOutput((next.Item1, next.Item2), next.Item3).Count);
+                /*Console.WriteLine(ProceedToOutput((step.Item1, step.Item2), step.Item3 switch
+                {
+                    Field.Up => Field.Right,
+                    Field.Right => Field.Down,
+                    Field.Down => Field.Left,
+                    Field.Left => Field.Up
+                }).Count());*/
+            }
             return null;
         }
 
@@ -90,8 +100,8 @@ namespace AoC2024.Days
 
             var myPos = (startingPoint.Item1, startingPoint.Item2);
 
-            var nx = startingPoint.Item1;
-            var ny = startingPoint.Item2;
+            var nx = myPos.Item1;
+            var ny = myPos.Item2;
             do
             {
                 if (map[nx, ny].Field.HasFlag(Field.Box))
@@ -108,7 +118,7 @@ namespace AoC2024.Days
                     };
                 }
                 var moveFlag = FromMovement(movementDir);
-                map[nx, ny].Field |= moveFlag;
+                //map[nx, ny].Field |= moveFlag;
                 steps.Add((myPos.Item1, myPos.Item2, moveFlag));
 
                 myPos = (nx, ny);
@@ -133,15 +143,5 @@ namespace AoC2024.Days
             (0, 1) => Field.Down,
             (-1, 0) => Field.Left
         };
-
-        private bool NotTouchingBox(long x, long y)
-        {
-            if (x - 1 >= 0 && map[x - 1, y].Field.HasFlag(Field.Box)) return false;
-            if (y - 1 >= 0 && map[x, y - 1].Field.HasFlag(Field.Box)) return false;
-            if (x + 1 < map.Width && map[x + 1, y].Field.HasFlag(Field.Box)) return false;
-            if (y + 1 < map.Height && map[x, y + 1].Field.HasFlag(Field.Box)) return false;
-
-            return true;
-        }
     }
 }
