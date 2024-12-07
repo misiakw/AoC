@@ -9,7 +9,6 @@ public class Day5 :IDay
         .Callback(1, (d, t) => d.Part1())
         .Callback(2, (d, t) => d.Part2())
         .Test("example")
-        //.Part(1).Skip()
         .Test("input")
 //               .Part(1).Correct(7307)
 //               .Part(2).Correct(88802350)
