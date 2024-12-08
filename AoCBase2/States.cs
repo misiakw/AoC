@@ -18,7 +18,8 @@ namespace AoCBase2
         internal string stateFile;
         internal DayStateDTO dto;
         internal Callback<T>[] callback = new Callback<T>[2];
-        internal Func<string, string, T> setupFunc = null;
+        //internal Func<string, string, T> setupFunc = null;
+        internal Func<TestState, T> setupFunc = null;
         internal object context = null;
         public IList<TestState> DebugTests { get; set; } = new List<TestState>();
         public IEnumerable<TestState> Tests

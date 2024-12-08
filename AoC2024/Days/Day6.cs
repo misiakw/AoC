@@ -32,7 +32,7 @@ namespace AoC2024.Days
             public Field Field;
         }
 
-        public static void RunAoC() => AocRuntime.Day<Day6>(6, (n, f) => new Day6(f))
+        public static void RunAoC() => AocRuntime.Day<Day6>(6, t => new Day6(t.GetLines().ToArray()))
         .Callback(1, (d, t) => d.Part1())
         .Callback(2, (d, t) => d.Part2())
         .Test("example")
@@ -45,9 +45,9 @@ namespace AoC2024.Days
         private (int, int) guardPos;
         private (short, short) movementDir = DIR.UP;
 
-        public Day6(string filePath)
+        public Day6(string[] lines)
         {
-            var lines = File.ReadAllLines(filePath);
+            //var lines = File.ReadAllLines(filePath);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
             map = new StaticMap<Cell>(lines[0].Length, lines.Length);
 
             for(var y=0; y<lines.Length; y++)

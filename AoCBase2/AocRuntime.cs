@@ -9,7 +9,7 @@ namespace AoCBase2
 {
     public static class AocRuntime
     {
-        public static DayState<T> Day<T>(int dayNum, Func<string, string, T> setupFunc)
+        public static DayState<T> Day<T>(int dayNum, Func<TestState, T> setupFunc)
         {
             var filename = Path.Combine("data", $"day{dayNum}.json").PathToRelativeToSolution();
 
@@ -21,9 +21,13 @@ namespace AoCBase2
                 EnsureFileExist(filename);
                 result = new DayState<T>(filename, dayNum);
             }
+
             result.setupFunc = setupFunc;
             return result;
         }
+
+        public static DayState<T> Day<T>(int dayNum, Func<string, string, T> setupFunc)
+            => Day<T>(dayNum, t => setupFunc(t.name, t.testFile.PathToRelativeToSolution()));
         public static DayState<T> Day<T>(int dayNum) where T: new()
             => Day<T>(dayNum, (name, input) => new T());
 
@@ -43,7 +47,7 @@ namespace AoCBase2
                     row.Cell("").Cell("").Cell("").Cell("");
                     continue;
                 }
-                T day = state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution());
+                T day = state.setupFunc.Invoke(test);
                 for(int t=0; t< 2; t++)
                 {
                     if ((state.callback[t] == null || !state.callback[t].run) //skip callback
@@ -60,7 +64,7 @@ namespace AoCBase2
                     {
                         watch.Start();
                         var task = state.callback[t].needSetup
-                            ? state.callback[t].callback.Invoke(state.setupFunc.Invoke(test.name, test.testFile.PathToRelativeToSolution()), test)
+                            ? state.callback[t].callback.Invoke(state.setupFunc.Invoke(test), test)
                             : state.callback[t].callback.Invoke(day, test);
                         task.Wait();
                         output = task.Result;
