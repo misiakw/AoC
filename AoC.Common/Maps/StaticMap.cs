@@ -67,7 +67,7 @@ namespace AoC.Common.Maps.StaticMap
     public class StaticMapEnumerator : IEnumerator
     {
         protected StaticMap _map;
-        private (long, long) pos = (0, 0);
+        private (long, long) pos = (-1, 0);
         internal StaticMapEnumerator(StaticMap map)
         {
             _map = map;
