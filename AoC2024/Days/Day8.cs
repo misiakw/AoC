@@ -1,5 +1,3 @@
-using System.Linq;
-using AoC.Common;
 using AoC.Common.Maps.StaticMap;
 using AoCBase2;
 
@@ -8,13 +6,12 @@ namespace AoC2024.Days;
 public class Day8 : IDay
 {
     public static void RunAoC() => AocRuntime.Day<Day8>(8, t => new Day8(t.GetLines().ToArray()))
-        .Callback(1, (d, t) => d.Part1()).Skip()
+        .Callback(1, (d, t) => d.Part1())
         .Callback(2, (d, t) => d.Part2())
-        .Test("debug", true).Skip()
         .Test("example")
-        .Test("input") //.Skip()
+        .Test("input")
         //.Part(1).Correct(249)
-        //.Part(2).Correct(169122112716571)
+        //.Part(2).Correct(905)
         .Run();
 
     private class Cell
@@ -66,7 +63,6 @@ public class Day8 : IDay
                         map[ant.x, ant.y].isAntinode = true;
             }
         }
-
         return map.Count(c => c.isAntinode).ToString();
     }
 
@@ -78,20 +74,10 @@ public class Day8 : IDay
             for (var i = 1; i < positions.Length; i++)
             {
                 var antinodes = GetAntinodes2(positions[i - 1], positions.Skip(i).ToArray());
-
-                try
-                {
-                    foreach (var ant in antinodes)
-                        map[ant.x, ant.y].isAntinode = true;
-                }
-                catch (Exception e)
-                {
-                    var a = 5;
-                }
+                foreach (var ant in antinodes)
+                    map[ant.x, ant.y].isAntinode = true;
             }
         }
-
-        Console.WriteLine(map.Draw(c => c.isAntinode ? "#" : $"{c.Freq}"));
         return map.Count(c => c.isAntinode).ToString();
     }
 
@@ -118,9 +104,6 @@ public class Day8 : IDay
         foreach (var cell in ends)
         {
             var step = GetStep(start, cell);
-
-            Console.WriteLine(step);
-
             if (step.x < 0) //revert negative step
                 step = (step.x * -1, step.y * -1);
 
@@ -128,7 +111,7 @@ public class Day8 : IDay
             var cy = start.pos.y;
             for (var x = start.pos.x; (x < map.Width && x >= 0); x += step.x)
             {
-                if (cy >= 0 && cy <= map.Height)
+                if (cy >= 0 && cy < map.Height)
                     yield return (x, cy);
                 cy += step.y;
             }
@@ -159,27 +142,6 @@ public class Day8 : IDay
 
         var nwd = NWD(ix, iy);
         return(ix/nwd, iy/nwd);
-        //todo: tu wpada niepotrzebne zaokraglenie :!
-        //NWD jako posrednia
-        /*for (var x = 1; x <= ix; x++)
-        {
-            var y = iy / (ix / (double)x);
-            if (y == (int)y)
-                return (x, (int)y);
-        }
-
-        return ((int)ix, (int)iy);
-
-
-        /*double sy = (double)iy / ix;
-        iy = sy;
-        ix = 1;
-        while (iy != (int)iy)
-        {
-            ix += 1;
-            iy += sy; //todo: tu wpada niepotrzebne zaomroglenie :!
-        }
-        return ((int)ix, (int)iy);*/
     }
 
     private int NWD(int a, int b)
