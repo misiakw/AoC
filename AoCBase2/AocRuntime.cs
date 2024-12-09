@@ -145,6 +145,17 @@ namespace AoCBase2
             return state;
         }
         public static DayState<T> Correct<T>(this DayState<T> state, long result) => state.Correct(result.ToString());
+        public static DayState<T> Skip<T>(this DayState<T> state, byte part)
+        {
+            EnsureProperTaskPart(part);
+            var selectedTest = state.context as TestState;
+            if (state.context is TestResult result) selectedTest = result.test;
+
+            if (selectedTest?.result[part-1] != null) selectedTest.result[part-1].run = false;
+            else throw new InvalidDataException("Invalid Skip Context");
+
+            return state;
+        }
         public static DayState<T> Skip<T>(this DayState<T> state)
         {
             if (state.context is TestResult result) result.run = false;

@@ -6,11 +6,11 @@ public class Day9: IDay
 {
     public static void RunAoC() => AocRuntime.Day<Day9>(9, t => new Day9(t.GetLines().First()))
         .Callback(1, (d, t) => d.Part1())
-        //.Callback(2, (d, t) => d.Part2())
+        .Callback(2, (d, t) => d.Part2())
         .Test("example")
         .Test("input")
         //.Part(1).Correct(6432869891895)
-        //.Part(2).Correct()
+        //.Part(2).Correct(6467290479134)
         .Run();
 
     private long[] disk;
@@ -25,10 +25,20 @@ public class Day9: IDay
         memory = moveBlocks(memory);
 
         var sum = 0l;
-        for(var i=0; memory[i].HasValue; i++)
-            sum += i*(memory[i] ?? 0);
-        
-        //Console.WriteLine(string.Join("", memory.Select(s => s.HasValue ? (char)(s + '0') : '.')));
+        for (var i = 0; memory[i].HasValue; i++)
+            sum += i * (memory[i] ?? 0);
+
+        return sum.ToString();
+    }
+
+    public string Part2()
+    {
+        var memory = moveFiles(GetMemoryStruct(disk).ToArray());
+
+        var sum = 0l;
+        for (var i = 0; i<memory.Length; i++)
+            sum += i * (memory[i] ?? 0);
+
         return sum.ToString();
     }
 
@@ -56,6 +66,49 @@ public class Day9: IDay
             while(memory[++emptyCursor].HasValue) ;
         }
 
+        return memory;
+    }
+
+    private long?[] moveFiles(long?[] memory)
+    {
+        int lastFilePos = memory.Length - 1;
+        int lastFileLen = 1;
+        long lastFileNum = memory.Last().Value;
+        while (lastFilePos > 0)
+        {
+            while (memory[lastFilePos - 1] == lastFileNum)
+            {
+                lastFilePos--;
+                lastFileLen++;
+                if(lastFilePos == 0)
+                    return memory;
+            }
+            for (var gapStart = 0; gapStart < lastFilePos; gapStart++)
+            {
+                if (memory[gapStart].HasValue) continue;
+                var gapSize = 0;
+                for (; !memory[gapStart + gapSize].HasValue; gapSize++) ;
+
+                if (gapSize >= lastFileLen)
+                {
+                    //move file to space
+                    for (var i = 0; i < lastFileLen; i++)
+                    {
+                        memory[gapStart + i] = memory[lastFilePos + i];
+                        memory[lastFilePos + i] = null;
+                    }
+                    break;
+                }
+                gapStart += gapSize;
+            }
+            lastFilePos--;
+            //skip empty
+            var empty = 0;
+            while (!memory[lastFilePos - empty].HasValue) empty++;
+            lastFilePos -= empty;
+            lastFileNum = memory[lastFilePos].Value;
+            lastFileLen = 1;
+        }
         return memory;
     }
 }
