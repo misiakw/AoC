@@ -152,7 +152,9 @@ namespace AoCBase2
             if (state.context is TestResult result) selectedTest = result.test;
 
             if (selectedTest?.result[part-1] != null) selectedTest.result[part-1].run = false;
-            else throw new InvalidDataException("Invalid Skip Context");
+            else if (selectedTest != null)
+                selectedTest.result[part - 1] = new TestResult() { isDirty = false, run = false };
+                else throw new InvalidDataException("Invalid Skip Context");
 
             return state;
         }

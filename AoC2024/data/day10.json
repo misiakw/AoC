@@ -1,0 +1,47 @@
+{
+  "dayNum": 10,
+  "tests": [
+    {
+      "name": "example",
+      "testFile": "Inputs/Day10/example.txt",
+      "result": [
+        {
+          "correct": "1",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "largeexample",
+      "testFile": "Inputs/Day10/largeexample.txt",
+      "result": [
+        {
+          "correct": "36",
+          "incorrect": []
+        },
+        {
+          "correct": "81",
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day10/input.txt",
+      "result": [
+        {
+          "correct": "760",
+          "incorrect": []
+        },
+        {
+          "correct": "1764",
+          "incorrect": []
+        }
+      ]
+    }
+  ]
+}
