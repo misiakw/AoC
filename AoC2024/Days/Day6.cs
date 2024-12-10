@@ -5,7 +5,6 @@ namespace AoC2024.Days
 {
     internal class Day6 : IDay
     {
-        [Flags]
         private enum Field
         {
             Empty = 0,
@@ -16,132 +15,123 @@ namespace AoC2024.Days
             Down = 1 << 4,
             Left = 1 << 5,
         }
-        private static class DIR
-        {
-            public static readonly (short, short) UP = (0, -1);
-            public static readonly (short, short) DOWN = (0, 1);
-            public static readonly (short, short) RIGHT = (1, 0);
-            public static readonly (short, short) LEFT = (-1, 0);
-        }
-        private class Cell
+        /*private class Cell
         {
             public Cell(Field field)
             {
                 Field = field;
             }
-            public Field Field;
-        }
+            //public Field Field;
+        }*/
 
         public static void RunAoC() => AocRuntime.Day<Day6>(6, t => new Day6(t.GetLines().ToArray()))
-        .Callback(1, (d, t) => d.Part1())
+        .Callback(1, (d, t) => d.Part1()).Skip()
         .Callback(2, (d, t) => d.Part2())
         .Test("example")
-        .Test("input").Skip()
+        .Test("input")
         //.Part(1).Correct(4752)
-        //.Part(2).Correct(88802350)
+        //.Part(2).Correct()
         .Run();
 
-        private readonly StaticMap<Cell> map;
-        private (int, int) guardPos;
-        private (short, short) movementDir = DIR.UP;
+        private readonly StaticMap<Field> map;
+        private (int x, int y) guardPos;
+        private IList<(long x, long y, Field dir)> part1Steps;
 
         public Day6(string[] lines)
-        {
-            //var lines = File.ReadAllLines(filePath);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
-            map = new StaticMap<Cell>(lines[0].Length, lines.Length);
+        {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+            map = new StaticMap<Field>(lines[0].Length, lines.Length);
 
             for(var y=0; y<lines.Length; y++)
                 for(var x=0; x < lines[y].Length; x++)
                     if(lines[y][x] == '^')
                     {
                         guardPos = (x, y);
-                        map[x, y] = new Cell(Field.Up);
+                        map[x, y] =Field.Empty;
                     }
                     else if(lines[y][x] == '#')
-                        map[x, y] = new Cell(Field.Box);
+                        map[x, y] = Field.Box;
                     else
-                        map[x,y] = new Cell(Field.Empty);
+                        map[x,y] = Field.Empty;
         }
 
-        private IList<(long, long, Field)> part1Steps;
+
         public string Part1()
         {
-            part1Steps = ProceedToOutput(guardPos, Field.Up);
-            return part1Steps.DistinctBy(x => $"{x.Item1}|{x.Item2}")
+            part1Steps = ProceedToOutput(guardPos, (0, -1));
+            return part1Steps.DistinctBy(step => $"{step.x}|{step.y}")
                 .Count().ToString();
         }
 
         public string Part2()
         {
-            foreach (var step in part1Steps)
+            if (part1Steps == null)
+                Part1();
+            var steps = part1Steps.ToArray();
+            var position = 0;
+            for (var i=0; i<steps.Length-1; i++)
             {
-                var next = (step.Item1, step.Item2, step.Item3 switch
+                if(steps[i+1].dir == steps[i].dir)
                 {
-                    Field.Up => Field.Right,
-                    Field.Right => Field.Down,
-                    Field.Down => Field.Left,
-                    Field.Left => Field.Up
-                });
-                Console.WriteLine(step.ToString()+" "+ next+" "+ProceedToOutput((next.Item1, next.Item2), next.Item3).Count);
-                /*Console.WriteLine(ProceedToOutput((step.Item1, step.Item2), step.Item3 switch
-                {
-                    Field.Up => Field.Right,
-                    Field.Right => Field.Down,
-                    Field.Down => Field.Left,
-                    Field.Left => Field.Up
-                }).Count());*/
+
+                    var moved = ProceedToOutput((steps[i].x, steps[i].y), steps[i].dir switch { 
+                        Field.Up => (1, 0), //right
+                        Field.Right => (0, 1), //down
+                        Field.Down => (-1, 0), //left
+                        Field.Left => (0, -1) //up
+                        }, (steps[i+1].x, steps[i+1].y));
+                    if(moved == null)
+                    {
+                        position++;
+                    }
+                } //can place rock
             }
-            return null;
+            return position.ToString();
         }
 
-        private IList<(long, long, Field)> ProceedToOutput((long, long) startingPoint, Field direction)
+        private IList<(long x, long y, Field dir)> ProceedToOutput((long x, long y) startingPoint, (short moveX, short moveY) movementDir, (long x, long y)? rockPosition = null)
         {
             var steps = new List<(long, long, Field)>();
-
-            var myPos = (startingPoint.Item1, startingPoint.Item2);
-
-            var nx = myPos.Item1;
-            var ny = myPos.Item2;
+            var direction = FromMovement(movementDir);
+            var nx = startingPoint.x;
+            var ny = startingPoint.y;
             do
             {
-                if (map[nx, ny].Field.HasFlag(Field.Box))
-                {
-                    nx -= movementDir.Item1;
-                    ny -= movementDir.Item2;
-                    movementDir = movementDir switch
-                    {
-                        (0, -1) => DIR.RIGHT,
-                        (1, 0) => DIR.DOWN,
-                        (0, 1) => DIR.LEFT,
-                        (-1, 0) => DIR.UP,
-                        _ => DIR.UP
-                    };
-                }
-                var moveFlag = FromMovement(movementDir);
-                //map[nx, ny].Field |= moveFlag;
-                steps.Add((myPos.Item1, myPos.Item2, moveFlag));
-
-                myPos = (nx, ny);
-                nx = myPos.Item1 + movementDir.Item1;
-                ny = myPos.Item2 + movementDir.Item2;
-                if(steps.Any(s => s.Item1 == nx && s.Item2 == ny && s.Item3 == moveFlag))
-                {
-                    Console.WriteLine("loop");
+                if (steps.Any(s => s.Item1 == nx && s.Item2 == ny && s.Item3 == direction)) //loop exist if next step was already done earlier
                     return null;
-                }
-            } while (nx >= 0 && nx < map.Width && ny >= 0 && ny < map.Height);
 
-            steps.Add((myPos.Item1, myPos.Item2, FromMovement(movementDir)));
+                if (map[nx, ny] == Field.Box || (rockPosition.HasValue && nx == rockPosition?.x && rockPosition?.y == ny)) //if hit box, revert and rotate
+                {
+                    nx -= movementDir.moveX;
+                    ny -= movementDir.moveY;
+                    movementDir = Rotate(movementDir);
+                }
+                direction = FromMovement(movementDir);
+                steps.Add((nx, ny, direction));
+
+                nx += movementDir.Item1;
+                ny += movementDir.Item2;
+                
+
+            } while (isPointInRange(nx, ny));
             return steps;
         }
+        private bool isPointInRange(long x, long y) 
+            => (x >= 0 && x < map.Width && y >= 0 && y < map.Height);
 
-
-        private Field FromMovement((short, short) movement) => movement switch
+        private Field FromMovement((short movX, short movY) movement) => movement switch
         {
             (0, -1) => Field.Up,
             (1, 0) => Field.Right,
             (0, 1) => Field.Down,
             (-1, 0) => Field.Left
+        };
+
+        private (short moveX, short moveY) Rotate((short moveX, short moveY) move) => move switch
+        {
+            (0, -1) => (1, 0), //up => right
+            (1, 0) => (0, 1), //right -> down
+            (0, 1) => (-1, 0), //down -> left
+            (-1, 0) => (0, -1) //left => up
         };
     }
 }
