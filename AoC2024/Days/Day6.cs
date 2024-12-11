@@ -30,7 +30,7 @@ namespace AoC2024.Days
         .Test("example")
         .Test("input")
         //.Part(1).Correct(4752)
-        //.Part(2).Correct()
+        .Part(2).Correct(1719)
         .Run();
 
         private readonly StaticMap<Field> map;
@@ -68,6 +68,7 @@ namespace AoC2024.Days
                 Part1();
             var steps = part1Steps.ToArray();
             var position = 0;
+            //var blocks = new IList<
             for (var i=0; i<steps.Length-1; i++)
             {
                 if(steps[i+1].dir == steps[i].dir)
@@ -91,9 +92,10 @@ namespace AoC2024.Days
         private IList<(long x, long y, Field dir)> ProceedToOutput((long x, long y) startingPoint, (short moveX, short moveY) movementDir, (long x, long y)? rockPosition = null)
         {
             var steps = new List<(long, long, Field)>();
-            var direction = FromMovement(movementDir);
-            var nx = startingPoint.x;
-            var ny = startingPoint.y;
+            var direction = Field.Up;
+            movementDir = (0, -1);
+            var nx = guardPos.x;
+            var ny = guardPos.y;
             do
             {
                 if (steps.Any(s => s.Item1 == nx && s.Item2 == ny && s.Item3 == direction)) //loop exist if next step was already done earlier

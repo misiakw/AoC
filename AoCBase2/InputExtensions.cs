@@ -3,6 +3,7 @@ using AoC.Common.Maps;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AoCBase2
 {
@@ -30,5 +31,8 @@ namespace AoCBase2
                     map[x, y] = lines[y][x];
             return map;
         }
+
+        public async static Task<string> ReadLineAsync(this TestState test)
+                => await test.GetLinesAsync().FirstAsync();
     }
 }

@@ -1,30 +1,27 @@
 {
-  "dayNum": 6,
+  "dayNum": 11,
   "tests": [
     {
       "name": "example",
-      "testFile": "Inputs/Day6/example.txt",
+      "testFile": "Inputs/Day11/example.txt",
       "result": [
         {
-          "correct": "41",
+          "correct": "55312",
           "incorrect": []
         },
-        {
-          "correct": "6",
-          "incorrect": []
-        }
+        null
       ]
     },
     {
       "name": "input",
-      "testFile": "Inputs/Day6/input.txt",
+      "testFile": "Inputs/Day11/input.txt",
       "result": [
         {
-          "correct": "4752",
+          "correct": "222461",
           "incorrect": []
         },
         {
-          "correct": "1719",
+          "correct": null,
           "incorrect": []
         }
       ]
