@@ -1,0 +1,52 @@
+{
+  "dayNum": 12,
+  "tests": [
+    {
+      "name": "smallexample",
+      "testFile": "Inputs/Day12/smallexample.txt",
+      "result": [
+        {
+          "correct": "140",
+          "incorrect": []
+        },
+        null
+      ]
+    },
+    {
+      "name": "complexexample",
+      "testFile": "Inputs/Day12/complexexample.txt",
+      "result": [
+        {
+          "correct": "772",
+          "incorrect": []
+        },
+        null
+      ]
+    },
+    {
+      "name": "bigexample",
+      "testFile": "Inputs/Day12/bigexample.txt",
+      "result": [
+        {
+          "correct": "1930",
+          "incorrect": []
+        },
+        null
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day12/input.txt",
+      "result": [
+        {
+          "correct": "1449902",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
+      ]
+    }
+  ]
+}
