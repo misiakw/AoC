@@ -54,6 +54,17 @@ public class Day12: IDay
             .Sum(g => g.Count() * g.Sum(p => p.fenceSize))
             .ToString();
     }
+    
+    //part2
+    //wez dowolny klocek z każdej grupy, zasuwaj do góry aż trafisz na siane (0 fence size to brak sciany
+    // leć wzdloz sciany, licznik scian = 0. zrob wskaznik przesuwania sie i lec az do najblizszego rogu
+    // fence size == 1 - niby porosta, ale uwazaj, bo moze być rog na zewnatrz
+    // biez pod uwage z ktorej strony jest sciana, licznik moze byc bledy!!!
+    // licznik 2 - albo rog, albo waskie przejscie - sprawdz to za pomoca sasiadow
+    // licznik 3 - na 100% "zawrotka, mozna zmienic kierunek, licznik scian+1
+    // licznik 4 - samotne pole, licznik = 4, obsluguj kolejna grupe.
+    
+    //alternatywnie - a co gdyby tak przypasowywac macierz 2x2 lub 3x3???
 
     private void floodRegionWithGroupId(int x, int y, int id, char crop)
     {
