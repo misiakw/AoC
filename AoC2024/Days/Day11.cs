@@ -9,8 +9,8 @@ public class Day11 : IDay
         .Callback(2, async (d, t) => d.Part2(await t.ReadLineAsync()))
         .Test("example")
         .Test("input")
-        //.Part(1).Correct(222461)
-        //.Part(2).Correct()
+        //.Part(1).Correct(65601038650482)
+        //.Part(2).Correct(264350935776416)
         .Run();
 
     public string Part1(string input)
