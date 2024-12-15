@@ -6,7 +6,7 @@
       "testFile": "Inputs/Day13/example.txt",
       "result": [
         {
-          "correct": "420",
+          "correct": "480",
           "incorrect": []
         },
         null
@@ -16,7 +16,10 @@
       "name": "input",
       "testFile": "Inputs/Day13/input.txt",
       "result": [
-        null,
+        {
+          "correct": "37901",
+          "incorrect": []
+        },
         null
       ]
     }
