@@ -1,0 +1,41 @@
+{
+  "dayNum": 14,
+  "tests": [
+    {
+      "name": "single",
+      "testFile": "Inputs/Day14/single.txt",
+      "result": [
+        null,
+        null
+      ]
+    },
+    {
+      "name": "example",
+      "testFile": "Inputs/Day14/example.txt",
+      "result": [
+        {
+          "correct": "21",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day14/input.txt",
+      "result": [
+        {
+          "correct": "224438715",
+          "incorrect": []
+        },
+        {
+          "correct": "7603",
+          "incorrect": []
+        }
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ public class Day13 : IDay
         //.Callback(2, (d, t) => d.Part2())
         .Test("example")
         .Test("input")
-        //.Part(1).Correct()
+        //.Part(1).Correct(37901)
         //.Part(2).Correct()
         .Run();
 
