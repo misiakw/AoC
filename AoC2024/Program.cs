@@ -1,4 +1,4 @@
-﻿using AoC2024.Days;
+﻿global using AoC2024.Days;
 
 //Day1.RunAoC();
 //Day2.RunAoC();
@@ -12,5 +12,8 @@
 //Day10.RunAoC();
 //Day11.RunAoC();
     //Day12.RunAoC(); 
-    //Day13.RunAoC(); 
-        Day14.RunAoC(); 
+    //Day13.RunAoC();
+//Day14.RunAoC();
+        //Day15.RunAoC();
+        Day16.RunAoC();
+ 
