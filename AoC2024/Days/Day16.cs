@@ -6,7 +6,7 @@ namespace AoC2024.Days;
 
 public class Day16: IDay
 {
-    public static void RunAoC()=> AocRuntime.Day<Day16>(16, t => new Day16(t.GetMap()))
+    public static void RunAoC() => AocRuntime.Day<Day16>(16, t => new Day16(t.GetMap()))
         .Callback(1, (d, t) => d.Part1())
         //.Callback(2, (d, t) => d.Part2())
         .Test("example1")

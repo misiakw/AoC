@@ -1,0 +1,27 @@
+{
+  "dayNum": 17,
+  "tests": [
+    {
+      "name": "example",
+      "testFile": "Inputs/Day17/example.txt",
+      "result": [
+        {
+          "correct": "4,6,3,5,6,3,5,2,1,0",
+          "incorrect": []
+        },
+        null
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day17/input.txt",
+      "result": [
+        {
+          "correct": "1,7,2,1,4,1,5,4,0",
+          "incorrect": []
+        },
+        null
+      ]
+    }
+  ]
+}
