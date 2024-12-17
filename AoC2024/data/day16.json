@@ -27,7 +27,10 @@
       "name": "input",
       "testFile": "Inputs/Day16/input.txt",
       "result": [
-        null,
+        {
+          "correct": "88416",
+          "incorrect": []
+        },
         null
       ]
     }

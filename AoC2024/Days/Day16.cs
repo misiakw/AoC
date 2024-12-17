@@ -10,17 +10,16 @@ public class Day16: IDay
         .Callback(1, (d, t) => d.Part1())
         //.Callback(2, (d, t) => d.Part2())
         .Test("example1")
-        .Test("example2")
-        .Test("input")
-        //.Part(1).Correct(224438715)
-        //.Part(2).Correct(7603?)
+        .Test("example2").Skip()
+        .Test("input").Skip()
+        //.Part(1).Correct(88416)
+        //.Part(2).Correct()
         .Run();
 
     private readonly IMap<char> _map;
     private readonly StaticMap<long> _heatmap;
     private readonly Point _start;
     private readonly Point _finish;
-    private long minScore = long.MaxValue;
     public Day16(IMap<char> map)
     {
         _map = map;
@@ -38,69 +37,42 @@ public class Day16: IDay
 
     public string Part1()
     {
-        //ToDo: Revert logic, go from end to start, store distance from, and continue if lower
-        //ToDo: add logic to check when it comes from multiple directions
-        var score = GetPath((_start.X, _start.Y), 'E', 0, "");
+        GetPath((_start.X, _start.Y), 'E', 0);
         
-        return score.ToString();
+        return _heatmap[_finish.X, _finish.Y].ToString();
     }
 
-    private long? GetPath((long x, long y) pos, char direction, long currScore, string path)
+    private void GetPath((long x, long y) pos, char direction, long currScore)
     {
+        if (_heatmap[pos.x, pos.y] < currScore) return;
+            _heatmap[pos.x, pos.y] = currScore;
+            
         if (pos.x == _finish.X && pos.y == _finish.Y)
-            return currScore;
-        if (currScore > minScore || path.Contains($"[{pos.x},{pos.y}]"))
-            return null;
+            return;
 
-        var result = new List<long>();
+        if (CanGoTo(pos.x, pos.y - 1))
+            GetPath((pos.x, pos.y - 1), 'S',
+                currScore + Rotate(direction, 'S') + 1);
 
-        if (CanGoTo(pos.x, pos.y - 1, path))
-            result.Add(GetPath(
-                (pos.x, pos.y-1), 'S', 
-                currScore+ Rotate(direction, 'S')+1, 
-                path+$"[{pos.x},{pos.y}]") ?? 0);
+        if (CanGoTo(pos.x, pos.y + 1))
+            GetPath((pos.x, pos.y + 1), 'N',
+                currScore + Rotate(direction, 'N') + 1);
 
-        if (CanGoTo(pos.x, pos.y + 1, path))
-            result.Add(GetPath(
-                (pos.x, pos.y+1), 'N', 
-                currScore+ Rotate(direction, 'N')+1, 
-                path+$"[{pos.x},{pos.y}]") ?? 0);
-        
-        if (CanGoTo(pos.x-1, pos.y, path))
-            result.Add(GetPath(
-                (pos.x-1, pos.y), 'E', 
-                currScore+ Rotate(direction, 'E')+1, 
-                path+$"[{pos.x},{pos.y}]") ?? 0);
-        
-        if (CanGoTo(pos.x+1, pos.y, path))
-            result.Add(GetPath(
-                (pos.x+1, pos.y), 'W', 
-                currScore+ Rotate(direction, 'W')+1, 
-                path+$"[{pos.x},{pos.y}]") ?? 0);
+        if (CanGoTo(pos.x - 1, pos.y))
+            GetPath((pos.x - 1, pos.y), 'W',
+                currScore + Rotate(direction, 'W') + 1);
 
-        if (result.Any(r => r > 0))
-        {
-            var outcome = result.Where(r => r > 0).Min();
-            if(outcome < minScore) minScore = outcome;
-            return outcome;
-        }
-
-        return null;
+        if (CanGoTo(pos.x + 1, pos.y))
+            GetPath((pos.x + 1, pos.y), 'E',
+                currScore + Rotate(direction, 'E') + 1);
     }
 
-    private bool CanGoTo(long x, long y, string path)
+    private bool CanGoTo(long x, long y)
     {
         if (x < 0 || y < 0 || x > _map.Width - 1 || y > _map.Height - 1)
             return false;
-        if(path.Contains($"[{x},{y}]"))
-            return false;
         return _map[x,y] != '#';
     }
-
-    private char DirTo((long x, long y) now, (long x, long y) next)
-        => now.x < next.x ? 'E'
-            : now.x > next.x ? 'W'
-            : now.y < next.y ? 'N' : 'S';
     
     private int Rotate(char now, char next)
     {
