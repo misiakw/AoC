@@ -5,23 +5,23 @@
 //Day3.RunAoC();
 //Day4.RunAoC();
 //Day5.RunAoC();
-//Day6.RunAoC();
+    //Day6.RunAoC();
 //Day7.RunAoC();
 //Day8.RunAoC();
 //Day9.RunAoC();
 //Day10.RunAoC();
 //Day11.RunAoC();
-//Day12.RunAoC(); 
-//Day13.RunAoC();
+    //Day12.RunAoC(); 
+    //Day13.RunAoC();
 //Day14.RunAoC();
-//Day15.RunAoC();
-//Day16.RunAoC();
-//Day17.RunAoC();
-//Day18.RunAoC();
-
-
-
-
-
-    //Day24.RunAoC();
-        Day25.RunAoC();
+        //Day15.RunAoC();
+    //Day16.RunAoC();
+    //Day17.RunAoC();
+    //Day18.RunAoC();
+    //Day19.RunAoC();
+        //Day20.RunAoC();
+        //Day21.RunAoC();
+        //Day22.RunAoC();
+        Day23.RunAoC();
+//Day24.RunAoC();
+//Day25.RunAoC();
