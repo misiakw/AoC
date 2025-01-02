@@ -15,7 +15,7 @@ namespace AoC2024.Days
                 //.Callback(2, (d, t) => d.Part2())
                 .Test("example")
                 .Test("input")
-                //.Part(1).Correct() 1158 too high
+                //.Part(1).Correct(1149)
                 //.Part(2).Correct()
                 .Run();
 
@@ -24,7 +24,12 @@ namespace AoC2024.Days
             foreach (var line in lines)
             {
                 var names = line.Split('-').Select(l => l.Trim()).ToArray();
-                Node.SetConnection(names[0], names[1]);
+
+                var nodeA = GetNode(names[0]);
+                var nodeB = GetNode(names[1]);
+
+                nodeA.AddNeighbour(nodeB);
+                nodeB.AddNeighbour(nodeA);
             }
         }
 
@@ -32,9 +37,9 @@ namespace AoC2024.Days
         {
             var dict = new Dictionary<string, string[]>();
 
-            foreach (var firstKey in Node.Nodes.Keys.Where(k => k.StartsWith("t")))
+            foreach (var firstKey in Nodes.Keys.Where(k => k.StartsWith("t")))
             {
-                var first = Node.Nodes[firstKey];
+                var first = Nodes[firstKey];
                 foreach (var second in first.Neighbours)
                     foreach (var thirth in first.Neighbours.Where(n => n != second))
                         if (second.Neighbours.Contains(thirth))
@@ -49,32 +54,24 @@ namespace AoC2024.Days
             return dict.Count().ToString();
         }
 
+        private IDictionary<string, Node> Nodes = new Dictionary<string, Node>();
+        private Node GetNode(string name)
+        {
+            if (!Nodes.ContainsKey(name))
+                Nodes.Add(name, new Node(name));
+            return Nodes[name];
+        }
+
 
         private class Node
         {
-            private static Node Get(string name)
-            {
-                if (!Nodes.ContainsKey(name))
-                    Nodes.Add(name, new Node(name));
-                return Nodes[name];
-            }
-            private void AddNeighbour(Node node)
+            public void AddNeighbour(Node node)
             {
                 if (!Neighbours.Contains(node))
                     Neighbours.Add(node);
             }
-
-            public static void SetConnection(string nameA, string nameB)
-            {
-                var nodeA = Get(nameA);
-                var nodeB = Get(nameB);
-
-                nodeA.AddNeighbour(nodeB);
-                nodeB.AddNeighbour(nodeA);
-
-            }
-            public static IDictionary<string, Node> Nodes = new Dictionary<string, Node>();
-            private Node(string name) { Name = name; }
+            
+            public Node(string name) { Name = name; }
             public readonly string Name;
             public IList<Node> Neighbours = new List<Node>();
         }
