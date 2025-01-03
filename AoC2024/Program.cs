@@ -14,7 +14,7 @@
     //Day12.RunAoC(); 
     //Day13.RunAoC();
 //Day14.RunAoC();
-        //Day15.RunAoC();
+        Day15.RunAoC();
     //Day16.RunAoC();
     //Day17.RunAoC();
     //Day18.RunAoC();
@@ -22,6 +22,6 @@
         //Day20.RunAoC();
         //Day21.RunAoC();
         //Day22.RunAoC();
-        Day23.RunAoC();
+//Day23.RunAoC();
 //Day24.RunAoC();
 //Day25.RunAoC();

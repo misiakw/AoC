@@ -1,0 +1,58 @@
+{
+  "dayNum": 15,
+  "tests": [
+    {
+      "name": "smallexample",
+      "testFile": "Inputs/Day15/smallexample.txt",
+      "result": [
+        {
+          "correct": "2028",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "example",
+      "testFile": "Inputs/Day15/example.txt",
+      "result": [
+        {
+          "correct": "10092",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day15/input.txt",
+      "result": [
+        {
+          "correct": "1485257",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "examplePart2",
+      "testFile": "Inputs/Day15/examplePart2.txt",
+      "result": [
+        {
+          "correct": null,
+          "incorrect": []
+        },
+        null
+      ]
+    }
+  ]
+}
