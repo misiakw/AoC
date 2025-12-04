@@ -15,11 +15,7 @@ namespace AoC2025.Days
                 .Callback(1, (d, t) => d.Part1(t.GetLines()))
                 .Callback(2, (d, t) => d.Part2(t.GetLines()))
                 .Test("example", "Inputs/Day3/example1.txt")
-                //.Part(1)
-                //.Part(2)
                 .Test("input", "Inputs/Day3/input.txt")
-                //.Part(1)
-                //.Part(2)
                 .Run();
         }
 
