@@ -46,32 +46,35 @@ namespace AoC.Common
             }
         }
 
+        protected string key(long x, long y) => $"{x},{y}";
         public T? this[Point p] => this[p.X, p.Y];
 
         public T? this[long x, long y]
         {
             get
             {
-                string key = $"{x},{y}";
-                return _data.ContainsKey(key)
-                    ? _data[key]
+                return _data.ContainsKey(key(x, y))
+                    ? _data[key(x, y)]
                     : defaultValue;
             }
             set
             {
-                string key = $"{x},{y}";
-                _data.TryAdd(key, value);
-                if (_minX > x) _minX = x;
-                if (_maxX < x) _maxX = x;
-                if (_minY > y) _minY = y;
-                if (_maxY < y) _maxY = y;
+                if (_data.ContainsKey(key(x, y)))
+                    _data[key(x, y)] = value;
+                else
+                {
+                    _data.Add(key(x, y), value);
+                    if (_minX > x) _minX = x;
+                    if (_maxX < x) _maxX = x;
+                    if (_minY > y) _minY = y;
+                    if (_maxY < y) _maxY = y;
+                }
             }
         }
 
         public void Remove(long x, long y){
-            string key = $"{x},{y}";
-            if(_data.ContainsKey(key))
-                _data.Remove(key);
+            if(_data.ContainsKey(key(x, y)))
+                _data.Remove(key(x, y));
 
             if(x == _minX || x == _maxX || y == _minY || y == _maxY){
                 var vals = _data.Keys.Select(k => k.Split(",").Select(long.Parse).ToArray());
@@ -115,14 +118,13 @@ namespace AoC.Common
             get => base[x, y];
             set
             {
-                string key = $"{x},{y}";
-                if (_data.ContainsKey(key))
+                if (_data.ContainsKey(key(x, y)))
                 {
-                    _data[key] = value;
+                    _data[key(x, y)] = value;
                 }
                 else
                 {
-                    _data.TryAdd(key, value);
+                    _data.TryAdd(key(x, y), value);
                     if (_minX > x) _minX = x;
                     if (_maxX < x) _maxX = x;
                     if (_minY > y) _minY = y;

@@ -26,8 +26,8 @@ namespace AoCBase2
             mapParams.Height = lines.Count();
 
             var map = MapBuilder<char>.GetEmpty(mapParams);
-            for (var y = 0; y < map.Height; y++)
-                for (var x = 0; x < map.Width; x++)
+            for (var y = 0; y < mapParams.Height; y++)
+                for (var x = 0; x < mapParams.Width; x++)
                     map[x, y] = lines[y][x];
             return map;
         }

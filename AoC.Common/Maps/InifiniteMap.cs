@@ -12,10 +12,9 @@ namespace AoC.Common.Maps
         public T? this[long x, long y] {
             get => base[x, y];
             set {
-                string key = $"{x}|{y}";
-                if (value == null || (_data.ContainsKey(key) && _data[key].Equals(value)))
+                if(value == null || value.Equals(default(T)))
                 {
-                    _data.Remove(key);
+                    _data.Remove(key(x, y));
                     return;
                 }
                 base[x, y] = value;
@@ -53,7 +52,7 @@ namespace AoC.Common.Maps
 
         object? IMap.this[long x, long y] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public class MapItem<K>
+        /*public class MapItem<K>
         {
             public K Data;
             public long X;
@@ -64,8 +63,6 @@ namespace AoC.Common.Maps
                 this.X = x;
                 this.Y = y;
             }
-        }
-
-
+        }*/
     }
 }
