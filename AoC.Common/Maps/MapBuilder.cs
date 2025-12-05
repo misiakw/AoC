@@ -1,4 +1,5 @@
-﻿using AoC.Common.Maps.StaticMap;
+﻿using AoC.Common.Abstractions;
+using AoC.Common.Maps.StaticMap;
 
 namespace AoC.Common.Maps
 {

@@ -1,10 +1,6 @@
-﻿using AoC.Common;
+﻿
+using AoC.Common.Abstractions;
 using AoCBase2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AoC2025.Days
 {
@@ -15,8 +11,10 @@ namespace AoC2025.Days
             AocRuntime.Day<Day4>(4)
                 .Callback(1, (d, t) => d.Part1(t.GetMap(true)))
                 .Callback(2, (d, t) => d.Part2(t.GetMap(true)))
-                .Test("example", "Inputs/Day4/example.txt")//.Part(1)//.Part(2)
-                .Test("input", "Inputs/Day4/input.txt")//.Part(1)//.Part(2)
+                .Test("example", "Inputs/Day4/example.txt")
+                    .Part(1).Part(2)
+                .Test("input", "Inputs/Day4/input.txt")
+                    .Part(1).Part(2)
                 .Run();
         }
 

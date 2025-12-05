@@ -28,10 +28,10 @@ namespace AoCBase2
         }
 
         internal DayState() { }
-        internal DayState(string path, int dayNum)
+        internal DayState(string path)
         {
             stateFile = path;
-            dto = new DayStateDTO() { dayNum = dayNum };
+            dto = new DayStateDTO();
             Save();
         }
         internal void Save()
@@ -50,7 +50,7 @@ namespace AoCBase2
             var filename = Path.Combine("data", $"day{dayNum}.json");
             return File.Exists(filename)
                 ? DayState<T>.Load(filename)
-                : new DayState<T>(filename, dayNum);
+                : new DayState<T>(filename);
         }
         internal static DayState<T> Load(string path)
         {
@@ -65,7 +65,7 @@ namespace AoCBase2
     }
     public class DayStateDTO
     {
-        public int dayNum { get; set; }
+        //public int dayNum { get; set; }
         public IList<TestState> tests { get; set; } = new List<TestState>();
     }
 

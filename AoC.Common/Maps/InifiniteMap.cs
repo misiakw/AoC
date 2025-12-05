@@ -1,68 +1,55 @@
-﻿using System;
+﻿using AoC.Common.Abstractions;
+using System;
 using System.Collections.Generic;
 
 namespace AoC.Common.Maps
 {
-    public class InifiniteMap<T> : Array2D<T>, IMap<T>
+    public class InifiniteMap<T>(T? def) : IMap<T> //Array2D<T>
     {
+        private IDictionary<(long x, long y), T> _data = new Dictionary<(long x, long y), T>();
+        private ValueScope scopeX = new ValueScope { min = 0, max = 0 };
+        private ValueScope scopeY = new ValueScope { min = 0, max = 0 };
 
-        public InifiniteMap(T? def = default(T)): base(def)
-        {
-        }
+
         public T? this[long x, long y] {
-            get => base[x, y];
+            get => _data.ContainsKey((x, y))
+                ? _data[(x, y)] : def;
             set {
-                if(value == null || value.Equals(default(T)))
+                if (_data.ContainsKey((x, y)))
+                    if (value == null || value.Equals(default(T)))
+                    {
+                        //ToDo - remove and cleanup ranges
+                    }
+                    else
+                        _data[(x, y)] = value;
+                else if (value != null || !value.Equals(default(T)))
                 {
-                    _data.Remove(key(x, y));
-                    return;
+                    _data.Add((x, y), value);
+                    scopeX.Add(x);
+                    scopeY.Add(y);
                 }
-                base[x, y] = value;
             }
         }
 
-        public long[,] Bounds
-        {
-            get
-            {
-                var b = base.Bounds;
-                return new long[2, 2]
-                {
-                    {b[0].Item1, b[0].Item2 }, {b[1].Item1, b[1].Item2}
-                };
-            }
-        }
+        public long Width => scopeX.max - scopeX.min;
 
-
-        public IEnumerable<T> Where(Func<T, bool>selector){
-            for(var x = _minX; x<=_maxX; x++)
-                for(var y = _minY; y<=_maxY; y++)
-                    if(selector(this[x,y]))
-                        yield return this[x, y];
-        }
+        public long Height => scopeY.max - scopeY.min;
 
         public string Draw(Func<T?, string> drawing, string split = "")
         {
             throw new NotImplementedException();
         }
 
-        public Range rangeX => new Range(_minX, _maxX);
-
-        public Range rangeY => new Range(_minY, _maxY);
-
-        object? IMap.this[long x, long y] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        /*public class MapItem<K>
+        private class ValueScope
         {
-            public K Data;
-            public long X;
-            public long Y;
-            public MapItem(K data, long x, long y)
+            public required long min;
+            public required long max;
+            
+            public void Add(long value)
             {
-                this.Data = data;
-                this.X = x;
-                this.Y = y;
+                if(min > value) min = value;
+                if(max < value) max = value;
             }
-        }*/
+        }
     }
 }

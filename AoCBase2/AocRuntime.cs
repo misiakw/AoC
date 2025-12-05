@@ -11,7 +11,7 @@ namespace AoCBase2
     {
         public static DayState<T> Day<T>(int dayNum, Func<TestState, T> setupFunc)
         {
-            var filename = Path.Combine("data", $"day{dayNum}.json").PathToRelativeToSolution();
+            var filename = Path.Combine("data", $"{typeof(T).Name.ToLower()}.json").PathToRelativeToSolution();
 
             DayState<T> result = null;
             if (File.Exists(filename))
@@ -19,7 +19,7 @@ namespace AoCBase2
             else
             {
                 EnsureFileExist(filename);
-                result = new DayState<T>(filename, dayNum);
+                result = new DayState<T>(filename);
             }
 
             result.setupFunc = setupFunc;
@@ -100,8 +100,8 @@ namespace AoCBase2
             tab.PrintConsole();
         }
 
-        public static DayState<T> Test<T>(this DayState<T> state, string name, bool debug = false) =>
-            state.Test(name, $"Inputs/Day{state.dto.dayNum}/{name}.txt", debug);
+        /*public static DayState<T> Test<T>(this DayState<T> state, string name, bool debug = false) =>
+            state.Test(name, $"Inputs/Day{state.dto.dayNum}/{name}.txt", debug);*/
         public static DayState<T> Test<T>(this DayState<T> state, string name, string filePath, bool debug = false)
         {
             EnsureFileExist(filePath.PathToRelativeToSolution());
@@ -131,6 +131,7 @@ namespace AoCBase2
             var selectedTest = state.context as TestState;
             if (selectedTest == null) throw new InvalidDataException("Test not selected");
             state.context = selectedTest.result[part - 1];
+            selectedTest.result[part - 1].run = true;
             return state;
         }
         public static DayState<T> Correct<T>(this DayState<T> state, string result)

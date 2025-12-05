@@ -1,4 +1,4 @@
-﻿using AoC.Common;
+﻿using AoC.Common.Abstractions;
 using AoC.Common.Maps;
 using System.Collections.Generic;
 using System.IO;
