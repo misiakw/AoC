@@ -4,7 +4,7 @@ using System.IO;using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace AoCBase2
+namespace AoC.Base
 {
     internal class Callback<T>
     {

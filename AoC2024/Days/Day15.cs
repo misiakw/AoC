@@ -16,10 +16,10 @@ namespace AoC2024.Days
     internal class Day15: IDay
     {
         public static void RunAoC() => AocRuntime.Day<Day15>(15, t => new Day15(t.GetLines()))
-                .Callback(1, (d, t) => d.Part1())//.Skip()
+                .Callback(1, (d, t) => d.Part1()).Skip()
                 .Callback(2, (d, t) => d.Part2())
                 .Test("smallexample").Skip(2)
-                .Test("example").Skip(2)
+                .Test("example").Skip(1)
                 .Test("examplePart2").Skip(1)
                 .Test("input").Skip(2)
                 //.Part(1).Correct(1485257)
@@ -71,9 +71,11 @@ namespace AoC2024.Days
 
                 var nx = myRobot.x + dir.x;
                 var ny = myRobot.y + dir.y;
-                if (warehouse.map[nx, ny].CanMove(ch))
+                var box = warehouse.map[nx, ny];
+                if (box?.CanMove(ch) ?? true)
                 {
-                    warehouse.map[nx, ny].Move(ch);
+                    if(box != null)
+                        box.Move(ch);
                     myRobot = (nx, ny);
                 }
             }
@@ -82,9 +84,11 @@ namespace AoC2024.Days
         }
         public string Part2()
         {
-            (int x, int y) myRobot = (robot.x, robot.y);
+            (int x, int y) myRobot = (robot.x*2, robot.y);
 
             var warehouse = new WarehouseMap(map, 2);
+            //Console.WriteLine(warehouse.map.Draw(b => b is WallBlock ? "#" : b is EmptyBlock ? "." : "O"));
+            
 
             foreach (var ch in steps)
             {
@@ -98,14 +102,17 @@ namespace AoC2024.Days
 
                 var nx = myRobot.x + dir.x;
                 var ny = myRobot.y + dir.y;
-                if (warehouse.map[nx, ny].CanMove(ch))
+                if (warehouse.map[nx, ny]?.CanMove(ch) ?? true)
                 {
-                    warehouse.map[nx, ny].Move(ch);
+                    if(warehouse.map[nx, ny] != null)
+                        warehouse.map[nx, ny].Move(ch);
+
                     myRobot = (nx, ny);
                 }
+                Console.WriteLine(warehouse.map.Draw(b => b is WallBlock ? "#" : b == null ? "." : "O"));
             }
 
-            Console.WriteLine(warehouse.map.Draw(b => b is WallBlock ? "#" : b is EmptyBlock ? "." : "O"));
+            Console.WriteLine(warehouse.map.Draw(b => b is WallBlock ? "#" : b == null ? "." : "O"));
 
             return warehouse.map.Where(b => b is BoxBlock).Select(b => ((BoxBlock)b).Coord).Sum().ToString();
         }
@@ -115,12 +122,12 @@ namespace AoC2024.Days
             public StaticMap<IBlock> map;
             public WarehouseMap(StaticMap<char> initialMap, int width)
             {
-                map = new StaticMap<IBlock>(initialMap.Width*width, initialMap.Height);
+                map = new StaticMap<IBlock>(initialMap.Width*width, initialMap.Height, null);
                 for(var y=0; y<initialMap.Height; y++)
                     for(var x=0; x<initialMap.Width; x++)
                     {
                         if (initialMap[x, y] == 'O') {
-                            var box = new BoxBlock(this, x, y, width);
+                            var box = new BoxBlock(this, x*width, y, width);
                             for (var d = 0; d < width; d++)
                                 map[x*width + d, y] = box;
                         }
@@ -129,7 +136,7 @@ namespace AoC2024.Days
                                 map[x*width + d, y] = new WallBlock();
                         else
                             for (var d = 0; d < width; d++)
-                                map[x*width + d, y] = new EmptyBlock();
+                                map[x*width + d, y] = null;
                     }
             }
             
@@ -141,10 +148,10 @@ namespace AoC2024.Days
             internal void Move(char dir);
             internal bool CanMove(char dir);
         }
-        internal class EmptyBlock : IBlock{
+        /*internal class EmptyBlock : IBlock{
             public bool CanMove(char dir) => true;
             public void Move(char dir) { }
-        }
+        }*/
         internal class WallBlock : IBlock{
             public bool CanMove(char dir) => false;
             public void Move(char dir) { }
@@ -174,7 +181,7 @@ namespace AoC2024.Days
                 else if (dir == '^')
                     for (var d = 0; d < width; d++)
                         list.Add(warehouse.map[x+d, y - 1]);
-                return list.Distinct().ToList();
+                return list.Where(x => x != null).Distinct().ToList();
             }
 
             public void Move(char dir)
@@ -183,8 +190,9 @@ namespace AoC2024.Days
                 foreach (var box in affected)
                     box.Move(dir);
 
-                //leave empty behind
-                warehouse.map[x, y] = new EmptyBlock();
+                //leave empty space in your location
+                for(var d=0; d<width; d++)
+                    warehouse.map[x+d, y] = null;
                 if (dir == '<')
                     x -= 1;
                 else if (dir == '>')
@@ -194,12 +202,13 @@ namespace AoC2024.Days
                 else if (dir == '^')
                     y -= 1;
 
-                //ocupate space
-                warehouse.map[x, y] = this;
+                //ocupate new space
+                for(var d=0; d<width; d++)
+                    warehouse.map[x+d, y] = this;
             }
 
             public bool CanMove(char dir)
-                => GetAffected(dir).All(b => b.CanMove(dir));
+                => !GetAffected(dir).Any(b => !b.CanMove(dir));
 
             public int Coord => 100 * y + x;
         }
