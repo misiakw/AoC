@@ -1,0 +1,47 @@
+{
+  "dayNum": 5,
+  "tests": [
+    {
+      "name": "example",
+      "testFile": "Inputs/Day5/example.txt",
+      "result": [
+        {
+          "correct": "3",
+          "incorrect": []
+        },
+        {
+          "correct": "14",
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day5/input.txt",
+      "result": [
+        {
+          "correct": "617",
+          "incorrect": []
+        },
+        {
+          "correct": "338258295736104",
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "Pawla",
+      "testFile": "Inputs/Day5/pawla.txt",
+      "result": [
+        {
+          "correct": "840",
+          "incorrect": []
+        },
+        {
+          "correct": "359913027576322",
+          "incorrect": []
+        }
+      ]
+    }
+  ]
+}
