@@ -5,9 +5,9 @@ VisualStudioVersion = 17.14.36518.9 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoC2025", "AoC2025.csproj", "{3E4D4258-24EB-42E8-A16F-8C2723267534}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoC.Common", "..\AoC.Common\AoC.Common.csproj", "{D07C0AA2-7F5A-1DD0-CEE4-8F12CEA36B4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoC.Common", "..\AoC\AoC.Common\AoC.Common.csproj", "{D07C0AA2-7F5A-1DD0-CEE4-8F12CEA36B4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoCBase2", "..\AoCBase2\AoCBase2.csproj", "{D17C448C-F457-DE90-9A0C-F01289E70A2A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoC.Base", "..\AoC\AoC.Base\AoC.Base.csproj", "{D17C448C-F457-DE90-9A0C-F01289E70A2A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

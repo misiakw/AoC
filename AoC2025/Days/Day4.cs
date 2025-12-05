@@ -1,12 +1,12 @@
-﻿
+﻿using AoC.Base;
+using AoC.Base.Abstraction;
 using AoC.Common.Abstractions;
-using AoCBase2;
 
 namespace AoC2025.Days
 {
     internal class Day4: IDay
     {
-        public static void RunAoC()
+        public void RunAoC()
         {
             AocRuntime.Day<Day4>(4)
                 .Callback(1, (d, t) => d.Part1(t.GetMap(true)))

@@ -5,13 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AoCBase2
+namespace AoC.Base
 {
     public static class AocRuntime
     {
         public static DayState<T> Day<T>(int dayNum, Func<TestState, T> setupFunc)
         {
-            var filename = Path.Combine("data", $"{typeof(T).Name.ToLower()}.json").PathToRelativeToSolution();
+            
+            
+            var filename = Path.Combine("data", $"day{dayNum}.json").PathToRelativeToSolution();
 
             DayState<T> result = null;
             if (File.Exists(filename))

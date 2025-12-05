@@ -1,7 +1,9 @@
-﻿using AoC2025.Days;
+﻿using AoC.Base.Runtime;
 
-//Day1.RunAoC();
-//Day2.RunAoC();
-//Day3.RunAoC();
-//Day4.RunAoC();
-Day5.RunAoC();
+new Runtime()
+    //.RunDay(1)
+    //.RunDay(2)
+    //.RunDay(3)
+    //.RunDay(4)
+    .RunDay(5)
+    ;
