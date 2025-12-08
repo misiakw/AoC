@@ -8,14 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="Inputs\*\*.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\AoC\AoC.Base\AoC.Base.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AoC\AoC.Base\AoC.Base.csproj" />
-    <ProjectReference Include="..\AoC\AoC.Common\AoC.Common.csproj" />
+    <None Update="Inputs\*\*.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
