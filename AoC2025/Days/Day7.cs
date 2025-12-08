@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace AoC2025.Days
 {
     [DayNum(7)]
-    internal class Day7: IDay
+    file class Day7: IDay
     {
         public void RunAoC()
         {
@@ -25,68 +25,89 @@ namespace AoC2025.Days
 
         private string Part1(IMap<char> map)
         {
-            var sx = 0;
-            while (map[sx, 0] != 'S') sx++;
-
-            var result = DropBeam(map, sx, 1);
-            return result.ToString();
+            return new LaserTree(map).GetSplitters().Count().ToString();
         }
         private string Part2(IMap<char> map)
         {
+            return new LaserTree(map).GetPotential().ToString();
+        }
+    }
+
+    file class LaserTree
+    {
+        private readonly IDictionary<(long, long), Splitter> _splitters = new Dictionary<(long, long), Splitter>();
+        private readonly Splitter _floor = new Splitter(-1, -1);
+        private Splitter _head;
+        public LaserTree(IMap<char> map)
+        {
             var sx = 0;
+            var sy = 1;
             while (map[sx, 0] != 'S') sx++;
 
-            var result = EvaluatePaths(map, sx, 1);
-            return result.Count().ToString();
+            _head = DropBeam(map, sx, 1);
         }
-
-        private int DropBeam(IMap<char> map, int sx, int sy)
+        
+        private Splitter DropBeam(IMap<char> map, long x, long y)
         {
-            while(sy < map.Height && map[sx, sy] == '.')
-            {
-                map[sx, sy] = '|';
-                sy++;
-            }
-
-            if (sy >= map.Height) return 0;
-            var ch = map[sx, sy];
-
-            if(map[sx, sy] == '^')
-            {
-                var splits = 1;
-                splits += DropBeam(map, sx - 1, sy);
-                splits += DropBeam(map, sx + 1, sy);
-                return splits;
-            }
-
-            return 0;
+            while (y < map.Height && map[x, y] != '^')
+                y++;
+            if (y == map.Height) return _floor;
+            if (_splitters.ContainsKey((x, y)))
+                return _splitters[(x, y)];
+            var result = new Splitter(x, y);
+            _splitters.Add((x, y), result);
+            result.Left = DropBeam(map, x - 1, y);
+            result.Left.AddSource(result);
+            result.Right = DropBeam(map, x + 1, y);
+            result.Right.AddSource(result);
+            return result;
         }
 
-        private IDictionary<(long, long), IEnumerable<string>> memory = new Dictionary<(long, long), IEnumerable<string>>();
-        private IEnumerable<string> EvaluatePaths(IMap<char> map, int sx, int sy)
+        public IEnumerable<Splitter> GetSplitters() => _splitters.Values;
+        
+        public long GetPotential()
         {
-            int ny = sy;
-            while (ny < map.Height && map[sx, ny] == '.')
-            {
-                if (memory.ContainsKey((sx, ny)))
-                    return memory[(sx, ny)];
-                ny++;
-            }
-
-            if (ny >= map.Height) return new string[1] {string.Empty};
-
-            if (map[sx, ny] == '^')
-            {
-                var left = EvaluatePaths(map, sx - 1, ny).Select(s => "L" + s).ToList();
-                var right = EvaluatePaths(map, sx + 1, ny).Select(s => "R" + s).ToList();
-                var result = left.Concat(right);
-
-                for(var y=sy; y<=ny; y++)
-                    memory.Add((sx, y), result);
-                return result;
-            }
-
-            return new string[0];
+            _floor.ProcessPotential();
+            return _head.Potential;
         }
+    }
+    
+    file class Splitter(long x, long y)
+    { 
+        public IList<Splitter> Sources = new List<Splitter>();
+        public Splitter Left;
+        public Splitter Right;
+        private long? leftPotential = null;
+        private long? rightPotential = null;
+
+        public long Potential => (x == -1 && y == -1) ? 1
+            : (leftPotential ?? -100) + (rightPotential ?? -100);
+
+        public void AddSource(Splitter newSource)
+        {
+            if (!Sources.Contains(newSource))
+                Sources.Add(newSource);
+        }
+
+        public void ProcessPotential()
+        {
+            foreach (var root in Sources)
+                root.ProvidePotential(this);
+        }
+
+        private void ProvidePotential(Splitter source)
+        {
+            if (leftPotential.HasValue && rightPotential.HasValue)
+                return;
+            if (source == Left)
+                leftPotential = Left.Potential;
+            if (source == Right)
+                rightPotential = Right.Potential;
+            if(leftPotential.HasValue && rightPotential.HasValue)
+                foreach (var root in Sources)
+                    root.ProvidePotential(this);
+        }
+        
+        public override string ToString() => $"[{x},{y}]";
     }
 }
