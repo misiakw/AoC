@@ -7,5 +7,6 @@ new Runtime()
     //.RunDay(4)
     //.RunDay(5)
     //.RunDay(6)
-    .RunDay(7)
+    //.RunDay(7)
+    .RunDay(8)
     ;

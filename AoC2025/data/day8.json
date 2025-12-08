@@ -1,0 +1,20 @@
+{
+  "tests": [
+    {
+      "name": "example",
+      "testFile": "Inputs/Day8/example.txt",
+      "result": [
+        null,
+        null
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day8/input.txt",
+      "result": [
+        null,
+        null
+      ]
+    }
+  ]
+}
