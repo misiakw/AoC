@@ -1,11 +1,7 @@
 ﻿using AoC.Base;
 using AoC.Base.Abstraction;
 using AoC.Base.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AoC.Common.Abstractions;
 
 namespace AoC2025.Days
 {
@@ -16,7 +12,7 @@ namespace AoC2025.Days
         {
             AocRuntime.Day<Day6>(6)
                 .Callback(1, (d, t) => d.Part1(t.GetLines()))
-                //.Callback(2, (d, t) => d.Part2())
+                .Callback(2, (d, t) => d.Part2(t.GetMap()))
                 .Test("example", "Inputs/Day6/example.txt") //.Part(1)//.Part(2)
                 .Test("input", "Inputs/Day6/input.txt") //.Part(1)//.Part(2)
                 .Run();
@@ -57,6 +53,44 @@ namespace AoC2025.Days
 
 
             return "";
+        }
+
+        private string Part2(IMap<char> sheet)
+        {
+            var col = sheet.Width-1;
+            var endOfNum = sheet.Height - 2;
+            var sum = 0L;
+
+            var nums = new List<long>();
+            while(col >= 0)
+            {
+                var doMath = sheet[col, endOfNum+1] != ' ';
+
+                var num = 0L;
+                for (var y = 0; y <= endOfNum; y++)
+                    if(sheet[col, y] != ' ')
+                        num = num * 10 + sheet[col, y]-'0';
+                nums.Add(num);
+
+                if (doMath)
+                {
+                    if (sheet[col, endOfNum + 1] == '+')
+                        sum += nums.Sum();
+                    else
+                    {
+                        var i = 1L;
+                        foreach (var x in nums)
+                            i *= x;
+                        sum += i;
+                    }
+                    nums = new List<long>();
+                    col--;
+                }
+                col--;
+            }
+
+
+            return sum.ToString();
         }
     }
 }
