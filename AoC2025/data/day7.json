@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "name": "example",
+      "testFile": "Inputs/Day7/example.txt",
+      "result": [
+        {
+          "correct": "21",
+          "incorrect": []
+        },
+        {
+          "correct": "40",
+          "incorrect": [
+            "9"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day7/input.txt",
+      "result": [
+        {
+          "correct": "1681",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": [
+            "1686" // too low, never finished executing
+          ]
+        }
+      ]
+    }
+  ]
+}
