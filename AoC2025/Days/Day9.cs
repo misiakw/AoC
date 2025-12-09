@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Schema;
+using LineDict = System.Collections.Generic.Dictionary<long, System.Collections.Generic.IList<(long s, long e)>>;
 
 namespace AoC2025.Days;
 
@@ -21,7 +23,7 @@ file class Day9 : IDay
             //.Callback(1, (d, t) => d.Part1(t.GetLines()))
             .Callback(2, (d, t) => d.Part2(t.GetLines()))
             .Test("example", "Inputs/Day9/example.txt") //.Part(1)//.Part(2)
-            .Test("input", "Inputs/Day9/input.txt").Skip() //.Part(1)//.Part(2)
+            .Test("input", "Inputs/Day9/input.txt") //.Part(1)//.Part(2)
             .Run();
     }
 
@@ -39,29 +41,57 @@ file class Day9 : IDay
         return order.OrderByDescending(p => p.size).First().size.ToString();
     }
 
+
     public string Part2(IEnumerable<string> input)
     {
-        var linesX = new Dictionary<long, IList<(long s, long e)>>();
-        var linesY = new Dictionary<long, IList<(long s, long e)>>();
+        (var linesX, var linesY, var points) = LoadInput(input);
+
+
+        return "";
+    }
+    
+
+    private (LineDict x, LineDict y, Point[] points) LoadInput(IEnumerable<string> input)
+    {
+        var linesX = new LineDict();
+        var linesY = new LineDict();
+        var points = new List<Point>();
 
         Point first = null;
         Point previous = null;
         foreach (var line in input)
         {
             var point = new Point(line);
-            if(previous == null)
+            points.Add(point);
+            if (previous == null)
             {
                 first = point;
                 previous = point;
                 continue;
             }
 
-            Console.WriteLine($"line from {previous}=>{point}");
+            if (previous.x == point.x)
+                AddToDictionary(linesX, point.x, previous.y, point.y);
+            else
+                AddToDictionary(linesY, point.y, previous.x, point.x);
             previous = point;
         }
-        Console.WriteLine($"line from {previous}=>{first}");
 
-        return "";
+        if (previous.x == first.x)
+            AddToDictionary(linesX, first.x, previous.y, first.y);
+        else
+            AddToDictionary(linesY, first.y, previous.x, first.x);
+
+        return (linesX, linesY, points.ToArray());
+    }
+
+    private void AddToDictionary(LineDict dict, long key, long a, long b)
+    {
+        if(!dict.ContainsKey(key)) dict.Add(key, new List<(long s, long e)>());
+        if (a < b)
+            dict[key].Add((a, b));
+        else 
+            dict[key].Add((b, a));
     }
 }
 

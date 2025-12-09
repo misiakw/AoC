@@ -22,7 +22,12 @@
           "correct": "4777409595",
           "incorrect": []
         },
-        null
+        {
+          "correct": null,
+          "incorrect": [
+            ""
+          ]
+        }
       ]
     }
   ]
