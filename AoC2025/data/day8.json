@@ -4,16 +4,28 @@
       "name": "example",
       "testFile": "Inputs/Day8/example.txt",
       "result": [
-        null,
-        null
+        {
+          "correct": "40",
+          "incorrect": []
+        },
+        {
+          "correct": "25272",
+          "incorrect": []
+        }
       ]
     },
     {
       "name": "input",
       "testFile": "Inputs/Day8/input.txt",
       "result": [
-        null,
-        null
+        {
+          "correct": "105952",
+          "incorrect": []
+        },
+        {
+          "correct": "975931446",
+          "incorrect": []
+        }
       ]
     }
   ]
