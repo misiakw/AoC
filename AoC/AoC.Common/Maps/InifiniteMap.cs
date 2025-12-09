@@ -1,6 +1,7 @@
 ﻿using AoC.Common.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace AoC.Common.Maps
 {
@@ -37,8 +38,20 @@ namespace AoC.Common.Maps
 
         public string Draw(Func<T?, string> drawing, string split = "")
         {
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+
+            for(var y=scopeY.min; y <= scopeY.max; y++)
+            {
+                for (var x = scopeX.min; x <= scopeX.max; x++)
+                    sb.Append(drawing.Invoke(this[x, y]));
+                sb.AppendLine();
+            }
+            return sb.ToString();
         }
+
+        public override string ToString() => Draw(f => f?.ToString() ?? " ");
+        //public string Draw(string split = "")
+            
 
         private class ValueScope
         {

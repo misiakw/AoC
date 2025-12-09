@@ -62,6 +62,11 @@ namespace AoC.Common.Maps.StaticMap
             return sb.ToString();
         }
 
+        public string Draw(string split = "")
+        {
+            throw new NotImplementedException();
+        }
+
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
             => new StaticMapEnumerator<T>(this);
     }

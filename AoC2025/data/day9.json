@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "example",
+      "testFile": "Inputs/Day9/example.txt",
+      "result": [
+        {
+          "correct": "50",
+          "incorrect": []
+        },
+        {
+          "correct": "24",
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day9/input.txt",
+      "result": [
+        {
+          "correct": "4777409595",
+          "incorrect": []
+        },
+        null
+      ]
+    }
+  ]
+}
