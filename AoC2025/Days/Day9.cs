@@ -7,6 +7,7 @@ using ImageMagick.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Schema;
@@ -31,69 +32,102 @@ file class Day9 : IDay
     {
         var points = new List<Point>();
         var order = new List<(long size, Point p1, Point p2)>();
-        foreach(var line in input)
+        foreach (var line in input)
         {
             var point = new Point(line);
             foreach (var second in points)
                 order.Add((point.GetRectangleSize(second), point, second));
             points.Add(point);
         }
+
         return order.OrderByDescending(p => p.size).First().size.ToString();
     }
 
 
     public string Part2(IEnumerable<string> input)
     {
-        (var linesX, var linesY, var points) = LoadInput(input);
+        var map = new Map(input);
 
-
+        var right = map.RayCast(7, 1, Dir.Down);
+        var lala = map.RayCast(11, 7, Dir.Down);
+        
         return "";
     }
-    
+}
+//private long? RayCast(long x, long y, )
 
-    private (LineDict x, LineDict y, Point[] points) LoadInput(IEnumerable<string> input)
+    file class Map
     {
-        var linesX = new LineDict();
-        var linesY = new LineDict();
-        var points = new List<Point>();
-
-        Point first = null;
-        Point previous = null;
-        foreach (var line in input)
+        private LineDict _dictX;
+        private LineDict _dictY;
+        public Point[] Points { get; init; }
+        public Map (IEnumerable<string> input)
         {
-            var point = new Point(line);
-            points.Add(point);
-            if (previous == null)
+            _dictX = new LineDict();
+            _dictY = new LineDict();
+             var points = new List<Point>();
+
+            Point first = null;
+            Point previous = null;
+            foreach (var line in input)
             {
-                first = point;
+                var point = new Point(line);
+                points.Add(point);
+                if (previous == null)
+                {
+                    first = point;
+                    previous = point;
+                    continue;
+                }
+
+                if (previous.x == point.x)
+                    AddToDictionary(_dictX, point.x, previous.y, point.y);
+                else
+                    AddToDictionary(_dictY, point.y, previous.x, point.x);
                 previous = point;
-                continue;
             }
 
-            if (previous.x == point.x)
-                AddToDictionary(linesX, point.x, previous.y, point.y);
+            if (previous.x == first.x)
+                AddToDictionary(_dictX, first.x, previous.y, first.y);
             else
-                AddToDictionary(linesY, point.y, previous.x, point.x);
-            previous = point;
+                AddToDictionary(_dictY, first.y, previous.x, first.x);
+
+            Points = points.ToArray();
         }
 
-        if (previous.x == first.x)
-            AddToDictionary(linesX, first.x, previous.y, first.y);
-        else
-            AddToDictionary(linesY, first.y, previous.x, first.x);
+        private void AddToDictionary(LineDict dict, long key, long a, long b)
+        {
+            if (!dict.ContainsKey(key)) dict.Add(key, new List<(long s, long e)>());
+            if (a < b)
+                dict[key].Add((a, b));
+            else
+                dict[key].Add((b, a));
+        }
 
-        return (linesX, linesY, points.ToArray());
-    }
+        public long? RayCast(long x, long y, Dir dir)
+        {
+            var dict = (dir == Dir.Left || dir == Dir.Right) ?  _dictX : _dictY;
+            var lineFunc = (dir == Dir.Left || dir == Dir.Right)
+                ? new Func<(long s, long e), bool>(l => l.s <= y && l.e >= y)
+                : new Func<(long s, long e), bool>(l => l.s <= x && l.e >= x);
+            var isKeyInRange = dir switch
+            {
+                Dir.Right => new Func<long, bool>(k => k > x),
+                Dir.Left => new Func<long, bool>(k => k < x),
+                Dir.Down => new Func<long, bool>(k => k > y),
+                Dir.Up => new Func<long, bool>(k => k < y),
+            };
+            
+            //ToDo: sprawdzić czy nie jadę "po linii" - przykładowo 7,1 Down powinno zwracać 5 a nie 3
+            // warto na dzien dobry sprawdzić czy punkt nie jest na linii i "przesunąc" go we własciwą stronę (min/max na koniec linii)
 
-    private void AddToDictionary(LineDict dict, long key, long a, long b)
-    {
-        if(!dict.ContainsKey(key)) dict.Add(key, new List<(long s, long e)>());
-        if (a < b)
-            dict[key].Add((a, b));
-        else 
-            dict[key].Add((b, a));
+            var range = dict.Where(kv => isKeyInRange(kv.Key) && kv.Value.Any(lineFunc))
+                .Select(kv => kv.Key).ToArray();
+            return range.Length > 0 
+                ? (dir == Dir.Right || dir == Dir.Down) ? range.Min() : range.Max() 
+                :  null;
+        }
     }
-}
 
 file class Point
 {
@@ -114,4 +148,9 @@ file class Point
     }
 
     public override string ToString() => $"Point({x},{y})";
+}
+
+file enum Dir
+{
+    Left, Right, Up, Down
 }
