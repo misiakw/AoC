@@ -11,7 +11,6 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Schema;
-using LineDict = System.Collections.Generic.Dictionary<long, System.Collections.Generic.IList<(long s, long e)>>;
 
 namespace AoC2025.Days;
 
@@ -21,10 +20,10 @@ file class Day9 : IDay
     public void RunAoC()
     {
         AocRuntime.Day<Day9>(9)
-            //.Callback(1, (d, t) => d.Part1(t.GetLines()))
-            .Callback(2, (d, t) => d.Part2(t.GetLines()))
+            .Callback(1, (d, t) => d.Part1(t.GetLines()))
+            //.Callback(2, (d, t) => d.Part2(t.GetLines()))
             .Test("example", "Inputs/Day9/example.txt") //.Part(1)//.Part(2)
-            .Test("input", "Inputs/Day9/input.txt") //.Part(1)//.Part(2)
+            .Test("input", "Inputs/Day9/input.txt").Skip() //.Part(1)//.Part(2)
             .Run();
     }
 
@@ -48,8 +47,11 @@ file class Day9 : IDay
     {
         var map = new Map(input);
 
-        var right = map.RayCast(7, 1, Dir.Down);
-        var lala = map.RayCast(11, 7, Dir.Down);
+        var rigdsfsdfht = map.RayCast(4, 3, Dir.Down); //powinno byc 5 prosty cast w dol
+        var right = map.RayCast(7, 1, Dir.Down); //powinno byc 5 cast w dol po linii ale ma 
+        var lala = map.RayCast(11, 7, Dir.Down); //powinno byc null
+        var sdafs = map.RayCast(2, 11, Dir.Down); //Powinno być null  //
+        var dsjjsjf = map.RayCast(9, 1, Dir.Down); //powinno być 11 
         
         return "";
     }
@@ -58,13 +60,13 @@ file class Day9 : IDay
 
     file class Map
     {
-        private LineDict _dictX;
-        private LineDict _dictY;
+        private IDictionary<long, List<Line>> _dictConstX;
+        private IDictionary<long, List<Line>> _dictConstY;
         public Point[] Points { get; init; }
         public Map (IEnumerable<string> input)
         {
-            _dictX = new LineDict();
-            _dictY = new LineDict();
+            _dictConstX = new Dictionary<long, List<Line>>();
+            _dictConstY = new Dictionary<long, List<Line>>();
              var points = new List<Point>();
 
             Point first = null;
@@ -81,35 +83,43 @@ file class Day9 : IDay
                 }
 
                 if (previous.x == point.x)
-                    AddToDictionary(_dictX, point.x, previous.y, point.y);
+                    AddToDictionary(_dictConstX, point.x, previous.y, point.y);
                 else
-                    AddToDictionary(_dictY, point.y, previous.x, point.x);
+                    AddToDictionary(_dictConstY, point.y, previous.x, point.x);
                 previous = point;
             }
 
             if (previous.x == first.x)
-                AddToDictionary(_dictX, first.x, previous.y, first.y);
+                AddToDictionary(_dictConstX, first.x, previous.y, first.y);
             else
-                AddToDictionary(_dictY, first.y, previous.x, first.x);
+                AddToDictionary(_dictConstY, first.y, previous.x, first.x);
 
             Points = points.ToArray();
         }
 
-        private void AddToDictionary(LineDict dict, long key, long a, long b)
+        private void AddToDictionary(IDictionary<long, List<Line>> dict, long key, long a, long b)
         {
-            if (!dict.ContainsKey(key)) dict.Add(key, new List<(long s, long e)>());
+            if (!dict.ContainsKey(key)) dict.Add(key, new List<Line>());
             if (a < b)
-                dict[key].Add((a, b));
+                dict[key].Add(new Line(a, b));
             else
-                dict[key].Add((b, a));
+                dict[key].Add(new Line(b, a));
         }
 
         public long? RayCast(long x, long y, Dir dir)
         {
-            var dict = (dir == Dir.Left || dir == Dir.Right) ?  _dictX : _dictY;
-            var lineFunc = (dir == Dir.Left || dir == Dir.Right)
-                ? new Func<(long s, long e), bool>(l => l.s <= y && l.e >= y)
-                : new Func<(long s, long e), bool>(l => l.s <= x && l.e >= x);
+            IDictionary<long, List<Line>> dict = null;
+            Func<(long s, long e), bool> lineFunc = null;
+            if (dir == Dir.Left || dir == Dir.Right) //is horizontal
+            {
+                dict = _dictConstX;
+                lineFunc = new Func<(long s, long e), bool>(l => l.s <= y && l.e >= y);
+            }
+            else
+            {
+                dict = _dictConstY;
+                lineFunc = new Func<(long s, long e), bool>(l => l.s <= x && l.e >= x);
+            }
             var isKeyInRange = dir switch
             {
                 Dir.Right => new Func<long, bool>(k => k > x),
@@ -118,14 +128,29 @@ file class Day9 : IDay
                 Dir.Up => new Func<long, bool>(k => k < y),
             };
             
-            //ToDo: sprawdzić czy nie jadę "po linii" - przykładowo 7,1 Down powinno zwracać 5 a nie 3
-            // warto na dzien dobry sprawdzić czy punkt nie jest na linii i "przesunąc" go we własciwą stronę (min/max na koniec linii)
+            //ToDo: linie muszą mieć stronę "wewnętrzną" i stronę "zewnętrzną"
+            //ToDo: poprawny flow sprawdzenia:
+                // Jeśli znalazłem linię, sprawdzam czy jej "wnętrze" jest zgodne z moim kierunkiem, jak tak, patrze na kolejną
+            // ToDo: sprawdzic czy input ma linie nakladajace sie na siebie
 
             var range = dict.Where(kv => isKeyInRange(kv.Key) && kv.Value.Any(lineFunc))
-                .Select(kv => kv.Key).ToArray();
-            return range.Length > 0 
+                .Select(kv => kv.Key).ToList();
+            return range.Count > 0 
                 ? (dir == Dir.Right || dir == Dir.Down) ? range.Min() : range.Max() 
                 :  null;
+        }
+    }
+
+    file class Line
+    {
+        public long s { get; init; }
+        public long e { get; init; }
+        public Dir inside = Dir.Unknown;
+
+        public Line(long s, long e)
+        {
+            this.s = s;
+            this.e = e;
         }
     }
 
@@ -152,5 +177,5 @@ file class Point
 
 file enum Dir
 {
-    Left, Right, Up, Down
+    Unknown, Left, Right, Up, Down
 }
