@@ -31,8 +31,15 @@ namespace AoC.Base
             {
                 for (var coll = 0; coll < _size; coll++)
                 {
-                    Console.ForegroundColor = row[coll].color ?? row.Color;
+                    var bgColor = Console.BackgroundColor;
+                    if (row[coll].color != null)
+                    {
+                        Console.BackgroundColor = row[coll].color.Value;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+
                     Console.Write(row[coll].value.PadRight(_colls[coll].Length));
+                    Console.BackgroundColor = bgColor;
                     Console.ForegroundColor = ConsoleColor.White;
                     if (coll < _size - 1)
                     {
