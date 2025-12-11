@@ -16,10 +16,8 @@
       "testFile": "Inputs/Day10/input.txt",
       "result": [
         {
-          "correct": null,
-          "incorrect": [
-            ""
-          ]
+          "correct": "477",
+          "incorrect": []
         },
         null
       ]

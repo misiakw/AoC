@@ -20,19 +20,19 @@ file class Day10: IDay
 
     public string Part1(IEnumerable<string> lines)
     {
+        var sum = 0;
         foreach (var line in lines)
         {
-            (var lights, var masks) = ReadInput(line);
-            if(masks[lights].Steps < 3)
-                Console.WriteLine($"initially to get {lights} you need no more than {masks[lights].Steps}");
+            (var lights, var masks, var initialSteps) = ReadInput(line);
+            if (initialSteps < 3)
+                sum += initialSteps;
             else
-                Console.WriteLine($"initially to get {lights} you need no more than {masks[lights].Steps} AND THAT MAY BE IMPROVED...");
+                sum += SearchShortestPath(lights, 0, masks, 0, initialSteps);
         }
-        Console.WriteLine("---");
-        return "";
+        return sum.ToString();
     }
 
-    private (int target, IList<MaskSet> masks) ReadInput(string line)
+    private (int target, int[] masks, int initialLen) ReadInput(string line)
     {
         var parts = line.Split(' ').Select(p => new String(p.Skip(1).SkipLast(1).ToArray())).ToArray();
         var lights = 0;
@@ -67,7 +67,28 @@ file class Day10: IDay
             var a = 5;
         }
         
-        return (lights, masks);
+        return (lights, initMasks.ToArray(), masks[lights].Steps);
+    }
+    
+    private int SearchShortestPath(int pattern, int state, int[] availableMasks, int depth, int stopLimit)
+    {
+        if (state == pattern) return depth;
+        if (depth == stopLimit) return int.MaxValue;
+        if (!availableMasks.Any()) return int.MaxValue;
+
+        int shortest =  int.MaxValue;
+        for (var i = 0; i < availableMasks.Length; i++)
+        {
+            var newState = state ^ availableMasks[i];
+            if (pattern == newState) return depth + 1;
+            var newLen = SearchShortestPath(pattern, newState, availableMasks.Where(m => m != availableMasks[i]).ToArray(), depth + 1, stopLimit);
+            if (newLen < shortest)
+            {
+                if (newLen == depth + 1) return newLen;
+                shortest = newLen;
+            }
+        }
+        return shortest;
     }
 }
 
