@@ -7,6 +7,7 @@ using ImageMagick.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,8 +23,8 @@ file class Day9 : IDay
         AocRuntime.Day<Day9>(9)
             //.Callback(1, (d, t) => d.Part1(t.GetLines()))
             .Callback(2, (d, t) => d.Part2(t.GetLines()))
-            .Test("example", "Inputs/Day9/example.txt").Skip() //.Part(1)//.Part(2)
-            .Test("input", "Inputs/Day9/input.txt")//.Skip() //.Part(1)//.Part(2)
+            .Test("example", "Inputs/Day9/example.txt") //.Part(1)//.Part(2)
+            .Test("input", "Inputs/Day9/input.txt").Skip()//.Part(1)//.Part(2)
             .Run();
     }
 
@@ -46,62 +47,49 @@ file class Day9 : IDay
     public string Part2(IEnumerable<string> input)
     {
         var map = new Map(input);
-        var pointDict = map.Points.ToDictionary(k => (k.x, k.y), v => v);
-        var rectangles = new List<(long size, Point p1, Point p2)>();
+        var points = map.Points;
 
-
- //       foreach(var p in map.Points)
- //           Console.WriteLine(p.ToString());
-
-
-        foreach (var start in map.Points) {
-            var toCompare = map.Points.Where(p => p.x > start.x && p.y > start.y).ToList();
-            foreach (var end in toCompare)
-                rectangles.Add((start.GetRectangleSize(end), start, end));
-        }
-
-
-        var ctr = 0;
-        rectangles = rectangles.OrderByDescending(r =>  r.size).ToList();
-
-        foreach(var rect in rectangles)
+        foreach (var start in points.Where(p => p.isRed))
         {
-           /* if(!rect.p1.isRed || !rect.p2.isRed)
-            {
-                if (!pointDict.ContainsKey((rect.p1.x, rect.p2.y)) || !pointDict.ContainsKey((rect.p2.x, rect.p1.y)))
-                {
-                    continue;
-                }
-                if (!pointDict[(rect.p1.x, rect.p2.y)].isRed || !pointDict[(rect.p2.x, rect.p1.y)].isRed)
-                {
-                    continue;
-                }
-            }*/
+            var ox = points.Where(o => o != start && o.x == start.x);
+            var ends = points.Where(o => o.isRed && ox.Any(x => x!= o && x.y == o.y)).ToList();
+            var oy = points.Where(o => o != start && o.y == start.y);
+            ends.AddRange(points.Where(o => o.isRed && oy.Any(y => y!=o && y.x == o.x)).ToList());
 
-            var breakPoints = map.Points.Where(p => p.x > rect.p1.x && p.y > rect.p1.y && p.x < rect.p2.x && p.y < rect.p2.y).ToArray();
-            if (breakPoints.Any())
+            foreach(var end in ends)
             {
-                continue;
+                (long min, long max) dx = start.x < end.x ? (start.x, end.x) : (end.x, start.x);
+                (long min, long max) dy = start.y < end.y ? (start.y, end.y) : (end.y, start.y);
+                Console.WriteLine($"({dx.min},{dy.min})=>({dx.max},{dy.max})");
+
+                var inner = points.Where(p => dx.min < p.x && dx.max > p.x && dy.min < p.y && dy.max > p.y);
+                if (inner.Any())
+                    Console.WriteLine("\tpoints inside, not good");
+
+                //ToDo: nie obejdzie sie bez sprawdzenia czy jest wewnatrz.
+                var inLine = points.Where(p => p.x == dx.min && p.y != dy.min).ToList();
+                var up = inLine.Where(p => p.y < dy.min).ToArray();
+                var a = 5;
             }
 
-            if(ctr++ < 4)
-            Console.WriteLine(rect);
+
         }
 
         return "";
     }
 }
+
 //private long? RayCast(long x, long y, )
 
 file class Map
 {
-    //private IDictionary<long, List<(long s, long e)>> _dictConstX;
-    //private IDictionary<long, List<(long s, long e)>> _dictConstY;
+    private IDictionary<long, List<(long s, long e)?>> _dictConstX;
+    private IDictionary<long, List<(long s, long e)?>> _dictConstY;
     public Point[] Points { get; init; }
     public Map(IEnumerable<string> input)
     {
-        //_dictConstX = new Dictionary<long, List<(long s, long e)>>();
-        //_dictConstY = new Dictionary<long, List<(long s, long e)>>();
+        _dictConstX = new Dictionary<long, List<(long s, long e)?>>();
+        _dictConstY = new Dictionary<long, List<(long s, long e)?>>();
         var linesX = new List<(long x, long s, long e)>();
         var linesY = new List<(long y, long s, long e)>();
         var points = new List<Point>();
@@ -120,16 +108,30 @@ file class Map
             }
 
             if (previous.x == point.x)
-                linesX.Add(GetLine(point.x, point.y, previous.y));
+            {
+                var l = GetLine(point.x, point.y, previous.y);
+                linesX.Add(l);
+                AddToDictionary(_dictConstX, point.x, previous.y, point.y);
+            }
             else
+            {
                 linesY.Add(GetLine(point.y, point.x, previous.x));
+                AddToDictionary(_dictConstY, point.y, previous.x, point.x);
+            }
             previous = point;
         }
 
         if (previous.x == first.x)
-            linesX.Add(GetLine(first.x, first.y, previous.y));
+        {
+            var l = GetLine(first.x, first.y, previous.y);
+            linesX.Add(l);
+            AddToDictionary(_dictConstX, first.x, previous.y, first.y);
+        }
         else
+        {
             linesY.Add(GetLine(first.y, first.x, previous.x));
+            AddToDictionary(_dictConstY, first.y, previous.x, first.x);
+        }
 
 
         var pointsToAdd = new List<(long x, long y)>();
@@ -145,25 +147,49 @@ file class Map
             if (!points.Any(pts => pts.x == p.x && pts.y == p.y))
                 points.Add(new Point(p.x, p.y));
 
+
+        foreach(var point in points.Where(p => !p.isRed))
+        {
+            var xLine = _dictConstX[point.x].FirstOrDefault(l => l?.s <= point.y && l?.e >= point.y);
+            if (xLine != null)
+            {
+                _dictConstX[point.x].Remove(xLine);
+                _dictConstX[point.x].Add((xLine.Value.s, point.y));
+                _dictConstX[point.x].Add((point.y, xLine.Value.e));
+            }
+            var yLine = _dictConstY[point.y].FirstOrDefault(l => l?.s <= point.x && l?.e >= point.x);
+            if (yLine != null)
+            {
+                _dictConstY[point.y].Remove(yLine);
+                _dictConstY[point.y].Add((yLine.Value.s, point.x));
+                _dictConstY[point.y].Add((point.x, yLine.Value.e));
+            }
+        }
             //ToDo: split lines on smaller chunks to geet aditional points
             //tougth: do i need lines? cannot i split lines based on points?
 
             Points = points.OrderBy(p => p.y).OrderBy(p => p.x).ToArray();
     }
 
+    private IList<((long s, long e) x, (long s, long e) y)> insideRanges = new List<((long s, long e) x, (long s, long e) y)>();
+  
+
+    public bool IsInside(long x, long y)
+        => insideRanges.Any(i => (i.x.s <= x && i.x.e >= x) && (i.y.s <= y && i.y.e >= y));
+
     private (long, long, long) GetLine(long key, long a, long b)
         => (key, a < b ? a : b, a > b ? a : b);
 
-    /*private void AddToDictionary(IDictionary<long, List<(long s, long e)>> dict, long key, long a, long b)
+    private void AddToDictionary(IDictionary<long, List<(long s, long e)?>> dict, long key, long a, long b)
     {
-        if (!dict.ContainsKey(key)) dict.Add(key, new List<(long s, long e)>());
+        if (!dict.ContainsKey(key)) dict.Add(key, new List<(long s, long e)?>());
         if (a < b)
             dict[key].Add((a, b));
         else
             dict[key].Add((b, a));
     }
 
-    public long? RayCast(long x, long y, Dir dir)
+    /*public long? RayCast(long x, long y, Dir dir)
     {
         IDictionary<long, List<(long s, long e)>> dict = null;
         Func<(long s, long e), bool> lineFunc = null;
