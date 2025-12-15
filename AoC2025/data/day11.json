@@ -1,0 +1,46 @@
+{
+  "tests": [
+    {
+      "name": "example part1",
+      "testFile": "Inputs/Day11/example.txt",
+      "result": [
+        {
+          "correct": "5",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "example part2",
+      "testFile": "Inputs/Day11/example2.txt",
+      "result": [
+        {
+          "correct": null,
+          "incorrect": []
+        },
+        {
+          "correct": "2",
+          "incorrect": []
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "testFile": "Inputs/Day11/input.txt",
+      "result": [
+        {
+          "correct": "506",
+          "incorrect": []
+        },
+        {
+          "correct": null,
+          "incorrect": []
+        }
+      ]
+    }
+  ]
+}
